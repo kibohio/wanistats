@@ -138,14 +138,15 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
       <Explained
         how={
           <p>
-            Jiten publishes frequency ranks, not counts, so each word is weighted by 1 / rank (a
-            Zipf fit). The figure is the weight of known words over the weight of every word in the
-            list. WaniKani words match by exact spelling, and kana-only words by reading.
+            Common words count for more. Jiten only publishes frequency ranks, so each word is
+            weighted 1 ÷ rank (Zipf&apos;s law), which makes this an estimate. WaniKani words match
+            by exact spelling, kana-only words by reading.
           </p>
         }
       >
-        Weighted by frequency, that is <strong>{pctText(coverage.weighted.pct)}</strong> of word
-        appearances. <Estimated />
+        Weighted by how often each word shows up, that&apos;s{' '}
+        <strong>{pctText(coverage.weighted.pct)}</strong> of the words you&apos;ll actually see.{' '}
+        <Estimated />
       </Explained>
       <p className={styles.note}>
         This counts only WaniKani vocabulary at {knownRange(knownStage)}, not words learned

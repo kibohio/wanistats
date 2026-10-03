@@ -31,7 +31,7 @@ describe('lessonWindow', () => {
     const w = lessonWindow(normal, day);
     expect(w.morning).toEqual({ from: h(7), to: h(11) });
     expect(w.evening).toEqual({ from: h(19), to: h(19) });
-    expect(label(w)).toBe('07:00 to 11:00 or 19:00 sharp');
+    expect(label(w)).toBe('07:00 to 11:00 or 19:00');
     expect(w.lessonTimeFits).toBe(true);
     expect(w.closest).toBeNull();
     // Strip slots are half hours: slot n starts at n * 30 minutes.
@@ -62,7 +62,7 @@ describe('lessonWindow', () => {
     const w = lessonWindow(normal, { wakeMin: h(14), sleepMin: h(6), lessonMin: h(20) });
     expect(w.morning).toEqual({ from: h(14), to: h(18) });
     expect(w.evening).toEqual({ from: h(2), to: h(2) });
-    expect(label(w)).toBe('14:00 to 18:00 or 02:00 sharp');
+    expect(label(w)).toBe('14:00 to 18:00 or 02:00');
     expect(w.lessonTimeFits).toBe(false);
     expect(w.strip[4]).toBe('evening');
     expect(w.strip[20]).toBe('asleep');
@@ -73,7 +73,7 @@ describe('lessonWindow', () => {
     const w = lessonWindow(normal, { wakeMin: h(7.5), sleepMin: h(23.5), lessonMin: h(19.5) });
     expect(w.morning).toEqual({ from: h(7.5), to: h(11.5) });
     expect(w.evening).toEqual({ from: h(19.5), to: h(19.5) });
-    expect(label(w)).toBe('07:30 to 11:30 or 19:30 sharp');
+    expect(label(w)).toBe('07:30 to 11:30 or 19:30');
     expect(w.lessonTimeFits).toBe(true);
     expect(w.strip[14]).toBe('asleep');
     expect(w.strip[15]).toBe('window');

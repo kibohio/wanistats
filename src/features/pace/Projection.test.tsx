@@ -28,12 +28,12 @@ describe('Projection', () => {
         owner="your"
       />,
     );
-    expect(screen.getByText(/needs at least one passed level/)).toBeInTheDocument();
-    expect(screen.queryByText(/days from today/)).toBeNull();
+    expect(screen.getByText(/Pass one level to get a projection/)).toBeInTheDocument();
+    expect(screen.queryByText(/days away/)).toBeNull();
 
     // Goal 60 from level 1: 58 levels after the next level-up at 10 days each.
     fireEvent.change(screen.getByLabelText('Days per level'), { target: { value: '10' } });
-    expect(screen.getByText(`${4 + 580} days from today`)).toBeInTheDocument();
+    expect(screen.getByText(`${4 + 580} days away`)).toBeInTheDocument();
     expect(screen.getByText(/What-if pace\. No passed levels yet\./)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Use median' })).toBeNull();
   });

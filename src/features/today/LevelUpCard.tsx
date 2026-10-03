@@ -10,6 +10,8 @@ import { dayDate, plural, shortWhen, stageName, when, word } from './format';
 import styles from './Today.module.css';
 import type { TodayData } from './useToday';
 
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
 const charOf = (d: TodayData, id: number) => {
   const s = d.subjectById.get(id);
   return s?.data.characters ?? s?.data.slug ?? '?';
@@ -59,9 +61,8 @@ function CountExplain({ d, children }: { d: TodayData; children: React.ReactNode
       explain={
         <>
           <p>
-            Level {p.level} has {plural(p.total, 'kanji', 'kanji')}. WaniKani moves on to the next
-            level when 90% of them, rounded up, reach Guru: {p.needed}. {p.passed} have passed so
-            far.
+            Level {p.level} has {plural(p.total, 'kanji', 'kanji')}. You level up when 90% of them (
+            {p.needed}) reach Guru. {p.passed} are there so far.
           </p>
           <KanjiList d={d} kanji={d.ordered.filter((k) => k.passed)} />
         </>
@@ -80,17 +81,17 @@ function DateExplain({ d, children }: { d: TodayData; children: React.ReactNode 
       explain={
         <>
           <p>
-            {p.needed} of {p.total} kanji need to reach Guru and {p.passed} have. Each of the other{' '}
-            {p.unpassed} gets its earliest Guru time, assuming every answer is right and every
-            review is done the moment it comes back. Times are truncated to the hour, as WaniKani
-            does.
+            You need {p.needed} of {p.total} kanji at Guru and have {p.passed}. This date assumes
+            you answer every review right as soon as it comes up. Review times round down to the
+            hour, as on WaniKani.
           </p>
           <p>
-            The level-up is the {p.k === 1 ? 'first' : `${p.k}th earliest`} of those times. These{' '}
-            {p.k} set the date:
+            {p.k === 1
+              ? 'One more kanji gets you there. This one can make it first:'
+              : `${cap(word(p.k))} more kanji get you there. These ${word(p.k)} can make it first:`}
           </p>
           <KanjiList d={d} kanji={d.ordered.filter((k) => k.critical)} />
-          {d.vacation && <p>Vacation mode is on, so the time left is frozen until it ends.</p>}
+          {d.vacation && <p>Vacation mode is on, so the clock is paused until it ends.</p>}
         </>
       }
     >
@@ -108,9 +109,9 @@ function SlackExplain({ d }: { d: TodayData }) {
       explain={
         <>
           <p>
-            Only {p.k} of the {p.unpassed} kanji left are needed. Every one of them can reach Guru
-            by {dayDate(p.earliestAt)} {formatTime(p.earliestAt, d.clock)}, so any {p.slack} can
-            slip without moving the date.
+            You need {p.k} of the {p.unpassed} kanji left. All of them can reach Guru by{' '}
+            {dayDate(p.earliestAt)} {formatTime(p.earliestAt, d.clock)}, so any {p.slack} can slip
+            and the date stays put.
           </p>
           <KanjiList d={d} kanji={d.ordered.filter((k) => !k.passed && !k.critical)} />
         </>
@@ -127,7 +128,7 @@ function DateLine({ d, desktop }: { d: TodayData; desktop?: boolean }) {
   if (p.status === 'capped') {
     return (
       <p className={styles.note}>
-        Level {d.maxLevel} is the highest this subscription grants, so there is no next level-up.
+        This subscription stops at level {d.maxLevel}, so there&apos;s no next level-up.
       </p>
     );
   }
@@ -136,7 +137,7 @@ function DateLine({ d, desktop }: { d: TodayData; desktop?: boolean }) {
       <div className={styles.dateRow}>
         <span className={styles.date}>Ready now</span>
         <span className={styles.dateSub}>
-          Enough kanji are at Guru. The level-up shows after the next sync.
+          Enough kanji are at Guru. Refresh to pick up the new level.
         </span>
       </div>
     );
@@ -222,43 +223,52 @@ export function LevelUpCard({ d }: { d: TodayData }) {
   );
 }
 
-/** "The date rests on the 18:00 group: two of those five need to pass three reviews in a row." */
-function restsOn(d: TodayData): string | null {
+/** "Two kanji due at 4 PM decide this. Each needs three more correct reviews." */
+function decider(d: TodayData): string | null {
   const g = d.groups.find((x) => x.decisive);
   if (!g) return null;
   const n = g.subjectIds.length;
   const c = g.critical;
+  const one = c === 1;
+  const t = g.at === null ? '' : shortWhen(g.at, d.now, d.clock, true);
+  const where =
+    g.kind === 'lesson'
+      ? 'still in lessons'
+      : g.kind === 'locked'
+        ? 'still locked'
+        : t === 'Now'
+          ? 'due now'
+          : // Today's times read "due at 4 PM", later ones "due Sun 9 AM".
+            `due ${/^\d/.test(t) ? 'at ' : ''}${t}`;
   const who =
-    n === 1
-      ? 'it needs'
-      : c === n
-        ? n === 2
-          ? 'both need'
-          : `all ${word(n)} need`
-        : `${word(c)} of those ${word(n)} need`;
-  const reviews = `${word(g.reviewsToGuru)} ${g.reviewsToGuru === 1 ? 'review' : 'reviews'} in a row`;
-  if (g.kind === 'lesson')
-    return `The date rests on kanji still in lessons: ${who} a lesson, then ${reviews}.`;
-  if (g.kind === 'locked')
-    return `The date rests on locked kanji: ${who} their radicals at Guru first, then a lesson and ${reviews}.`;
-  const at = g.at! <= d.now ? 'overdue' : shortWhen(g.at!, d.now, d.clock);
-  return `The date rests on the ${at} group: ${who} to pass ${reviews}.`;
+    c === n ? `${cap(word(n))} kanji ${where}` : `${cap(word(c))} of the ${word(n)} kanji ${where}`;
+  const reviews = `${word(g.reviewsToGuru)} correct ${g.reviewsToGuru === 1 ? 'review' : 'reviews'}`;
+  const need =
+    g.kind === 'lesson'
+      ? `${one ? 'It' : 'Each'} needs a lesson, then ${reviews}.`
+      : g.kind === 'locked'
+        ? `${one ? 'Its' : 'Their'} radicals need to reach Guru first, then a lesson and ${reviews}.`
+        : `${one ? 'It' : 'Each'} needs ${reviews.replace(' correct', ' more correct')}.`;
+  return `${who} ${one ? 'decides' : 'decide'} this. ${need}`;
 }
 
 export function LevelUpCardDesktop({ d }: { d: TodayData }) {
   const { levelUp: p, radicals } = d;
   const [open, setOpen] = useState<number | null>(null);
-  const own = d.sample ? 'the' : 'your';
-  const rests = restsOn(d);
+  const why = decider(d);
   const slackLine =
     p.slack > 0 &&
     (p.slack === 1
-      ? `The faded tile is ${own} slack.`
-      : `The ${word(p.slack)} faded tiles are ${own} slack.`);
+      ? 'You can miss one other (the faded tile).'
+      : `You can miss up to ${word(p.slack)} others (the faded tiles).`);
+  const info = p.status !== 'capped' && p.status !== 'ready' && (why || slackLine) && (
+    <p>{[why, slackLine].filter(Boolean).join(' ')}</p>
+  );
   return (
     <Card
       className={styles.levelUpDesktop}
       title="Next level-up"
+      info={info}
       aside={
         <span>
           {radicals.total > 0 &&
@@ -300,9 +310,6 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
           );
         })}
       </div>
-      {p.status !== 'capped' && p.status !== 'ready' && (rests || slackLine) && (
-        <p className={styles.para}>{[rests, slackLine].filter(Boolean).join(' ')}</p>
-      )}
       <ItemSheet subject={open} onClose={() => setOpen(null)} />
     </Card>
   );

@@ -33,7 +33,7 @@ export function formatMinutes(min: number, clock: Clock, short = false): string 
   return formatTime(new Date(2000, 0, 1, Math.floor(m / 60), m % 60).getTime(), clock, short);
 }
 
-/** A lesson window's ranges: "07:00 to 11:00", "19:30 sharp". */
+/** A lesson window's ranges: "07:00 to 11:00", or "19:30" when only that one time works. */
 export function formatWindow(
   ranges: ({ from: number; to: number } | null)[],
   clock: Clock,
@@ -42,7 +42,7 @@ export function formatWindow(
     .filter((r) => r !== null)
     .map((r) =>
       r.from === r.to
-        ? `${formatMinutes(r.from, clock)} sharp`
+        ? formatMinutes(r.from, clock)
         : `${formatMinutes(r.from, clock)} to ${formatMinutes(r.to, clock)}`,
     );
 }
@@ -76,6 +76,14 @@ export function formatDateRange(from: number, to: number, now = Date.now()): [st
   const inYear = new Date(from).getFullYear() === year && new Date(to).getFullYear() === year;
   const fmt = inYear ? dayMonth : fullDate;
   return [fmt.format(from), fmt.format(to)];
+}
+
+const monthYear = new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' });
+
+/** "Jul 2027" and "Feb 2028"; full dates when both fall in the same month. */
+export function formatMonthRange(from: number, to: number, now = Date.now()): [string, string] {
+  const range: [string, string] = [monthYear.format(from), monthYear.format(to)];
+  return range[0] === range[1] ? formatDateRange(from, to, now) : range;
 }
 
 /** "1 item", "2 items". */

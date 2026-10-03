@@ -24,7 +24,7 @@ interface Props {
   guruThrough: number;
   burnedThrough: number;
   now: number;
-  /** 'your' when logged in, 'the sample' otherwise. */
+  /** 'your' when logged in, "the sample's" otherwise. */
   owner: string;
 }
 
@@ -69,7 +69,7 @@ export function Projection(p: Props) {
     finish.goal > p.level + 2
       ? `levels ${p.level + 1} to ${finish.goal - 1}`
       : `level ${p.level + 1}`;
-  const levelUpRow: [string, string] = ['Next level-up, earliest', fmtDateTime(lu, clock)];
+  const levelUpRow: [string, string] = ['Next level-up (earliest)', fmtDateTime(lu, clock)];
 
   const goalSelect = (
     <span className={styles.goal}>
@@ -89,11 +89,12 @@ export function Projection(p: Props) {
     <Card title="Projected finish" aside={goalSelect}>
       {finish.capped && (
         <p className={styles.note}>
-          The subscription unlocks levels up to {p.maxLevelGranted}, so this projects to level{' '}
-          {finish.goal}.
+          This subscription stops at level {p.maxLevelGranted}, so the projection does too.
         </p>
       )}
-      {p.onVacation && <p className={styles.note}>On vacation. Times assume it ends now.</p>}
+      {p.onVacation && (
+        <p className={styles.note}>Vacation mode is on. These dates assume it ends today.</p>
+      )}
 
       {finish.reached ? (
         <p className={styles.lead}>Level {finish.goal} reached.</p>
@@ -103,7 +104,10 @@ export function Projection(p: Props) {
           className={styles.finishBlock}
           explain={
             <>
-              <p>The earliest next level-up, then each level after it at the pace below.</p>
+              <p>
+                Your earliest next level-up, then {plural(finish.levelsLeft, 'more level')} at the
+                pace below.
+              </p>
               <Facts
                 rows={[
                   levelUpRow,
@@ -111,8 +115,8 @@ export function Projection(p: Props) {
                   [
                     'Pace',
                     isWhatIf
-                      ? `${fmtDays(pace)} days a level, what-if`
-                      : `${fmtDays(pace)} days a level, median of ${plural(counted, 'counted level')}`,
+                      ? `${fmtDays(pace)} days per level, what-if`
+                      : `${fmtDays(pace)} days per level, median of ${plural(counted, 'level')}`,
                   ],
                   [
                     'Finish',
@@ -125,12 +129,12 @@ export function Projection(p: Props) {
         >
           <span className={styles.finish}>{formatDate(finish.finishAt)}</span>
           <span className={styles.sub}>
-            {plural(Math.max(0, Math.round((finish.finishAt - p.now) / DAY_MS)), 'day')} from today
+            {plural(Math.max(0, Math.round((finish.finishAt - p.now) / DAY_MS)), 'day')} away
           </span>
         </Figure>
       ) : (
         <p className={styles.note}>
-          A projection needs at least one passed level. Move the slider to try a pace.
+          Pass one level to get a projection. Until then, drag the slider to try a pace.
         </p>
       )}
 
@@ -145,20 +149,17 @@ export function Projection(p: Props) {
             explain={
               <>
                 <p>
-                  The same projection at the 25th and 75th percentile of the counted levels. The
-                  middle half of them took between {fmtDays(stats.p25Days!)} and{' '}
-                  {fmtDays(stats.p75Days!)} days.
+                  Half of {owner} levels took between {fmtDays(stats.p25Days!)} and{' '}
+                  {fmtDays(stats.p75Days!)} days. The range is the finish date at each of those
+                  paces.
                 </p>
                 <Facts
                   rows={[
                     levelUpRow,
                     ['Levels after that', String(finish.levelsLeft)],
+                    ['Faster pace', `${fmtDays(stats.p25Days!)} days, ${formatDate(finish.lowAt)}`],
                     [
-                      'At 25th percentile',
-                      `${fmtDays(stats.p25Days!)} days, ${formatDate(finish.lowAt)}`,
-                    ],
-                    [
-                      'At 75th percentile',
+                      'Slower pace',
                       `${fmtDays(stats.p75Days!)} days, ${formatDate(finish.highAt)}`,
                     ],
                   ]}
@@ -166,8 +167,7 @@ export function Projection(p: Props) {
               </>
             }
           >
-            Likely between {formatDateRange(finish.lowAt, finish.highAt).join(' and ')}, from the
-            middle half of {owner} levels.
+            Likely between {formatDateRange(finish.lowAt, finish.highAt).join(' and ')}.
           </Figure>
         )}
 
@@ -177,7 +177,7 @@ export function Projection(p: Props) {
             What-if pace.{' '}
             {median === null
               ? 'No passed levels yet.'
-              : `${owner[0]!.toUpperCase()}${owner.slice(1)} median is ${fmtDays(median)} days.`}
+              : `${owner[0]!.toUpperCase()}${owner.slice(1)} median is ${fmtDays(median)} days per level.`}
           </p>
           {median !== null && (
             <Button small onClick={() => setWhatIf(null)}>
@@ -200,7 +200,7 @@ export function Projection(p: Props) {
             max={SLIDER_MAX}
             step={0.1}
             value={sliderValue}
-            aria-valuetext={pace === null ? 'Not set' : `${fmtDays(pace)} days a level`}
+            aria-valuetext={pace === null ? 'Not set' : `${fmtDays(pace)} days per level`}
             onChange={(e) => setWhatIf(Number(e.target.value))}
           />
           <div className={styles.ticks} aria-hidden="true">
@@ -213,17 +213,16 @@ export function Projection(p: Props) {
       <dl className={styles.rows}>
         {!finish.reached && finish.fastestAt !== null && (
           <div>
-            <dt>Fastest the SRS allows</dt>
+            <dt>Fastest possible</dt>
             <dd>
               <Figure
-                title="Fastest the SRS allows"
-                label={`Fastest the SRS allows, ${formatDate(finish.fastestAt)}`}
+                title="Fastest possible"
+                label={`Fastest possible, ${formatDate(finish.fastestAt)}`}
                 explain={
                   <>
                     <p>
-                      The earliest next level-up, then the shortest time each level can take when
-                      every review is answered right on time. It comes from each level&apos;s kanji
-                      and the radicals they wait on.
+                      This assumes every review is right and done the moment it comes up, from your
+                      earliest next level-up on. Shortest time per level:
                     </p>
                     <Facts
                       rows={[
@@ -243,17 +242,17 @@ export function Projection(p: Props) {
           </div>
         )}
         <div>
-          <dt>All Guru through</dt>
+          <dt>All Guru up to</dt>
           <dd>
             <Figure
-              title="All Guru through"
-              label={`All Guru through ${p.guruThrough ? `level ${p.guruThrough}` : 'no level yet'}`}
+              title="All Guru up to"
+              label={`All Guru up to ${p.guruThrough ? `level ${p.guruThrough}` : 'no level yet'}`}
               explain={
                 <p>
                   {p.guruThrough
-                    ? `Every radical, kanji and vocabulary item in levels 1 to ${p.guruThrough} is at Guru or above. `
+                    ? `Everything in levels 1 to ${p.guruThrough} is at Guru or higher. `
                     : 'Level 1 still has items below Guru. '}
-                  Hidden items are left out.
+                  Items WaniKani has removed don&apos;t count.
                 </p>
               }
             >
@@ -262,17 +261,17 @@ export function Projection(p: Props) {
           </dd>
         </div>
         <div>
-          <dt>All burned through</dt>
+          <dt>All burned up to</dt>
           <dd>
             <Figure
-              title="All burned through"
-              label={`All burned through ${p.burnedThrough ? `level ${p.burnedThrough}` : 'no level yet'}`}
+              title="All burned up to"
+              label={`All burned up to ${p.burnedThrough ? `level ${p.burnedThrough}` : 'no level yet'}`}
               explain={
                 <p>
                   {p.burnedThrough
-                    ? `Every radical, kanji and vocabulary item in levels 1 to ${p.burnedThrough} is burned. `
-                    : 'Level 1 still has items that are not burned. '}
-                  Hidden items are left out.
+                    ? `Everything in levels 1 to ${p.burnedThrough} is burned. `
+                    : 'Level 1 still has unburned items. '}
+                  Items WaniKani has removed don&apos;t count.
                 </p>
               }
             >
@@ -304,7 +303,7 @@ export function Projection(p: Props) {
           {goalAt !== null &&
             (required === null ? (
               <p className={styles.note}>
-                Pick a date after {formatDate(lu)}, the earliest next level-up.
+                Pick a date after {formatDate(lu)}, the earliest you can level up.
               </p>
             ) : (
               <Figure
@@ -313,8 +312,8 @@ export function Projection(p: Props) {
                 explain={
                   <>
                     <p>
-                      The time from the earliest next level-up to the date, spread over the levels
-                      after it.
+                      The days between your earliest next level-up and that date, split across the
+                      levels after it.
                     </p>
                     <Facts
                       rows={[
@@ -327,7 +326,8 @@ export function Projection(p: Props) {
                   </>
                 }
               >
-                To finish by {formatDate(goalAt)}, you need about {fmtDays(required)} days a level.
+                To finish by {formatDate(goalAt)}, you need about {fmtDays(required)} days per
+                level.
               </Figure>
             ))}
         </div>

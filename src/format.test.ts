@@ -4,6 +4,7 @@ import {
   formatHours,
   formatMinutes,
   formatTime,
+  formatMonthRange,
   formatWindow,
   plural,
 } from './format';
@@ -49,10 +50,8 @@ test('short times drop whole-hour minutes on a 12-hour clock only', () => {
 
 test('lesson window ranges', () => {
   const w = [{ from: 420, to: 660 }, null, { from: 1170, to: 1170 }];
-  expect(formatWindow(w, '24h')).toEqual(['07:00 to 11:00', '19:30 sharp']);
-  expect(formatWindow(w, '12h').join(' or ')).toMatch(
-    /^7:00\s?AM to 11:00\s?AM or 7:30\s?PM sharp$/i,
-  );
+  expect(formatWindow(w, '24h')).toEqual(['07:00 to 11:00', '19:30']);
+  expect(formatWindow(w, '12h').join(' or ')).toMatch(/^7:00\s?AM to 11:00\s?AM or 7:30\s?PM$/i);
 });
 
 test('hour spans read as words', () => {
@@ -68,4 +67,11 @@ test('plural', () => {
   expect(plural(0, 'day')).toBe('0 days');
   expect(plural(1200, 'review')).toBe('1,200 reviews');
   expect(plural(2, 'kanji', 'kanji')).toBe('2 kanji');
+});
+
+test('a finish range shows months, or full dates when both fall in one month', () => {
+  const [a, b] = formatMonthRange(at(2027, 7, 7), at(2028, 2, 20), now);
+  expect(a).toMatch(/^\D*Jul\D*2027$/);
+  expect(b).toMatch(/^\D*Feb\D*2028$/);
+  expect(formatMonthRange(at(2027, 7, 7), at(2027, 7, 20), now)[1]).toMatch(/20/);
 });

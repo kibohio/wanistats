@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { formatDate, formatDateRange } from '../../format';
+import { formatDate, formatMonthRange } from '../../format';
 import { days1 } from './format';
 import styles from './Today.module.css';
 import type { TodayData } from './useToday';
@@ -24,16 +24,15 @@ const Chevron = () => (
 /** Indigo panel linking to Pace, which explains every figure on it. */
 export function FinishCard({ d, desktop }: { d: TodayData; desktop?: boolean }) {
   const f = d.finish;
-  const own = d.sample ? 'the' : 'your';
   const range =
     f?.lowAt != null && f.highAt != null
-      ? `Likely ${formatDateRange(f.lowAt, f.highAt).join(' to ')}.`
+      ? `Likely between ${formatMonthRange(f.lowAt, f.highAt).join(' and ')}.`
       : '';
   let head: string, figure: string, body: string;
   if (!f) {
     head = 'Finish date';
     figure = 'Not yet';
-    body = 'A projection appears once a level is complete.';
+    body = 'Shows up once a full level is done.';
   } else if (f.reached) {
     head = `Level ${f.goal}`;
     figure = 'Reached';
@@ -42,9 +41,12 @@ export function FinishCard({ d, desktop }: { d: TodayData; desktop?: boolean }) 
     head = `Level ${f.goal} projected`;
     figure = formatDate(f.finishAt!);
     const pace = days1(d.pace.medianDays!);
+    const median = d.hasReset
+      ? `median since ${d.sample ? 'the' : 'your'} reset`
+      : `${d.sample ? "the sample's" : 'your'} median`;
     body = desktop
-      ? `${pace} days a level, ${own} median${d.hasReset ? ' since the reset' : ''}. ${range}`
-      : `At ${pace} days a level. ${range}`;
+      ? `${pace} days per level (${median}). ${range}`
+      : `${pace} days per level. ${range}`;
   }
   return (
     <Link to="/pace" className={desktop ? styles.finishDesktop : styles.finish}>
@@ -57,16 +59,16 @@ export function FinishCard({ d, desktop }: { d: TodayData; desktop?: boolean }) 
         <dl className={styles.finishList}>
           {f?.fastestAt != null && (
             <div>
-              <dt>Fastest the SRS allows</dt>
+              <dt>Fastest possible</dt>
               <dd>{formatDate(f.fastestAt)}</dd>
             </div>
           )}
           <div>
-            <dt>All Guru through</dt>
+            <dt>All Guru up to</dt>
             <dd>{d.guruThrough ? `Level ${d.guruThrough}` : 'None yet'}</dd>
           </div>
           <div>
-            <dt>All burned through</dt>
+            <dt>All burned up to</dt>
             <dd>{d.burnedThrough ? `Level ${d.burnedThrough}` : 'None yet'}</dd>
           </div>
         </dl>

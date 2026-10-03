@@ -228,21 +228,20 @@ function LeechExplainer({ recent }: { recent: boolean }) {
   return (
     <div className={styles.explainer}>
       <p>
-        Ranked by wrong answers against the current streak. Items from the last 7 days of lessons
-        are left out, since early misses are normal.
+        Items you keep missing, worst first. Anything from the last 7 days of lessons is skipped,
+        since early misses are normal.
       </p>
       <details>
         <summary>How the score works</summary>
         <p>
-          The score is an item's wrong answers, meaning and reading together, divided by its current
-          streak raised to the power of 1.5. The streak is the shorter of the meaning and reading
-          streaks, and counts as at least 1. An item is a leech at a score of 1 or more. Burned
-          items are left out.
+          Wrong answers (meaning and reading together) divided by the current streak to the power of
+          1.5. The streak is the shorter of the meaning and reading streaks, and at least 1. A score
+          of 1 or more makes a leech. Burned items don't count.
         </p>
         {!recent && (
           <p>
-            After 14 days of snapshots, items missed in the last two weeks move to the top under
-            Recently struggling.
+            Once there are 14 days of snapshots, items missed in the last two weeks move to the top
+            under Recently struggling.
           </p>
         )}
       </details>

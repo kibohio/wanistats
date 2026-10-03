@@ -13,9 +13,10 @@ export function AboutPage() {
       <div className={styles.sections}>
         <Card>
           <p>
-            WaniStats turns your WaniKani progress into forecasts, pace estimates and coverage
-            figures. It reads your data through the WaniKani API with a token you provide, and your
-            browser keeps everything on this device. It is free and has no ads.
+            WaniStats shows when you&apos;ll level up, how heavy your reviews will get, when
+            you&apos;ll reach your goal level and how much real Japanese your kanji cover. It reads
+            your data from the WaniKani API with your own token and keeps everything in this
+            browser. It&apos;s free, with no ads.
           </p>
           <p>
             WaniStats is a free passion project by the founder of {COMPANY}, built for fellow

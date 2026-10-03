@@ -1,0 +1,46 @@
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -6px 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+
+.button:hover {
+  color: var(--ink);
+}
+
+/* Under the button where anchor positioning is supported; centred on screen otherwise. */
+.popover {
+  position-area: bottom span-right;
+  position-try-fallbacks: flip-inline;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 32px));
+  margin: 6px 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: var(--leading-body);
+  text-align: left;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.12);
+}
+
+.popover p + p {
+  margin-top: 8px;
+}
+
+.popover a {
+  color: var(--ink);
+  font-weight: 700;
+}

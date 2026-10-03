@@ -7,7 +7,7 @@ interface Props {
   title: string;
   /** Formula and the values behind the figure. */
   explain: ReactNode;
-  /** Accessible name when the visible text needs its row label, e.g. "All Guru through level 6". */
+  /** Accessible name when the visible text needs its row label, e.g. "All Guru up to level 6". */
   label?: string;
   className?: string;
   children: ReactNode;
