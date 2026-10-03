@@ -24,6 +24,8 @@ export function shiftDate(key: string, days: number): string {
   return keyOfDay(dayNumber(key) + days);
 }
 
+export const daysBetween = (from: string, to: string) => dayNumber(to) - dayNumber(from);
+
 const STAGE_KEYS: (keyof StageCounts)[] = ['a1', 'a2', 'a3', 'a4', 'g1', 'g2', 'm', 'e', 'b'];
 
 export function buildSnapshot(
