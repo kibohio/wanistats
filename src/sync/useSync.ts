@@ -1,4 +1,4 @@
-import { useIsMutating, useMutation, useMutationState } from '@tanstack/react-query';
+import { useMutation, useMutationState } from '@tanstack/react-query';
 import { useEffect, useSyncExternalStore } from 'react';
 import type { WkError } from '../api/client';
 import { useTokenRejected } from '../db/hooks';
@@ -12,11 +12,13 @@ const AUTO_MIN_GAP_MS = 60_000;
 
 let inFlight: Promise<void> | null = null;
 let lastSuccessAt = 0;
-let progress: SyncProgress | null = null;
+// Running state lives here, not in the mutation cache: useIsMutating keeps a stale count when
+// it mounts mid-run and the run settles before its subscription attaches.
+let run: { running: boolean; progress: SyncProgress | null } = { running: false, progress: null };
 const listeners = new Set<() => void>();
 
-function setProgress(p: SyncProgress | null) {
-  progress = p;
+function setRun(running: boolean, progress: SyncProgress | null = null) {
+  run = { running, progress };
   listeners.forEach((l) => l());
 }
 
@@ -27,13 +29,15 @@ function subscribe(l: () => void) {
 
 /** One sync at a time; callers during a run share it. */
 function runSync(): Promise<void> {
-  inFlight ??= syncAll(liveDb, setProgress)
+  if (inFlight) return inFlight;
+  setRun(true);
+  inFlight = syncAll(liveDb, (p) => setRun(true, p))
     .then(() => {
       lastSuccessAt = Date.now();
     })
     .finally(() => {
       inFlight = null;
-      setProgress(null);
+      setRun(false);
     });
   return inFlight;
 }
@@ -61,12 +65,11 @@ export function useSync(): SyncStatus {
     mutationKey: SYNC_KEY,
     mutationFn: runSync,
   });
-  const running = useIsMutating({ mutationKey: SYNC_KEY }) > 0;
   const last = useMutationState({
     filters: { mutationKey: SYNC_KEY },
     select: (m) => m.state,
   }).at(-1);
-  const current = useSyncExternalStore(subscribe, () => progress);
+  const { running, progress } = useSyncExternalStore(subscribe, () => run);
   // "Synced just now" belongs to this caller's own run and fades after a minute.
   useEffect(() => {
     if (!isSuccess) return;
@@ -77,7 +80,7 @@ export function useSync(): SyncStatus {
     sync: mutate,
     syncAsync: mutateAsync,
     running,
-    progress: running ? current : null,
+    progress,
     error: !running && last?.status === 'error' ? (last.error as WkError) : null,
     justSynced: !running && isSuccess,
   };
