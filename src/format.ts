@@ -77,3 +77,16 @@ export function formatDateRange(from: number, to: number, now = Date.now()): [st
   const fmt = inYear ? dayMonth : fullDate;
   return [fmt.format(from), fmt.format(to)];
 }
+
+/** "1 item", "2 items". */
+export const plural = (n: number, one: string, many = `${one}s`) =>
+  `${n.toLocaleString()} ${n === 1 ? one : many}`;
+
+/** A span in hours as words: "30 minutes", "1 hour", "1 hour 30 minutes", "2 hours". */
+export function formatHours(hours: number): string {
+  const total = Math.round(hours * 60);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (h === 0) return plural(m, 'minute');
+  return m ? `${plural(h, 'hour')} ${plural(m, 'minute')}` : plural(h, 'hour');
+}

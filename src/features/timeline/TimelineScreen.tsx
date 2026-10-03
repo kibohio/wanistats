@@ -18,7 +18,7 @@ import { lessonWindow } from '../../domain/lessonWindow';
 import { intervalFor } from '../../domain/srs';
 import type { TimelineRange } from '../../domain/timeline';
 import { steadyStateReviewsPerDay, workload } from '../../domain/workload';
-import { formatMinutes, formatWindow } from '../../format';
+import { formatHours, formatMinutes, formatWindow } from '../../format';
 import { useClock } from '../../hooks/useClock';
 import { useNow } from '../../hooks/useNow';
 import styles from './Timeline.module.css';
@@ -152,7 +152,8 @@ function LessonWindowCard() {
         <span style={labelAt(back2(lessonMin))}>{short(back2(lessonMin))}</span>
       </div>
       <p className={styles.note}>
-        Apprentice 1 comes back {a1} hours after a lesson and Apprentice 2 {a2} hours after that.{' '}
+        Apprentice 1 comes back {formatHours(a1)} after a lesson and Apprentice 2 {formatHours(a2)}{' '}
+        after that.{' '}
         {parts.length ? (
           <>
             Lessons in the window keep both inside your day.
@@ -161,7 +162,7 @@ function LessonWindowCard() {
           </>
         ) : (
           w.closest &&
-          `No lesson time keeps both inside your day. The closest is ${fmtTime(w.closest.min)}, with reviews ${w.closest.hoursOutside} hours outside it.`
+          `No lesson time keeps both inside your day. The closest is ${fmtTime(w.closest.min)}, with reviews ${formatHours(w.closest.hoursOutside)} outside it.`
         )}{' '}
         Lessons at {fmtTime(lessonMin)} come back at {fmtTime(back1(lessonMin))} and{' '}
         {fmtTime(back2(lessonMin))}

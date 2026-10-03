@@ -1,5 +1,12 @@
 import { expect, test } from 'vitest';
-import { formatDateRange, formatMinutes, formatTime, formatWindow } from './format';
+import {
+  formatDateRange,
+  formatHours,
+  formatMinutes,
+  formatTime,
+  formatWindow,
+  plural,
+} from './format';
 
 const at = (y: number, m: number, d: number) => new Date(y, m - 1, d).getTime();
 const now = at(2026, 10, 3);
@@ -46,4 +53,19 @@ test('lesson window ranges', () => {
   expect(formatWindow(w, '12h').join(' or ')).toMatch(
     /^7:00\s?AM to 11:00\s?AM or 7:30\s?PM sharp$/i,
   );
+});
+
+test('hour spans read as words', () => {
+  expect(formatHours(0.5)).toBe('30 minutes');
+  expect(formatHours(1)).toBe('1 hour');
+  expect(formatHours(1.5)).toBe('1 hour 30 minutes');
+  expect(formatHours(4)).toBe('4 hours');
+  expect(formatHours(1 / 60)).toBe('1 minute');
+});
+
+test('plural', () => {
+  expect(plural(1, 'day')).toBe('1 day');
+  expect(plural(0, 'day')).toBe('0 days');
+  expect(plural(1200, 'review')).toBe('1,200 reviews');
+  expect(plural(2, 'kanji', 'kanji')).toBe('2 kanji');
 });
