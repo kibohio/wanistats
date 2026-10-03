@@ -40,25 +40,7 @@ function Phone({ d }: { d: TodayData }) {
       <ScreenHeader
         aside={!d.sample && lastSync != null ? `Synced ${formatSyncTime(lastSync)}` : undefined}
       >
-        <div className={styles.lead}>
-          <h1 className={styles.levelHeading}>
-            <span className={styles.numeral} aria-hidden="true">
-              {d.user.level}
-            </span>
-            <span className="visually-hidden">Level {d.user.level}</span>
-          </h1>
-          <div className={styles.levelText}>
-            <span className={styles.levelLabel} aria-hidden="true">
-              Level
-            </span>
-            {d.levelDay !== null && (
-              <DayExplain d={d}>
-                <span className={styles.day}>Day {d.levelDay}</span>
-              </DayExplain>
-            )}
-          </div>
-          {d.sample && <Chip>Sample</Chip>}
-        </div>
+        <LevelLead d={d} />
       </ScreenHeader>
       <Notices d={d} />
       <LevelUpCard d={d} />
@@ -86,23 +68,7 @@ function Desktop({ d }: { d: TodayData }) {
           </a>
         }
       >
-        <div className={styles.lead}>
-          <span className={styles.numeralDesktop} aria-hidden="true">
-            {d.user.level}
-          </span>
-          <div className={styles.levelText}>
-            <h1 className={styles.titleDesktop}>
-              Level {d.user.level}
-              {d.levelDay !== null && (
-                <>
-                  , <DayExplain d={d}>day {d.levelDay}</DayExplain>
-                </>
-              )}
-            </h1>
-            <span className={styles.today}>{fullDay(d.now)}</span>
-          </div>
-          {d.sample && <Chip>Sample</Chip>}
-        </div>
+        <LevelLead d={d} desktop />
       </ScreenHeader>
       <Notices d={d} />
       <div className={styles.row}>
@@ -117,6 +83,39 @@ function Desktop({ d }: { d: TodayData }) {
         <AccuracyCard d={d} />
       </div>
     </>
+  );
+}
+
+/** Level numeral with a small "Level" label, the level day and, on desktop, today's date. */
+function LevelLead({ d, desktop }: { d: TodayData; desktop?: boolean }) {
+  return (
+    <div className={styles.lead}>
+      <h1 className={styles.levelHeading}>
+        <span className={styles.numeral} aria-hidden="true">
+          {d.user.level}
+        </span>
+        <span className="visually-hidden">Level {d.user.level}</span>
+      </h1>
+      <div className={styles.levelText}>
+        <span className={styles.levelLabel} aria-hidden="true">
+          Level
+        </span>
+        <span>
+          {d.levelDay !== null && (
+            <DayExplain d={d}>
+              <span className={styles.day}>Day {d.levelDay}</span>
+            </DayExplain>
+          )}
+          {desktop && (
+            <span className={styles.today}>
+              {d.levelDay !== null && ', '}
+              {fullDay(d.now)}
+            </span>
+          )}
+        </span>
+      </div>
+      {d.sample && <Chip>Sample</Chip>}
+    </div>
   );
 }
 

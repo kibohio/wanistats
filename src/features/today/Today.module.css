@@ -9,8 +9,7 @@
   display: flex;
 }
 
-.numeral,
-.numeralDesktop {
+.numeral {
   font-family: var(--font-kanji);
   font-size: var(--text-numeral);
   font-weight: 700;
@@ -34,14 +33,9 @@
   font-weight: 700;
 }
 
-.titleDesktop {
-  font-size: 24px;
-  font-weight: 700;
-}
-
 .today {
-  font-size: 14px;
-  color: var(--ink-3);
+  font-size: var(--text-title);
+  color: var(--ink-2);
 }
 
 /* Notices */
