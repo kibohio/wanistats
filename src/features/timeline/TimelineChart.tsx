@@ -37,7 +37,6 @@ const KEY_COLOR: Record<StackKey, string> = {
 };
 
 const BIN_NOUN: Record<Granularity, string> = { hour: 'hour', day: 'day', week: 'week' };
-const MAX_TILES = 60;
 
 const weekday = new Intl.DateTimeFormat(undefined, { weekday: 'short' });
 const dayMonth = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
@@ -265,7 +264,8 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
             ) : (
               <p>{keys.map((k) => `${KEY_LABEL[k]} ${b.counts[k] ?? 0}`).join(', ')}</p>
             )}
-            {extras(b).length > 0 && <p>{extras(b).join(', ')}.</p>}
+            {/* Always rendered so the panel keeps its height between bars. */}
+            <p className={styles.selExtras}>{extras(b).length > 0 && `${extras(b).join(', ')}.`}</p>
             {desktop && (
               <p>Running total {(b.runningTotal + b.runningEstimate).toLocaleString()}.</p>
             )}
@@ -282,30 +282,30 @@ function SelectionItems({ ids, data }: { ids: number[]; data: TimelineData }) {
     .map((id) => ({ id, ...data.items.get(id) }))
     .filter((it) => it.char !== undefined)
     .sort((a, b) => Number(b.critical) - Number(a.critical) || a.stage! - b.stage!);
-  if (!items.length) return null;
+  // Fixed height, scrolling inside, so long slots don't stretch the page or jump it.
   return (
-    <>
-      <ul className={styles.items} aria-label="Items in this slot">
-        {/* ponytail: first 60 only; a long list belongs on the Items screen. */}
-        {items.slice(0, MAX_TILES).map((it) => (
-          <li key={it.id}>
-            <Tile
-              char={it.char!}
-              srsStage={it.stage}
-              size={30}
-              mark={it.critical ? 'critical' : undefined}
-            />
-            <span className="visually-hidden">
-              , {stageName(it.stage ?? null)}
-              {it.critical ? ', level-critical' : ''}
-            </span>
-          </li>
-        ))}
-      </ul>
-      {items.length > MAX_TILES && (
-        <p className={styles.more}>And {plural(items.length - MAX_TILES, 'more item')}.</p>
-      )}
-    </>
+    <ul
+      // Focusable so keyboard users can scroll it.
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+      className={styles.items}
+      aria-label={`${plural(items.length, 'item')} in this slot`}
+    >
+      {items.map((it) => (
+        <li key={it.id}>
+          <Tile
+            char={it.char!}
+            srsStage={it.stage}
+            size={30}
+            mark={it.critical ? 'critical' : undefined}
+          />
+          <span className="visually-hidden">
+            , {stageName(it.stage ?? null)}
+            {it.critical ? ', level-critical' : ''}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

@@ -54,7 +54,7 @@ test('arrow keys move the selection between bars and the panel follows', async (
   expect(bars[1]).toHaveAccessibleName(/7 reviews, 1 level-critical$/);
   expect(screen.getByText('Apprentice 7, Guru 0, Master 0, Enlightened 0')).toBeInTheDocument();
   expect(screen.getByText('1 level-critical.')).toBeInTheDocument();
-  expect(screen.getByRole('list', { name: 'Items in this slot' })).toHaveTextContent(
+  expect(screen.getByRole('list', { name: '1 item in this slot' })).toHaveTextContent(
     '島, Apprentice 2, level-critical',
   );
 
