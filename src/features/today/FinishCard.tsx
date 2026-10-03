@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
-import { dayMonth, days1, longDate } from './format';
+import { formatDate, formatDateRange } from '../../format';
+import { days1 } from './format';
 import styles from './Today.module.css';
 import type { TodayData } from './useToday';
 
@@ -26,7 +27,7 @@ export function FinishCard({ d, desktop }: { d: TodayData; desktop?: boolean }) 
   const own = d.sample ? 'the' : 'your';
   const range =
     f?.lowAt != null && f.highAt != null
-      ? `Likely ${dayMonth(f.lowAt)} to ${dayMonth(f.highAt)}.`
+      ? `Likely ${formatDateRange(f.lowAt, f.highAt).join(' to ')}.`
       : '';
   let head: string, figure: string, body: string;
   if (!f) {
@@ -39,7 +40,7 @@ export function FinishCard({ d, desktop }: { d: TodayData; desktop?: boolean }) 
     body = 'Set a new goal level on Pace.';
   } else {
     head = `Level ${f.goal} projected`;
-    figure = longDate(f.finishAt!);
+    figure = formatDate(f.finishAt!);
     const pace = days1(d.pace.medianDays!);
     body = desktop
       ? `${pace} days a level, ${own} median${d.hasReset ? ' since the reset' : ''}. ${range}`
@@ -57,7 +58,7 @@ export function FinishCard({ d, desktop }: { d: TodayData; desktop?: boolean }) 
           {f?.fastestAt != null && (
             <div>
               <dt>Fastest the SRS allows</dt>
-              <dd>{longDate(f.fastestAt)}</dd>
+              <dd>{formatDate(f.fastestAt)}</dd>
             </div>
           )}
           <div>

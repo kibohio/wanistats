@@ -2,12 +2,6 @@ import { HOUR_MS } from '../../domain/srs';
 
 export const DAY_MS = 24 * HOUR_MS;
 
-const date = new Intl.DateTimeFormat(undefined, {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
-const short = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
 const dateTime = new Intl.DateTimeFormat(undefined, {
   day: 'numeric',
   month: 'short',
@@ -15,8 +9,6 @@ const dateTime = new Intl.DateTimeFormat(undefined, {
   minute: '2-digit',
 });
 
-export const fmtDate = (ms: number) => date.format(ms);
-export const fmtShort = (ms: number) => short.format(ms);
 export const fmtDateTime = (ms: number) => dateTime.format(ms);
 export const fmtDays = (days: number) => days.toFixed(1);
 

@@ -5,10 +5,10 @@ import { Chip } from '../../components/Chip';
 import { CloseIcon, ExternalIcon } from '../../components/icons';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { useLastSyncAt } from '../../db/hooks';
-import { formatSyncTime } from '../../format';
+import { formatDate, formatSyncTime } from '../../format';
 import { Explain } from './Explain';
 import { FinishCard } from './FinishCard';
-import { fullDay, longDate, plural, sinceDay } from './format';
+import { fullDay, plural, sinceDay } from './format';
 import { LevelUpCard, LevelUpCardDesktop } from './LevelUpCard';
 import { AccuracyCard, CoverageCard, LeechesCard } from './SummaryCards';
 import styles from './Today.module.css';
@@ -126,7 +126,7 @@ function DayExplain({ d, children }: { d: TodayData; children: React.ReactNode }
       title={`Level ${d.user.level}`}
       explain={
         <p>
-          Level {d.user.level} unlocked on {d.levelStartAt !== null && longDate(d.levelStartAt)}.
+          Level {d.user.level} unlocked on {d.levelStartAt !== null && formatDate(d.levelStartAt)}.
           Day 1 is the first 24 hours after that.
           {d.vacation && ' The count is frozen while vacation mode is on.'}
         </p>
