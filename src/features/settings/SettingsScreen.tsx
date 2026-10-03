@@ -15,7 +15,7 @@ import { usePref, type Prefs } from '../../db/prefs';
 import { liveDb, useAppMode } from '../../db/useAppMode';
 import { formatLocalDate, formatSyncTime } from '../../format';
 import { useInstalledPacks, useManifest } from '../../packs/hooks';
-import { deletePack, formatBytes, hasUpdate, sizeOnDevice } from '../../packs/packs';
+import { deletePack, formatBytes, hasUpdate, packsDb, sizeOnDevice } from '../../packs/packs';
 import { deleteHistory, exportHistory, importHistory } from '../../sync/session';
 import { clearCachedData } from '../../sync/sync';
 import { useSync, waitForSync } from '../../sync/useSync';
@@ -241,6 +241,7 @@ function PacksSection() {
   const manifest = useManifest();
   const installed = useInstalledPacks();
   const [sheet, setSheet] = useState<string[] | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   // Serialising a pack is not free; only redo it when the installed rows change.
   const sizes = useMemo(
     () => new Map((installed ?? []).map((r) => [r.id, sizeOnDevice(r)])),
@@ -315,6 +316,29 @@ function PacksSection() {
         )}
       </ul>
       <Rows rows={[['Storage used', formatBytes(total)]]} />
+      {installed && installed.length > 0 && (
+        <div className={styles.actions}>
+          <Button onClick={() => setConfirmDelete(true)}>Delete all data packs</Button>
+        </div>
+      )}
+      <Sheet
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title="Delete all data packs"
+      >
+        <div className={styles.sheet}>
+          <p>
+            Delete all downloaded coverage data from this browser? You can download it again later.
+          </p>
+          <Button
+            variant="primary"
+            onClick={() => void packsDb.packs.clear().then(() => setConfirmDelete(false))}
+          >
+            Delete all data packs
+          </Button>
+          <Button onClick={() => setConfirmDelete(false)}>Cancel</Button>
+        </div>
+      </Sheet>
       <DownloadSheet open={sheet !== null} onClose={() => setSheet(null)} preselect={sheet ?? []} />
     </Section>
   );
