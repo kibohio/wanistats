@@ -20,7 +20,8 @@ export function minLevelTimes(
     let start = 0;
     for (const id of s.data.component_subject_ids) {
       const c = byId.get(id);
-      if (c && !c.data.hidden_at && c.data.level >= s.data.level) start = Math.max(start, pathOf(c));
+      if (c && !c.data.hidden_at && c.data.level >= s.data.level)
+        start = Math.max(start, pathOf(c));
     }
     const list = perLevel.get(s.data.level) ?? [];
     list.push(start + pathOf(s));

@@ -114,7 +114,13 @@ describe('earliestLevelUp', () => {
       systems: SYSTEMS,
       now,
     });
-    expect(p).toMatchObject({ status: 'ready', k: 0, slack: 1, earliestAt: now, slackHolds: false });
+    expect(p).toMatchObject({
+      status: 'ready',
+      k: 0,
+      slack: 1,
+      earliestAt: now,
+      slackHolds: false,
+    });
   });
 
   it('freezes the remaining time while on vacation', () => {
