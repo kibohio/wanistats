@@ -1,6 +1,6 @@
 import { Link, Outlet } from '@tanstack/react-router';
 import { useHistoryRange, useLastSyncAt } from '../db/hooks';
-import { useAppMode } from '../db/useAppMode';
+import { useAppMode, useSampleSeed } from '../db/useAppMode';
 import { formatSyncTime } from '../format';
 import { useSyncTriggers } from '../sync/useSync';
 import styles from './AppShell.module.css';
@@ -14,7 +14,7 @@ import { UpdateToast } from './UpdateToast';
 
 export function AppShell() {
   useSyncTriggers();
-  // TODO(integrate): in sample mode, seed once: void import('../sample').then((m) => m.seedSampleDb(sampleDb, Date.now()));
+  useSampleSeed();
   return (
     <div className={styles.shell}>
       <Sidebar />
