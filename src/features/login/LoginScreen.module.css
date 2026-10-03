@@ -6,7 +6,7 @@
 }
 
 .heading {
-  font-size: 20px;
+  font-size: var(--text-heading);
   font-weight: 700;
   color: var(--ink);
 }
@@ -26,7 +26,7 @@
 }
 
 .label {
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 700;
   color: var(--ink);
 }
@@ -45,11 +45,11 @@
   border-radius: var(--radius-control);
   background: var(--surface);
   font-family: ui-monospace, monospace;
-  font-size: 14px;
+  font-size: var(--text-input);
 }
 
 .error {
-  font-size: 14px;
+  font-size: var(--text-body);
   color: var(--attention-text);
 }
 
@@ -98,7 +98,7 @@
 
 .count {
   margin-left: auto;
-  font-size: 13px;
+  font-size: var(--text-caption);
   font-weight: 400;
   font-variant-numeric: tabular-nums;
   color: var(--ink-3);

@@ -4,8 +4,8 @@
   align-items: flex-start;
   gap: 14px;
   padding-bottom: 8px;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
 }
 
 .body:focus {
@@ -86,9 +86,9 @@
 
 .relatedHead {
   margin-bottom: 8px;
-  font-size: 14px;
+  font-size: var(--text-title);
   font-weight: 500;
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
 
 .related ul {

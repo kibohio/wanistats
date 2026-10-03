@@ -5,8 +5,9 @@
 }
 
 .caption {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
+  line-height: var(--leading-caption);
 }
 
 .caption:empty {

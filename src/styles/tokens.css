@@ -39,6 +39,21 @@
     'Zen Kaku Gothic New', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', system-ui, sans-serif;
   --font-kanji: 'Shippori Mincho B1', 'Hiragino Mincho ProN', serif;
 
+  /* Type scale. One size per role: captions, body, card titles, headings, the one key figure per
+     card, screen titles and the level numeral. Kanji glyphs size with their tiles instead. */
+  --text-caption: 12px;
+  --text-body: 14px;
+  --text-title: 15px;
+  --text-heading: 18px;
+  --text-h1: 26px;
+  --text-figure: 30px;
+  --text-numeral: 46px;
+  /* Text fields stay at 16 px so iOS Safari does not zoom in on focus. */
+  --text-input: 16px;
+  --leading-caption: 1.35;
+  --leading-body: 1.5;
+  --leading-tight: 1.1;
+
   --radius-cell: 5px;
   --radius-control: 10px;
   --radius-card: 16px;
@@ -61,5 +76,6 @@
   :root {
     --card-pad: 20px;
     --gap: 20px;
+    --text-numeral: 56px;
   }
 }

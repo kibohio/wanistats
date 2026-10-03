@@ -249,7 +249,7 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
       className={styles.levelUpDesktop}
       title="Next level-up"
       aside={
-        <span className={styles.asideStrong}>
+        <span>
           {radicals.total > 0 &&
             (radicals.passed === radicals.total
               ? 'Radicals done. '

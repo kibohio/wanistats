@@ -12,13 +12,9 @@
 .numeral,
 .numeralDesktop {
   font-family: var(--font-kanji);
-  font-size: 46px;
+  font-size: var(--text-numeral);
   font-weight: 700;
   line-height: 0.9;
-}
-
-.numeralDesktop {
-  font-size: 56px;
 }
 
 .levelText {
@@ -29,12 +25,12 @@
 }
 
 .levelLabel {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
 .day {
-  font-size: 15px;
+  font-size: var(--text-title);
   font-weight: 700;
 }
 
@@ -65,7 +61,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
   background: var(--surface);
-  font-size: 13px;
+  font-size: var(--text-body);
   color: var(--ink-2);
 }
 
@@ -102,8 +98,8 @@
   flex-direction: column;
   gap: 12px;
   padding-bottom: 8px;
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
   color: var(--ink-2);
 }
 
@@ -126,25 +122,25 @@
 .itemMeta {
   margin-left: auto;
   color: var(--ink-3);
-  font-size: 13px;
+  font-size: var(--text-caption);
   text-align: right;
 }
 
 .note {
-  font-size: 13px;
-  color: var(--ink-3);
+  font-size: var(--text-body);
+  color: var(--ink-2);
 }
 
 .link {
   padding: 4px 0;
-  font-size: 13px;
+  font-size: var(--text-caption);
   font-weight: 700;
   text-decoration: none;
 }
 
 .para {
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
   color: var(--ink-2);
 }
 
@@ -157,13 +153,15 @@
 }
 
 .date {
-  font-size: 30px;
+  font-size: var(--text-figure);
   font-weight: 700;
   letter-spacing: -0.01em;
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
 }
 
 .dateSub {
-  font-size: 15px;
+  font-size: var(--text-body);
   color: var(--ink-3);
 }
 
@@ -211,12 +209,12 @@
 }
 
 .groupWhen {
-  font-size: 13px;
+  font-size: var(--text-body);
   font-weight: 700;
 }
 
 .groupStage {
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -227,7 +225,7 @@
 }
 
 .slack {
-  font-size: 13px;
+  font-size: var(--text-body);
   font-weight: 500;
   color: var(--primary);
 }
@@ -235,15 +233,6 @@
 .levelUpDesktop {
   flex: 2 1 480px;
   gap: 14px;
-}
-
-.levelUpDesktop .date {
-  font-size: 34px;
-}
-
-.asideStrong {
-  font-size: 14px;
-  color: var(--ink-2);
 }
 
 .tiles {
@@ -261,8 +250,8 @@
 
 .tileLabel,
 .tileLabelFaded {
-  font-size: 10px;
-  line-height: 1.2;
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
   text-align: center;
 }
 
@@ -283,17 +272,14 @@
 }
 
 .load {
-  font-size: 38px;
+  font-size: var(--text-figure);
   font-weight: 700;
-  line-height: 1;
-}
-
-.workloadDesktop .load {
-  font-size: 40px;
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
 }
 
 .loadStatus {
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 
 .gaugeWrap {
@@ -327,8 +313,8 @@
 
 .gaugeLabels {
   position: relative;
-  height: 14px;
-  font-size: 11px;
+  height: 16px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -344,7 +330,7 @@
 }
 
 .trendLabel {
-  font-size: 11px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
   white-space: nowrap;
 }
@@ -369,7 +355,7 @@
 }
 
 .hoursTotal {
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 700;
 }
 
@@ -402,7 +388,7 @@
 .hoursFoot {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -426,12 +412,13 @@
 }
 
 .flightN {
-  font-size: 16px;
+  font-size: var(--text-title);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .flightLabel {
-  font-size: 11px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
   text-decoration: none;
 }
@@ -480,33 +467,23 @@
 }
 
 .finishHead {
-  font-size: 13px;
+  font-size: var(--text-title);
   color: var(--on-primary-2);
+  font-weight: 500;
 }
 
 .finishDate {
-  font-size: 26px;
+  font-size: var(--text-figure);
   font-weight: 700;
   letter-spacing: -0.01em;
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
 }
 
 .finishBody {
-  font-size: 13px;
+  font-size: var(--text-body);
   color: var(--on-primary-2);
-}
-
-.finishDesktop .finishHead {
-  font-size: 15px;
-}
-
-.finishDesktop .finishDate {
-  font-size: 32px;
-  line-height: 1.1;
-}
-
-.finishDesktop .finishBody {
-  font-size: 14px;
-  line-height: 1.5;
+  line-height: var(--leading-body);
 }
 
 .chevron {
@@ -520,7 +497,7 @@
   margin: auto 0 0;
   padding-top: 12px;
   border-top: 1px solid rgb(255 255 255 / 0.18);
-  font-size: 13px;
+  font-size: var(--text-body);
   color: var(--on-primary-2);
 }
 
@@ -549,7 +526,7 @@
 }
 
 .sampleLabel {
-  font-size: 12px;
+  font-size: var(--text-caption);
   font-weight: 500;
   color: var(--ink-3);
 }
@@ -563,7 +540,7 @@
 }
 
 .covName {
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 700;
 }
 
@@ -583,8 +560,9 @@
 }
 
 .covPct {
-  font-size: 14px;
+  font-size: var(--text-body);
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .pair {
@@ -607,22 +585,15 @@
   text-decoration: underline dotted var(--line-strong);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-}
-
-.pairFigure {
-  font-size: 20px;
+  font-size: var(--text-heading);
   font-weight: 700;
-}
-
-.accFigure {
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 1.1;
+  line-height: var(--leading-tight);
 }
 
 .pairLabel {
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
+  line-height: var(--leading-caption);
 }
 
 .leeches {
@@ -656,17 +627,17 @@
 }
 
 .leechMeaning {
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 700;
 }
 
 .leechSub {
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
 .leechWrong {
-  font-size: 13px;
+  font-size: var(--text-body);
   font-weight: 700;
   color: var(--attention-text);
 }
@@ -674,7 +645,7 @@
 .accTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--text-body);
   font-variant-numeric: tabular-nums;
 }
 
@@ -691,6 +662,7 @@
 .accTable thead th {
   padding: 4px 0;
   color: var(--ink-3);
+  font-size: var(--text-caption);
 }
 
 .accTable th:first-child {

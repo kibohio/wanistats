@@ -28,7 +28,7 @@
 }
 
 .title {
-  font-size: 18px;
+  font-size: var(--text-heading);
   font-weight: 700;
 }
 
