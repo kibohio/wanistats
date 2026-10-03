@@ -79,9 +79,13 @@ function OpenSheet({
   const [trail, setTrail] = useState<SheetSubject[]>([subject]);
   const bodyRef = useRef<HTMLDivElement>(null);
   const moved = useRef(false);
-  // After moving within the sheet the tapped button is gone, so focus the new content.
+  // After moving within the sheet the tapped button is gone, so focus the new content from the top.
   useEffect(() => {
-    if (moved.current) bodyRef.current?.focus();
+    const body = bodyRef.current;
+    if (!moved.current || !body) return;
+    body.focus({ preventScroll: true });
+    const dialog = body.closest('dialog');
+    if (dialog) dialog.scrollTop = 0;
   }, [trail]);
 
   const label = (s: SheetSubject) => (typeof s === 'string' ? s : (byId.get(s)?.meaning ?? ''));
