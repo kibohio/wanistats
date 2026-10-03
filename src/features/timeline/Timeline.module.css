@@ -444,11 +444,6 @@
 .stripLabels span {
   position: absolute;
   white-space: nowrap;
-  transform: translateX(-50%);
-}
-
-.stripLabels span:first-child {
-  transform: none;
 }
 
 .stripLabels .lessonLabel {
