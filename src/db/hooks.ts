@@ -25,6 +25,8 @@ export interface HistoryRange {
   /** Local dates, YYYY-MM-DD. */
   first?: string;
   last?: string;
+  /** ISO time the last snapshot was written. */
+  lastTakenAt?: string;
 }
 
 /** Days with a snapshot and the first and last of them. */
@@ -36,7 +38,7 @@ export function useHistoryRange(): HistoryRange | undefined {
       db.snapshots.orderBy('date').first(),
       db.snapshots.orderBy('date').last(),
     ]);
-    return { days, first: first?.date, last: last?.date };
+    return { days, first: first?.date, last: last?.date, lastTakenAt: last?.takenAt };
   }, [db]);
 }
 

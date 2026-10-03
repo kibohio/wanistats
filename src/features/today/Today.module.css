@@ -1,0 +1,710 @@
+/* Header */
+.lead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.levelHeading {
+  display: flex;
+}
+
+.numeral,
+.numeralDesktop {
+  font-family: var(--font-kanji);
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.numeralDesktop {
+  font-size: 56px;
+}
+
+.levelText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.levelLabel {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.day {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.titleDesktop {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.today {
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+/* Notices */
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  margin: -4px -12px -4px 0;
+  border: none;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+
+/* Tappable figures */
+.explain {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  text-decoration: underline dotted var(--line-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.explainBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.itemList li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.itemMeta {
+  margin-left: auto;
+  color: var(--ink-3);
+  font-size: 13px;
+  text-align: right;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.link {
+  padding: 4px 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.para {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+/* Next level-up */
+.dateRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.date {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.dateSub {
+  font-size: 15px;
+  color: var(--ink-3);
+}
+
+.strip {
+  display: flex;
+  gap: 2px;
+}
+
+.square {
+  position: relative;
+  flex: 0 1 7px;
+  min-width: 2px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.threshold::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  width: 2px;
+  height: 18px;
+  background: var(--ink);
+}
+
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+}
+
+.groupHead {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-width: 104px;
+}
+
+.groupWhen {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.groupStage {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.groupTiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.slack {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.levelUpDesktop {
+  flex: 2 1 480px;
+  gap: 14px;
+}
+
+.levelUpDesktop .date {
+  font-size: 34px;
+}
+
+.asideStrong {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  gap: 8px 6px;
+}
+
+.tileCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.tileLabel,
+.tileLabelFaded {
+  font-size: 10px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.tileLabelFaded {
+  color: var(--ink-3);
+}
+
+/* Workload */
+.workloadDesktop {
+  flex: 1 1 280px;
+}
+
+.loadRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.load {
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.workloadDesktop .load {
+  font-size: 40px;
+}
+
+.loadStatus {
+  font-size: 14px;
+}
+
+.gaugeWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gauge {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--control);
+}
+
+.gaugeBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--srs-a2);
+}
+
+.gaugeMark {
+  position: absolute;
+  top: -4px;
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+
+.gaugeLabels {
+  position: relative;
+  height: 14px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.gaugeLabels span {
+  position: absolute;
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.trendLabel {
+  font-size: 11px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.trendSvg {
+  flex-shrink: 0;
+  color: var(--primary);
+  overflow: visible;
+}
+
+.divider {
+  height: 1px;
+  margin: 2px 0;
+  background: var(--line-soft);
+}
+
+.hoursHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hoursTotal {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hours {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hour,
+.hourPeak,
+.hourEmpty {
+  flex: 1;
+  border-radius: 2px;
+  background: var(--srs-master);
+}
+
+.hourPeak {
+  background: var(--primary-fill);
+}
+
+.hourEmpty {
+  background: var(--line);
+}
+
+.hoursFoot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.flight {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  padding-top: 6px;
+}
+
+.flightCell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.flightBar {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.flightN {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.flightLabel {
+  font-size: 11px;
+  color: var(--ink-3);
+  text-decoration: none;
+}
+
+.workloadDesktop > .para {
+  margin-top: auto;
+}
+
+/* Finish */
+.finish,
+.finishDesktop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: var(--radius-card);
+  background: var(--primary-fill);
+  color: var(--on-primary);
+  text-decoration: none;
+}
+
+.finishDesktop {
+  flex: 1 1 260px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 20px;
+}
+
+.finish:hover,
+.finishDesktop:hover {
+  color: var(--on-primary);
+}
+
+.finishMain {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.finishDesktop .finishMain {
+  gap: 8px;
+}
+
+.finishHead {
+  font-size: 13px;
+  color: var(--on-primary-2);
+}
+
+.finishDate {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.finishBody {
+  font-size: 13px;
+  color: var(--on-primary-2);
+}
+
+.finishDesktop .finishHead {
+  font-size: 15px;
+}
+
+.finishDesktop .finishDate {
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.finishDesktop .finishBody {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.chevron {
+  flex-shrink: 0;
+}
+
+.finishList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: auto 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgb(255 255 255 / 0.18);
+  font-size: 13px;
+  color: var(--on-primary-2);
+}
+
+.finishList div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.finishList dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--on-primary);
+}
+
+/* Desktop layout */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 20px;
+}
+
+.summary {
+  flex: 1 1 300px;
+}
+
+.sampleLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.covRow {
+  display: grid;
+  grid-template-columns: 32px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.covName {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.covTrack {
+  position: relative;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--control);
+}
+
+.covBar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+  background: var(--primary);
+}
+
+.covPct {
+  font-size: 14px;
+  text-align: right;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.pair > button {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-decoration: none;
+}
+
+.pairFigure,
+.accFigure {
+  text-decoration: underline dotted var(--line-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.pairFigure {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.accFigure {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.pairLabel {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.leeches {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leeches li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.leeches li + li {
+  border-top: 1px solid var(--line-soft);
+}
+
+.wide {
+  font-size: 15px !important;
+}
+
+.leechText {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.leechMeaning {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.leechSub {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.leechWrong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--attention-text);
+}
+
+.accTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.accTable th,
+.accTable td {
+  padding: 6px 0;
+  text-align: right;
+}
+
+.accTable th {
+  font-weight: 500;
+}
+
+.accTable thead th {
+  padding: 4px 0;
+  color: var(--ink-3);
+}
+
+.accTable th:first-child {
+  text-align: left;
+}
+
+.accTable tbody tr {
+  border-top: 1px solid var(--line-soft);
+}
+
+.muted {
+  color: var(--ink-3);
+}
+
+.strong {
+  font-weight: 700;
+}

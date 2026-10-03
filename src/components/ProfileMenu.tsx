@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useHistoryRange, useLastSyncAt, useUser } from '../db/hooks';
+import { useHistoryRange, useLastSyncAt, useUser, type HistoryRange } from '../db/hooks';
 import { useAppMode } from '../db/useAppMode';
 import { formatSyncTime } from '../format';
 import { Button, buttonClass } from './Button';
@@ -12,6 +12,24 @@ import { Sheet } from './Sheet';
 
 export function historyDaysCopy(days: number): string {
   return `History: ${days} ${days === 1 ? 'day' : 'days'} recorded`;
+}
+
+const dayMonth = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
+
+/** "History: 12 days recorded since 21 Sep. Last snapshot today at 14:02." */
+export function historyReadout(h: HistoryRange, now = Date.now()): string {
+  let out = historyDaysCopy(h.days);
+  if (h.first) {
+    const [y, m, d] = h.first.split('-').map(Number);
+    out += ` since ${dayMonth.format(new Date(y!, m! - 1, d))}`;
+  }
+  out += '.';
+  if (h.lastTakenAt) {
+    const at = Date.parse(h.lastTakenAt);
+    const today = new Date(at).toDateString() === new Date(now).toDateString();
+    out += ` Last snapshot ${today ? `today at ${formatSyncTime(at, now)}` : formatSyncTime(at, now)}.`;
+  }
+  return out;
 }
 
 /** Profile button plus its menu: the account sheet and the logout confirmation. */
@@ -66,7 +84,7 @@ function LiveMenu({ onClose, onLogout }: { onClose: () => void; onLogout: () => 
       <RefreshData />
       {lastSync != null && <p className={styles.note}>Last synced {formatSyncTime(lastSync)}</p>}
       <Link to="/settings" hash="history" className={styles.note} onClick={onClose}>
-        {historyDaysCopy(history?.days ?? 0)}
+        {history ? historyReadout(history) : historyDaysCopy(0)}
       </Link>
       <Link to="/settings" className={buttonClass('secondary')} onClick={onClose}>
         Settings
