@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Card } from '../../components/Card';
-import { fmtHour } from '../../domain/lessonWindow';
+import { fmtTime } from '../../domain/lessonWindow';
 import { gaugeMax, trendPoints } from '../../domain/today';
 import type { StageCounts } from '../../db/schema';
 import { Explain } from './Explain';
@@ -239,7 +239,7 @@ function SteadyLine({ d }: { d: TodayData }) {
           {window && (
             <p>
               Lessons at {window} keep the first two Apprentice reviews inside {own} waking hours,{' '}
-              {fmtHour(d.wakeHour)} to {fmtHour(d.sleepHour)}. Waking hours are set in Settings.
+              {fmtTime(d.wakeMin)} to {fmtTime(d.sleepMin)}. Waking hours are set in Settings.
             </p>
           )}
         </>

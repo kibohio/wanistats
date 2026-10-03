@@ -67,7 +67,7 @@ export function useTimelineData(
   const systems = useSrsSystems();
   const system = useLessonSystem();
   const [lessonsPerDay] = usePref('lessonsPerDay');
-  const [lessonHour] = usePref('lessonHour');
+  const [lessonMin] = usePref('lessonMin');
   const [stackBy] = usePref('timelineSplit');
   const now = useNow();
 
@@ -99,7 +99,7 @@ export function useTimelineData(
       granularity,
       stackBy,
       criticalIds: critical,
-      lessons: withLessons && system ? { perDay: lessonsPerDay, lessonHour, system } : undefined,
+      lessons: withLessons && system ? { perDay: lessonsPerDay, lessonMin, system } : undefined,
     });
   }, [
     assignments,
@@ -111,7 +111,7 @@ export function useTimelineData(
     withLessons,
     system,
     lessonsPerDay,
-    lessonHour,
+    lessonMin,
   ]);
 
   return data && { timeline: data, items, lessonsPerDay };

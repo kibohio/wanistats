@@ -99,7 +99,7 @@ describe('timeline', () => {
   });
 
   it('adds estimated reviews from N lessons a day at the lesson hour, hour-truncated', () => {
-    const lessons = { perDay: 10, lessonHour: 9, system: normal };
+    const lessons = { perDay: 10, lessonMin: 540, system: normal };
     const h = timeline(assignments, now, {
       range: '24h',
       granularity: 'hour',

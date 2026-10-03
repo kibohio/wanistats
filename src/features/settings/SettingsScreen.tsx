@@ -10,7 +10,6 @@ import { RefreshData } from '../../components/RefreshData';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { Sheet } from '../../components/Sheet';
-import { JITEN_URL } from '../../config';
 import {
   useHistoryRange,
   useLastSyncAt,
@@ -23,7 +22,7 @@ import { useAccountDb, useAppMode, useDb } from '../../db/useAppMode';
 import { otherAccount, type HistoryFile } from '../../domain/historyFile';
 import { formatLocalDate, formatSyncTime } from '../../format';
 import { useInstalledPacks, useManifest } from '../../packs/hooks';
-import { deletePack, formatBytes, hasUpdate, sizeOnDevice } from '../../packs/packs';
+import { deletePack, formatBytes, hasUpdate, packsDb, sizeOnDevice } from '../../packs/packs';
 import {
   deleteHistory,
   deleteLocalData,
@@ -37,10 +36,9 @@ import { DownloadSheet } from '../packs/DownloadSheet';
 import {
   Field,
   GoalLevelField,
-  hourOptions,
   InstallControl,
-  NumberField,
-  SelectField,
+  LessonTimeField,
+  StepperField,
   WakingHoursFields,
 } from './fields';
 import fieldStyles from './fields.module.css';
@@ -288,6 +286,7 @@ function PacksSection() {
   const manifest = useManifest();
   const installed = useInstalledPacks();
   const [sheet, setSheet] = useState<string[] | null>(null);
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
   // Serialising a pack is not free; only redo it when the installed rows change.
   const sizes = useMemo(
     () => new Map((installed ?? []).map((r) => [r.id, sizeOnDevice(r)])),
@@ -361,7 +360,30 @@ function PacksSection() {
           ),
         )}
       </ul>
+      {(installed?.length ?? 0) > 0 && (
+        <div className={styles.actions}>
+          <Button onClick={() => setConfirmDeleteAll(true)}>Delete all data packs</Button>
+        </div>
+      )}
       <Rows rows={[['Storage used', formatBytes(total)]]} />
+      <Sheet
+        open={confirmDeleteAll}
+        onClose={() => setConfirmDeleteAll(false)}
+        title="Delete all data packs"
+      >
+        <div className={styles.sheet}>
+          <p>
+            Delete all downloaded coverage data from this browser? You can download it again later.
+          </p>
+          <Button
+            variant="primary"
+            onClick={() => void packsDb.packs.clear().then(() => setConfirmDeleteAll(false))}
+          >
+            Delete all data packs
+          </Button>
+          <Button onClick={() => setConfirmDeleteAll(false)}>Cancel</Button>
+        </div>
+      </Sheet>
       <DownloadSheet open={sheet !== null} onClose={() => setSheet(null)} preselect={sheet ?? []} />
     </Section>
   );
@@ -380,7 +402,6 @@ const SPLITS: { value: Prefs['timelineSplit']; label: string }[] = [
 function PreferencesSection() {
   const [goalDate, setGoalDate] = usePref('goalDate');
   const [band, setBand] = usePref('band');
-  const [lessonHour, setLessonHour] = usePref('lessonHour');
   const [lessonsPerDay, setLessonsPerDay] = usePref('lessonsPerDay');
   const [theme, setTheme] = usePref('theme');
   const [split, setSplit] = usePref('timelineSplit');
@@ -402,28 +423,25 @@ function PreferencesSection() {
             />
           )}
         </Field>
-        <NumberField
+        <StepperField
           label="Comfortable load, from"
           value={band.min}
           min={0}
           max={1000}
+          step={10}
           onChange={(min) => void setBand({ ...band, min })}
         />
-        <NumberField
+        <StepperField
           label="Comfortable load, to"
           value={band.max}
           min={0}
           max={1000}
+          step={10}
           onChange={(max) => void setBand({ ...band, max })}
         />
         <WakingHoursFields />
-        <SelectField
-          label="Lesson time"
-          value={lessonHour}
-          options={hourOptions}
-          onChange={(v) => void setLessonHour(v)}
-        />
-        <NumberField
+        <LessonTimeField />
+        <StepperField
           label="Lessons a day, for the timeline estimate"
           value={lessonsPerDay}
           min={0}
@@ -582,44 +600,14 @@ function LocalDataSection() {
   );
 }
 
-const CC_BY_SA = 'https://creativecommons.org/licenses/by-sa/4.0/';
-
 function AboutSection() {
   return (
     <Section id="about" title="About">
       <p>
         WaniStats is free and has no ads. It reads your WaniKani data through the WaniKani API using
-        a token you provide. Your browser fetches the data directly from WaniKani and stores it only
-        on this device. WaniKani content, including subjects, meanings, readings and radical images,
-        belongs to Tofugu, LLC.
+        a token you provide and stores it only on this device.
       </p>
-      <ul className={styles.list}>
-        <li>
-          Frequency data from <a href={JITEN_URL}>Jiten (jiten.moe)</a>,{' '}
-          <a href={CC_BY_SA}>CC BY-SA 4.0</a>.
-        </li>
-        <li>
-          Kanji data from{' '}
-          <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a>, Electronic
-          Dictionary Research and Development Group,{' '}
-          <a href="https://www.edrdg.org/edrdg/licence.html">CC BY-SA 4.0</a>.
-        </li>
-        <li>
-          JLPT levels from{' '}
-          <a href="https://www.tanos.co.uk/jlpt/">Jonathan Waller&apos;s JLPT lists</a>,{' '}
-          <a href="https://www.tanos.co.uk/jlpt/sharing/">CC BY</a>, via{' '}
-          <a href="https://github.com/davidluzgouveia/kanji-data">davidluzgouveia/kanji-data</a>,{' '}
-          <a href="https://github.com/davidluzgouveia/kanji-data/blob/master/LICENSE">MIT</a>.
-        </li>
-      </ul>
-      <p>
-        Data packs are shared under CC BY-SA 4.0.{' '}
-        <a href="/data/LICENSE-DATA.md">Data licences and sources</a>
-      </p>
-      <div className={styles.actions}>
-        <Link to="/privacy">Privacy</Link>
-        <Link to="/terms">Terms</Link>
-      </div>
+      <Link to="/about">More about WaniStats</Link>
     </Section>
   );
 }

@@ -24,11 +24,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-input[type='number'].control {
-  width: 96px;
-  text-align: right;
-}
-
 .note {
   font-size: 14px;
   color: var(--ink-2);

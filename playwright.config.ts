@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const port = 4173;
+// E2E_PORT lets parallel checkouts run e2e without reusing each other's preview server.
+const port = Number(process.env.E2E_PORT ?? 4173);
 
 export default defineConfig({
   testDir: 'e2e',
