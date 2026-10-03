@@ -20,3 +20,16 @@ export function gradeLabel(grade: number): string | undefined {
   if (grade === 9 || grade === 10) return 'Jinmeiyō';
   return undefined;
 }
+
+export const KNOWN_STAGES = [
+  { value: '5', label: 'Guru' },
+  { value: '7', label: 'Master' },
+  { value: '8', label: 'Enlightened' },
+  { value: '9', label: 'Burned' },
+] as const;
+
+/** "Master or higher"; Burned is the top stage. */
+export function knownRange(stage: 5 | 7 | 8 | 9): string {
+  const name = KNOWN_STAGES.find((s) => s.value === String(stage))!.label;
+  return stage === 9 ? name : `${name} or higher`;
+}

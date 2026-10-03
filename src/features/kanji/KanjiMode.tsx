@@ -4,6 +4,7 @@ import { SegmentedControl } from '../../components/SegmentedControl';
 import { Chip } from '../../components/Chip';
 import { ExternalIcon, CloseIcon } from '../../components/icons';
 import { useAssignments, useSnapshots, useSubjects } from '../../db/hooks';
+import { usePref } from '../../db/prefs';
 import { useAppMode } from '../../db/useAppMode';
 import {
   coverageGrowth,
@@ -20,7 +21,7 @@ import { PackEmptyState, PackUpdateLine } from '../packs/PackPrompts';
 import styles from './Kanji.module.css';
 import { KanjiGrid, type GridHandle } from './KanjiGrid';
 import { CoverageBars, Estimated, Explained, num, pctText } from './parts';
-import { gradeLabel, stageName } from './stage';
+import { gradeLabel, knownRange, stageName } from './stage';
 
 const LISTS = [
   { value: 'jlpt', label: 'JLPT' },
@@ -56,6 +57,7 @@ export function KanjiMode() {
   const isSample = installed === null && sampleMode;
   const pack = isSample ? sampleKanji : (installed ?? undefined);
 
+  const [knownStage] = usePref('knownStage');
   const [view, setView] = useState<KanjiView>('jlpt');
   const [selected, setSelected] = useState<KanjiCell | null>(null);
   const gridRef = useRef<GridHandle>(null);
@@ -63,14 +65,16 @@ export function KanjiMode() {
   const groups = useMemo(
     () =>
       subjects && assignments
-        ? kanjiGroups(view, subjects, assignments, pack).filter((g) => g.total > 0)
+        ? kanjiGroups(view, subjects, assignments, pack, knownStage).filter((g) => g.total > 0)
         : [],
-    [view, subjects, assignments, pack],
+    [view, subjects, assignments, pack, knownStage],
   );
   const weighted = useMemo(
     () =>
-      subjects && assignments && pack ? weightedKanjiCoverage(subjects, assignments, pack) : null,
-    [subjects, assignments, pack],
+      subjects && assignments && pack
+        ? weightedKanjiCoverage(subjects, assignments, pack, knownStage)
+        : null,
+    [subjects, assignments, pack, knownStage],
   );
   const growth = useMemo(
     () => (snapshots ? coverageGrowth(snapshots, now) : null),
@@ -133,7 +137,8 @@ export function KanjiMode() {
                 <p>
                   Jiten publishes frequency ranks, not counts, so each kanji is weighted by 1 / rank
                   (a Zipf fit). The figure is the weight of known kanji over the weight of every
-                  ranked kanji. Known means Guru or higher at least once.
+                  ranked kanji. Known means {knownRange(knownStage)}
+                  {knownStage === 5 ? ' at least once' : ' now'}.
                 </p>
               }
             >
@@ -152,7 +157,8 @@ export function KanjiMode() {
               }
             >
               {growth.kanji >= 0 ? '+' : ''}
-              {num(growth.kanji)} kanji known in the last {growth.days} days.
+              {num(growth.kanji)} kanji known{knownStage > 5 && ' at Guru'} in the last{' '}
+              {growth.days} days.
             </Explained>
           )}
           <ul className={styles.legend} aria-label="Legend">

@@ -14,6 +14,7 @@ import { DownloadSheet } from '../packs/DownloadSheet';
 import { PackEmptyState, PackUpdateLine } from '../packs/PackPrompts';
 import styles from './Kanji.module.css';
 import { CoverageBars, Estimated, Explained, num, pctText } from './parts';
+import { knownRange } from './stage';
 
 type WordsPackId = `words-${string}`;
 
@@ -80,12 +81,13 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
   const installed = usePack(packId);
   const isSample = installed === null && sampleMode && packId === 'words-global';
   const pack = isSample ? sampleWords : installed;
+  const [knownStage] = usePref('knownStage');
 
   const coverage = useMemo(() => {
     if (!pack || !subjects || !assignments) return null;
     const sizes = isSample ? SAMPLE_SIZES : SIZES;
-    return wordCoverage(subjects, assignments, pack, sizes);
-  }, [pack, subjects, assignments, isSample]);
+    return wordCoverage(subjects, assignments, pack, sizes, knownStage);
+  }, [pack, subjects, assignments, isSample, knownStage]);
   const growth = useMemo(
     () => (snapshots ? coverageGrowth(snapshots, now) : null),
     [snapshots, now],
@@ -124,7 +126,11 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
       />
       {headline && (
         <p className={styles.line}>
-          {isSample ? "The sample's" : 'Your'} Guru&apos;d WaniKani vocabulary covers{' '}
+          {isSample ? "The sample's" : 'Your'}{' '}
+          {knownStage === 5
+            ? "Guru'd WaniKani vocabulary"
+            : `WaniKani vocabulary at ${knownRange(knownStage)}`}{' '}
+          covers{' '}
           <strong>{pctText(headline.pct)}</strong> of the {num(headline.size)} most common words in{' '}
           {where}.
         </p>
@@ -142,12 +148,14 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
         appearances. <Estimated />
       </Explained>
       <p className={styles.note}>
-        This counts only WaniKani vocabulary at Guru or higher, not words learned elsewhere.
+        This counts only WaniKani vocabulary at {knownRange(knownStage)}, not words learned
+        elsewhere.
       </p>
       {growth && growth.days > 0 && (
         <p className={styles.line}>
           {growth.vocab >= 0 ? '+' : ''}
-          {num(growth.vocab)} WaniKani words known in the last {growth.days} days.
+          {num(growth.vocab)} WaniKani words known{knownStage > 5 && ' at Guru'} in the last{' '}
+          {growth.days} days.
         </p>
       )}
       <WordList

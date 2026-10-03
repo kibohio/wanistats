@@ -431,3 +431,20 @@ button.barButton {
     border-radius: var(--radius-card) var(--radius-card) 0 0;
   }
 }
+
+.knownAt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.knownAt select {
+  min-height: 32px;
+  padding: 0 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--control);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
