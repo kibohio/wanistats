@@ -210,7 +210,7 @@ function InFlightCard() {
         ))}
       </ul>
       {steady !== null && (
-        <p className={styles.note}>About {steady.toLocaleString()} reviews a day long term.</p>
+        <p className={styles.note}>About {steady.toLocaleString()} reviews a day, long term.</p>
       )}
     </Card>
   );
