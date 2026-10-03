@@ -1,5 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
+import Dexie from 'dexie';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { applyStoredTheme } from './hooks/useTheme';
@@ -18,6 +19,8 @@ import './styles/global.css';
 void import('@fontsource/shippori-mincho-b1/500.css');
 
 applyStoredTheme();
+// Pre-release builds kept everything in one `wanistats` database; accounts now have their own.
+void Dexie.delete('wanistats');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

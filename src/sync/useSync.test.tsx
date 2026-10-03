@@ -8,10 +8,15 @@ import type { SyncProgress } from './sync';
 let finish: () => void = () => {};
 vi.mock('./sync', async (orig) => ({
   ...(await orig<typeof import('./sync')>()),
-  syncAll: (_db: unknown, onProgress: (p: SyncProgress) => void) => {
+  syncAll: (_s: unknown, _db: unknown, onProgress: (p: SyncProgress) => void) => {
     onProgress({ step: 4, label: 'Your levels', loaded: 0, total: 0 });
     return new Promise<void>((r) => (finish = r));
   },
+}));
+
+vi.mock('../db/useAppMode', async (orig) => ({
+  ...(await orig<typeof import('../db/useAppMode')>()),
+  activeDb: () => Promise.resolve({}),
 }));
 
 afterEach(cleanup);

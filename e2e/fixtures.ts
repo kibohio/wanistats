@@ -221,12 +221,15 @@ export async function openAccountMenu(page: Page) {
   return page.getByRole('dialog', { name: 'Account' });
 }
 
-/** Every row of a `wanistats` table, read straight from IndexedDB. */
-export function readTable<T = unknown>(page: Page, table: string): Promise<T[]> {
+/** The fixture account's database. */
+export const ACCOUNT_DB = `wanistats-${user.id}`;
+
+/** Every row of a table, read straight from IndexedDB; the fixture account's by default. */
+export function readTable<T = unknown>(page: Page, table: string, db = ACCOUNT_DB): Promise<T[]> {
   return page.evaluate(
-    (table) =>
+    ([table, name]) =>
       new Promise<T[]>((resolve, reject) => {
-        const open = indexedDB.open('wanistats');
+        const open = indexedDB.open(name);
         open.onerror = () => reject(open.error);
         open.onsuccess = () => {
           const db = open.result;
@@ -237,6 +240,6 @@ export function readTable<T = unknown>(page: Page, table: string): Promise<T[]> 
           db.close();
         };
       }),
-    table,
+    [table, db] as const,
   );
 }

@@ -1,10 +1,11 @@
 import Dexie from 'dexie';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { WK_API } from '../config';
-import { openDb, type WaniStatsDb } from '../db/schema';
+import { openDb, openSessionDb, type SessionDb, type WaniStatsDb } from '../db/schema';
 import { backgroundSync, clearCachedData, nextHourlyRun, syncAll, type SyncProgress } from './sync';
 
 let db: WaniStatsDb;
+let session: SessionDb;
 const fetchMock = vi.fn<typeof fetch>();
 const updated = '2026-10-01T10:00:00.000000Z';
 
@@ -30,8 +31,9 @@ const routes: Record<string, () => unknown> = {
 };
 
 beforeEach(async () => {
-  db = openDb('wanistats');
-  await db.auth.put('tok', 'token');
+  db = openDb('wanistats-u1');
+  session = openSessionDb();
+  await session.auth.put('tok', 'token');
   vi.stubGlobal('fetch', fetchMock);
   fetchMock.mockImplementation((url) => {
     const path = new URL(String(url)).pathname.replace('/v2/', '');
@@ -45,12 +47,13 @@ afterEach(async () => {
   vi.unstubAllGlobals();
   fetchMock.mockReset();
   db.close();
-  await Dexie.delete('wanistats');
+  session.close();
+  await Promise.all([Dexie.delete('wanistats-u1'), Dexie.delete('wanistats-session')]);
 });
 
 test('first sync stores every collection as returned and reports the five steps', async () => {
   const steps: string[] = [];
-  await syncAll(db, (p: SyncProgress) => {
+  await syncAll(session, db, (p: SyncProgress) => {
     if (steps.at(-1) !== p.label) steps.push(p.label);
   });
   expect(steps).toEqual([
@@ -76,10 +79,10 @@ test('first sync stores every collection as returned and reports the five steps'
 });
 
 test('next sync asks only for changes and keeps the cursor when nothing changed', async () => {
-  await syncAll(db);
+  await syncAll(session, db);
   fetchMock.mockClear();
   routes.resets = () => collection([], 'reset');
-  await syncAll(db);
+  await syncAll(session, db);
   const subjectsCall = fetchMock.mock.calls.find(([u]) => String(u).includes('/subjects'))!;
   expect(String(subjectsCall[0])).toBe(
     `${WK_API}/subjects?updated_after=${encodeURIComponent(updated)}`,
@@ -89,42 +92,41 @@ test('next sync asks only for changes and keeps the cursor when nothing changed'
 });
 
 test('304 leaves stored data and the cursor alone', async () => {
-  await syncAll(db);
+  await syncAll(session, db);
   fetchMock.mockImplementation(() => Promise.resolve(new Response(null, { status: 304 })));
-  await syncAll(db);
+  await syncAll(session, db);
   expect(await db.subjects.count()).toBe(2);
   expect((await db.syncState.get('subjects'))?.lastUpdatedAt).toBe(updated);
 });
 
 test('401 flags the token as rejected; a later success clears it', async () => {
   fetchMock.mockImplementationOnce(() => Promise.resolve(new Response('{}', { status: 401 })));
-  await expect(syncAll(db)).rejects.toMatchObject({ kind: 'unauthorized' });
-  expect(await db.meta.get('tokenRejected')).toBeDefined();
-  await syncAll(db);
-  expect(await db.meta.get('tokenRejected')).toBeUndefined();
+  await expect(syncAll(session, db)).rejects.toMatchObject({ kind: 'unauthorized' });
+  expect(await session.meta.get('tokenRejected')).toBeDefined();
+  await syncAll(session, db);
+  expect(await session.meta.get('tokenRejected')).toBeUndefined();
 });
 
-test('clearing cached data keeps the token, history, prefs and meta', async () => {
-  await syncAll(db);
+test('clearing cached data keeps history, prefs and meta', async () => {
+  await syncAll(session, db);
   await db.prefs.put({ key: 'goalLevel', value: 30 });
   await db.meta.put({ key: 'onboardingSeen', value: true });
   await clearCachedData(db);
   expect(await db.subjects.count()).toBe(0);
   expect(await db.syncState.count()).toBe(0);
-  expect(await db.auth.get('token')).toBe('tok');
   expect(await db.prefs.count()).toBe(1);
   expect(await db.meta.get('onboardingSeen')).toEqual({ key: 'onboardingSeen', value: true });
   expect(await db.snapshots.count()).toBe(1);
 });
 
 test('background sync fetches only assignments and review statistics, then snapshots', async () => {
-  await backgroundSync(db);
+  await backgroundSync(session, db);
   expect(fetchMock).not.toHaveBeenCalled(); // no user yet: never synced in the page
 
-  await syncAll(db);
+  await syncAll(session, db);
   await db.snapshots.clear();
   fetchMock.mockClear();
-  await backgroundSync(db);
+  await backgroundSync(session, db);
   expect(fetchMock.mock.calls.map(([u]) => new URL(String(u)).pathname)).toEqual([
     '/v2/assignments',
     '/v2/review_statistics',
@@ -133,8 +135,8 @@ test('background sync fetches only assignments and review statistics, then snaps
   expect(await db.snapshots.count()).toBe(1);
 
   fetchMock.mockClear();
-  await db.meta.put({ key: 'tokenRejected', value: true });
-  await backgroundSync(db);
+  await session.meta.put({ key: 'tokenRejected', value: true });
+  await backgroundSync(session, db);
   expect(fetchMock).not.toHaveBeenCalled();
 });
 

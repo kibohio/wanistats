@@ -1,6 +1,6 @@
 import { fetchCollection, getUserIfChanged, WkError } from '../api/client';
 import { writeDailySnapshot } from './snapshot';
-import type { CollectionName, SyncState, WaniStatsDb } from '../db/schema';
+import type { CollectionName, SessionDb, SyncState, WaniStatsDb } from '../db/schema';
 
 export const SYNC_STEPS = [
   'Your profile',
@@ -79,34 +79,35 @@ async function syncCollection(
   );
 }
 
-async function withRejection(db: WaniStatsDb, run: () => Promise<void>): Promise<void> {
+async function withRejection(session: SessionDb, run: () => Promise<void>): Promise<void> {
   try {
     await run();
   } catch (e) {
     if (e instanceof WkError && e.kind === 'unauthorized') {
-      await db.meta.put({ key: 'tokenRejected', value: true });
+      await session.meta.put({ key: 'tokenRejected', value: true });
     }
     throw e;
   }
-  await db.meta.delete('tokenRejected');
+  await session.meta.delete('tokenRejected');
 }
 
 /**
- * Incremental sync of every collection into `db`. Resources are stored exactly as returned,
+ * Incremental sync of every collection into the account database `db`. Resources are stored exactly as returned,
  * hidden subjects included (their data.hidden_at is the flag domain code filters on).
  * A failure part way leaves the cursor of the failed collection untouched, so the next run
  * refetches from there; puts are idempotent.
  */
 export async function syncAll(
+  session: SessionDb,
   db: WaniStatsDb,
   onProgress: (p: SyncProgress) => void = () => {},
 ): Promise<void> {
-  const token = await db.auth.get('token');
+  const token = await session.auth.get('token');
   if (!token) throw new WkError('unauthorized');
   const report: Report = (step, loaded = 0, total = 0) =>
     onProgress({ step, label: SYNC_STEPS[step]!, loaded, total });
 
-  await withRejection(db, async () => {
+  await withRejection(session, async () => {
     report(0);
     const userState = await db.syncState.get('user');
     const user = await getUserIfChanged(token, userState ?? {});
@@ -132,14 +133,14 @@ export async function syncAll(
  * The service worker's periodic run: only what a snapshot needs to be current, then today's
  * snapshot if none exists. Skipped when logged out, before the first sync, or after a 401.
  */
-export async function backgroundSync(db: WaniStatsDb): Promise<void> {
+export async function backgroundSync(session: SessionDb, db: WaniStatsDb): Promise<void> {
   const [token, user, rejected] = await Promise.all([
-    db.auth.get('token'),
+    session.auth.get('token'),
     db.user.get('me'),
-    db.meta.get('tokenRejected'),
+    session.meta.get('tokenRejected'),
   ]);
   if (!token || !user || rejected) return;
-  await withRejection(db, async () => {
+  await withRejection(session, async () => {
     for (const c of COLLECTIONS) {
       if (c[1] === 'assignments' || c[1] === 'review_statistics') {
         await syncCollection(db, token, c, () => {});
@@ -149,7 +150,7 @@ export async function backgroundSync(db: WaniStatsDb): Promise<void> {
   await writeDailySnapshot(db, Date.now());
 }
 
-/** Drops everything fetched from WaniKani; keeps the token, history, prefs and meta. */
+/** Drops everything fetched from WaniKani; keeps history, prefs and meta. */
 export function clearCachedData(db: WaniStatsDb): Promise<void> {
   const tables = [
     db.user,

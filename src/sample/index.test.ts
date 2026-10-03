@@ -51,7 +51,7 @@ describe('seedSampleDb', () => {
   });
 
   test('refuses to touch the live database', async () => {
-    const db = openDb('wanistats');
+    const db = openDb('wanistats-u1');
     await expect(seedSampleDb(db, NOW)).rejects.toThrow();
     db.close();
   });

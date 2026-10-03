@@ -1,6 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import { login, loginToToday, mockApi, openAccountMenu, readTable, TOKEN } from './fixtures';
+import {
+  ACCOUNT_DB,
+  login,
+  loginToToday,
+  mockApi,
+  openAccountMenu,
+  readTable,
+  TOKEN,
+} from './fixtures';
 
 const SAMPLE = 'Sample data. None of this is yours yet.';
 const todayKey = () => new Date().toLocaleDateString('sv');
@@ -54,7 +62,7 @@ test('a rejected token shows the 401 message', async ({ page }) => {
   await expect(page.getByRole('alert')).toHaveText(
     'WaniKani rejected that token. Check that you copied all of it.',
   );
-  expect(await readTable(page, 'auth')).toEqual([]);
+  expect(await readTable(page, 'auth', 'wanistats-session')).toEqual([]);
 });
 
 test('Refresh data updates the sync time and merges a 3-day gap into one delta set', async ({
@@ -63,12 +71,12 @@ test('Refresh data updates the sync time and merges a 3-day gap into one delta s
   await loginToToday(page);
   // Pretend the last snapshot was 3 days ago, with every counter at zero then.
   const { today, gapStart } = await page.evaluate(
-    () =>
+    (name) =>
       new Promise<{ today: string; gapStart: string }>((resolve, reject) => {
         const key = (d: Date) => d.toLocaleDateString('sv');
         const today = key(new Date());
         const gapStart = key(new Date(Date.now() - 3 * 86_400_000));
-        const open = indexedDB.open('wanistats');
+        const open = indexedDB.open(name);
         open.onsuccess = () => {
           const tx = open.result.transaction(['snapshots', 'meta'], 'readwrite');
           const snapshots = tx.objectStore('snapshots');
@@ -85,6 +93,7 @@ test('Refresh data updates the sync time and merges a 3-day gap into one delta s
           tx.onerror = () => reject(tx.error);
         };
       }),
+    ACCOUNT_DB,
   );
 
   const menu = await openAccountMenu(page);
@@ -100,7 +109,7 @@ test('Refresh data updates the sync time and merges a 3-day gap into one delta s
   expect(new Set(deltas.map((d) => d.date))).toEqual(new Set([today]));
 });
 
-test('logout returns to sample mode and removes the token', async ({ page }) => {
+test('logout removes only the token; Delete local data removes the rest', async ({ page }) => {
   await loginToToday(page);
   const menu = await openAccountMenu(page);
   await menu.getByRole('button', { name: 'Log out' }).click();
@@ -109,9 +118,22 @@ test('logout returns to sample mode and removes the token', async ({ page }) => 
     .getByRole('button', { name: 'Log out' })
     .click();
   await expect(page.getByText(SAMPLE)).toBeVisible();
-  const auth = await readTable(page, 'auth');
+  const auth = await readTable(page, 'auth', 'wanistats-session');
   expect(auth).not.toContain(TOKEN);
   expect(auth).toEqual([]);
+  expect((await readTable(page, 'subjects')).length).toBeGreaterThan(0);
+  expect(await readTable(page, 'snapshots')).toHaveLength(1);
+
+  await page.goto('/settings');
+  await page.getByRole('button', { name: 'Delete local data' }).click();
+  await page
+    .getByRole('dialog', { name: 'Delete local data' })
+    .getByRole('button', { name: 'Delete local data' })
+    .click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText(SAMPLE)).toBeVisible();
+  expect(await readTable(page, 'subjects')).toEqual([]);
+  expect(await readTable(page, 'accounts', 'wanistats-session')).toEqual([]);
 });
 
 test.describe('with the service worker', () => {

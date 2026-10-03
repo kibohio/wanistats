@@ -8,7 +8,7 @@ import {
 } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { CacheFirst } from 'workbox-strategies';
-import { openDb } from './db/schema';
+import { accountDbName, openDb, openSessionDb } from './db/schema';
 import { backgroundSync } from './sync/sync';
 
 declare const self: ServiceWorkerGlobalScope & {
@@ -39,14 +39,20 @@ self.addEventListener('message', (event) => {
   if ((event.data as { type?: string } | null)?.type === 'SKIP_WAITING') void self.skipWaiting();
 });
 
-// Registered by the page only when installed and logged in. Reads the token from IndexedDB; a
-// failure (offline, 401) just waits for the next run or the next time the app opens.
+// Registered by the page only when installed and logged in. Reads the token and the active
+// account from IndexedDB; a failure (offline, 401) just waits for the next run or app start.
 self.addEventListener('periodicsync', ((event: PeriodicSyncEvent) => {
   if (event.tag !== 'snapshot') return;
-  const db = openDb('wanistats');
+  const session = openSessionDb();
+  const run = async () => {
+    const id = (await session.meta.get('activeUserId'))?.value as string | undefined;
+    if (!id) return;
+    const db = openDb(accountDbName(id));
+    await backgroundSync(session, db).finally(() => db.close());
+  };
   event.waitUntil(
-    backgroundSync(db)
+    run()
       .catch(() => {})
-      .finally(() => db.close()),
+      .finally(() => session.close()),
   );
 }) as EventListener);

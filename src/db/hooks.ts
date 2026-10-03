@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useSyncExternalStore } from 'react';
 import type { User } from '../api/types';
-import { liveDb, useDb } from './useAppMode';
+import { accountDb, sessionDb, useDb } from './useAppMode';
 
 /** The signed-in (or sample) user, undefined until loaded or before the first sync. */
 export function useUser(): User | undefined {
@@ -9,15 +9,13 @@ export function useUser(): User | undefined {
   return useLiveQuery(() => db.user.get('me'), [db]);
 }
 
-/**
- * When every collection was last synced together, in ms; null before the first sync.
- * Live data only: sample mode has no sync.
- */
+/** When every collection was last synced together, in ms; null before the first sync. */
 export function useLastSyncAt(): number | null | undefined {
+  const db = useDb();
   return useLiveQuery(async () => {
-    const states = await liveDb.syncState.toArray();
+    const states = await db.syncState.toArray();
     return states.length ? Math.min(...states.map((s) => Date.parse(s.lastSyncAt))) : null;
-  }, []);
+  }, [db]);
 }
 
 export interface HistoryRange {
@@ -44,15 +42,24 @@ export function useHistoryRange(): HistoryRange | undefined {
 
 /** WaniKani answered 401 on the last sync. Cleared by the next successful one. */
 export function useTokenRejected(): boolean {
-  return !!useLiveQuery(() => liveDb.meta.get('tokenRejected'), []);
+  return !!useLiveQuery(() => sessionDb.meta.get('tokenRejected'), []);
 }
 
 /** The stored token with all but its last four characters hidden. */
 export function useMaskedToken(): string | undefined {
   return useLiveQuery(
-    () => liveDb.auth.get('token').then((t) => t && `${'•'.repeat(8)}${t.slice(-4)}`),
+    () => sessionDb.auth.get('token').then((t) => t && `${'•'.repeat(8)}${t.slice(-4)}`),
     [],
   );
+}
+
+/** Usernames of the other accounts with history in this browser. */
+export function useOtherAccountsWithHistory(userId: string | undefined): string[] | undefined {
+  return useLiveQuery(async () => {
+    const others = (await sessionDb.accounts.toArray()).filter((a) => a.userId !== userId);
+    const days = await Promise.all(others.map((a) => accountDb(a.userId).snapshots.count()));
+    return others.filter((_, i) => days[i]! > 0).map((a) => a.username);
+  }, [userId]);
 }
 
 function subscribeOnline(onChange: () => void) {

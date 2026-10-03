@@ -3,18 +3,19 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, expect, test, vi } from 'vitest';
 import type { SubjectResource } from '../../api/types';
-import { liveDb } from '../../db/useAppMode';
+import { accountDb, sessionDb } from '../../db/useAppMode';
 import { KanjiMode } from './KanjiMode';
 
 afterEach(async () => {
   vi.unstubAllGlobals();
-  await liveDb.auth.clear();
-  await liveDb.subjects.clear();
+  await sessionDb.auth.clear();
+  await accountDb('u').subjects.clear();
 });
 
 test('a logged-in user without the kanji pack gets a download prompt; WK level still works', async () => {
-  await liveDb.auth.put('tok', 'token');
-  await liveDb.subjects.put({
+  await sessionDb.auth.put('tok', 'token');
+  await sessionDb.meta.put({ key: 'activeUserId', value: 'u' });
+  await accountDb('u').subjects.put({
     id: 1,
     object: 'kanji',
     data: {
