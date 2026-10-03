@@ -4,6 +4,7 @@ import { Chip } from '../../components/Chip';
 import { ExternalIcon } from '../../components/icons';
 import { ItemSheet } from '../../components/ItemSheet';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { Select } from '../../components/Select';
 import {
   useAssignments,
   useReviewStatistics,
@@ -156,7 +157,7 @@ export function ItemsView({ items, accuracy, recentLeeches, now }: ViewProps) {
         </div>
         <div className={styles.selects}>
           <label htmlFor="items-group">Group</label>
-          <select
+          <Select
             id="items-group"
             value={group}
             onChange={(e) => setGroup(e.target.value as typeof group)}
@@ -165,14 +166,14 @@ export function ItemsView({ items, accuracy, recentLeeches, now }: ViewProps) {
             <option value="level">Level</option>
             <option value="type">Type</option>
             <option value="stage">SRS stage</option>
-          </select>
+          </Select>
           <label htmlFor="items-sort">Sort</label>
-          <select id="items-sort" value={sort} onChange={(e) => setSort(e.target.value as SortBy)}>
+          <Select id="items-sort" value={sort} onChange={(e) => setSort(e.target.value as SortBy)}>
             <option value="leechScore">Leech score</option>
             <option value="level">Level</option>
             <option value="accuracy">Accuracy</option>
             <option value="next">Next review</option>
-          </select>
+          </Select>
         </div>
       </div>
 

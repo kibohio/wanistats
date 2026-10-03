@@ -279,17 +279,6 @@ button.barButton {
   gap: 6px;
 }
 
-.knownAt select {
-  min-height: 32px;
-  padding: 0 6px;
-  border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  background: var(--control);
-  color: var(--ink);
-  font-size: var(--text-body);
-  font-weight: 700;
-}
-
 /* Word cards: word, reading, then rank and level. */
 .words {
   display: grid;
@@ -342,17 +331,6 @@ button.barButton {
   margin-top: 12px;
   font-size: var(--text-caption);
   color: var(--ink-3);
-}
-
-.pager select {
-  min-height: 32px;
-  padding: 0 6px;
-  border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  background: var(--control);
-  color: var(--ink);
-  font-size: var(--text-body);
-  font-weight: 700;
 }
 
 .pageOf {

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Card } from '../../components/Card';
 import { ItemSheet } from '../../components/ItemSheet';
+import { SubjectTip } from '../../components/ItemTip';
 import { Tile } from '../../components/Tile';
+import { Tooltip } from '../../components/Tooltip';
 import type { LevelUpKanji } from '../../domain/levelUp';
 import type { LevelUpGroup } from '../../domain/today';
 import { Explain } from './Explain';
@@ -292,15 +294,33 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
             ? `${char}, ${stageName(k.stage).replace(/ \d$/, '')}, passed`
             : `${char}, ${stageName(k.stage)}${k.stage ? `, next review ${label}` : ''}${slack ? ', not needed for level-up' : ''}`;
           return (
-            <div key={k.subjectId} className={styles.tileCell} title={name}>
-              <Tile
-                char={char}
-                srsStage={k.stage ?? undefined}
-                size={46}
-                mark={k.critical ? 'critical' : slack ? 'slack' : undefined}
-                aria-label={name}
-                onClick={() => setOpen(k.subjectId)}
-              />
+            <div key={k.subjectId} className={styles.tileCell}>
+              <Tooltip
+                content={
+                  <SubjectTip
+                    id={k.subjectId}
+                    char={char}
+                    note={
+                      k.passed
+                        ? 'Passed'
+                        : slack
+                          ? 'Not needed for level-up'
+                          : k.critical
+                            ? 'Level-critical'
+                            : undefined
+                    }
+                  />
+                }
+              >
+                <Tile
+                  char={char}
+                  srsStage={k.stage ?? undefined}
+                  size={46}
+                  mark={k.critical ? 'critical' : slack ? 'slack' : undefined}
+                  aria-label={name}
+                  onClick={() => setOpen(k.subjectId)}
+                />
+              </Tooltip>
               {label && (
                 <span
                   aria-hidden="true"

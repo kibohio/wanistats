@@ -3,6 +3,7 @@ import { useId, useMemo, useState } from 'react';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { Chip } from '../../components/Chip';
+import { Select } from '../../components/Select';
 import { useAssignments, useSnapshots, useSubjects } from '../../db/hooks';
 import { useAppMode } from '../../db/useAppMode';
 import { coverageGrowth, wordCoverage, type WordRow } from '../../domain/coverage';
@@ -259,7 +260,7 @@ function WordList({
       {rows.length > PAGE_SIZES[0]! && (
         <div className={styles.pager}>
           <label htmlFor={id}>Per page</label>
-          <select
+          <Select
             id={id}
             value={size}
             onChange={(e) => {
@@ -272,7 +273,7 @@ function WordList({
             {PAGE_SIZES.map((n) => (
               <option key={n}>{n}</option>
             ))}
-          </select>
+          </Select>
           <span className={styles.pageOf} aria-live="polite">
             Page {at + 1} of {pages}
           </span>

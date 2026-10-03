@@ -54,19 +54,8 @@
   color: var(--ink-3);
 }
 
-.selects label + select + label {
+.selects label:not(:first-child) {
   margin-left: 6px;
-}
-
-.selects select {
-  min-height: 36px;
-  padding: 0 8px;
-  border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  background: var(--control);
-  color: var(--ink);
-  font-size: var(--text-body);
-  font-weight: 700;
 }
 
 /* Accuracy summary */

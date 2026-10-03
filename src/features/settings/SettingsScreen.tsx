@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { User } from '../../api/types';
+import { AvatarPicker } from '../../components/Avatar';
 import { Button, buttonClass } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { LogoutSheet } from '../../components/LogoutSheet';
@@ -156,6 +157,7 @@ function LiveAccount() {
           ]}
         />
       )}
+      <AvatarPicker showLegend />
       <p className={styles.muted}>
         Your token stays in this browser and is only ever sent to api.wanikani.com. WaniStats only
         needs read access, so a read-only token is enough.

@@ -40,13 +40,6 @@ export const KanjiIcon = icon(
   </>,
 );
 export const ItemsIcon = icon(<path d="M9 6h11M9 12h11M9 18h11M4 6h1M4 12h1M4 18h1" />);
-export const SettingsIcon = icon(
-  <>
-    <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
-    <circle cx="15" cy="7" r="2" />
-    <circle cx="9" cy="17" r="2" />
-  </>,
-);
 export const RefreshIcon = icon(<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" />);
 export const PersonIcon = icon(
   <>
@@ -54,6 +47,7 @@ export const PersonIcon = icon(
     <path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5" />
   </>,
 );
+export const ChevronDownIcon = icon(<path d="M6 9l6 6 6-6" />);
 export const CloseIcon = icon(<path d="M6 6l12 12M18 6L6 18" />);
 export const InfoIcon = icon(
   <>

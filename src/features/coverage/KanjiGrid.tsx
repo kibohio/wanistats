@@ -2,6 +2,8 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Ref } from 'react';
 import type { KanjiCell, KanjiGroup } from '../../domain/coverage';
+import { SubjectTip } from '../../components/ItemTip';
+import { Tooltip } from '../../components/Tooltip';
 import styles from './Coverage.module.css';
 import { num } from './parts';
 
@@ -101,18 +103,28 @@ export function KanjiGrid({ groups, selected, onSelect, ariaFor, ref }: Props) {
                 style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: GAP }}
               >
                 {row.cells.map((c) => (
-                  <button
+                  <Tooltip
                     key={c.char}
-                    type="button"
-                    className={styles.cell}
-                    data-stage={c.inWaniKani ? c.stage : 'none'}
-                    aria-label={ariaFor(c)}
-                    aria-pressed={selected?.char === c.char}
-                    style={{ height: cell }}
-                    onClick={() => onSelect(c)}
+                    content={
+                      <SubjectTip
+                        id={c.subjectId}
+                        char={c.char}
+                        note={c.inWaniKani ? undefined : 'Not in WaniKani'}
+                      />
+                    }
                   >
-                    {c.char}
-                  </button>
+                    <button
+                      type="button"
+                      className={styles.cell}
+                      data-stage={c.inWaniKani ? c.stage : 'none'}
+                      aria-label={ariaFor(c)}
+                      aria-pressed={selected?.char === c.char}
+                      style={{ height: cell }}
+                      onClick={() => onSelect(c)}
+                    >
+                      {c.char}
+                    </button>
+                  </Tooltip>
                 ))}
               </div>
             )}

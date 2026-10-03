@@ -8,7 +8,7 @@ import { useApplyTheme } from '../hooks/useTheme';
 import { useSyncTriggers } from '../sync/useSync';
 import styles from './AppShell.module.css';
 import { Footer } from './Footer';
-import { SETTINGS, TABS } from './nav';
+import { TABS } from './nav';
 import { historyDaysCopy, ProfileButton } from './ProfileMenu';
 import { RefreshData } from './RefreshData';
 import { UpdateToast } from './UpdateToast';
@@ -54,7 +54,7 @@ function Sidebar() {
           WaniStats
         </Link>
         <nav aria-label="Sections" className={styles.nav}>
-          {[...TABS, SETTINGS].map(({ to, label, Icon }) => (
+          {TABS.map(({ to, label, Icon }) => (
             <Link key={to} to={to} activeOptions={{ exact: true }} className={styles.navLink}>
               <Icon size={20} />
               {label}

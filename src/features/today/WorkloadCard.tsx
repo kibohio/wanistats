@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { useId } from 'react';
 import { Card } from '../../components/Card';
 import { Stepper } from '../../components/Stepper';
+import { Tooltip } from '../../components/Tooltip';
 import { usePref } from '../../db/prefs';
 import { formatTime } from '../../format';
 import { gaugeMax, trendPoints } from '../../domain/today';
@@ -37,9 +38,12 @@ function SubStages({ d }: { d: TodayData }) {
         <div key={key} className={styles.flightCell}>
           <span className={styles.flightBar} style={{ background: color }} />
           <span className={styles.flightN}>{d.work.stages[key]}</span>
-          <abbr title={SUB_NAMES[label]} className={styles.flightLabel}>
-            {label}
-          </abbr>
+          <Tooltip content={SUB_NAMES[label]}>
+            <abbr className={styles.flightLabel}>
+              <span aria-hidden="true">{label}</span>
+              <span className="visually-hidden">{SUB_NAMES[label]}</span>
+            </abbr>
+          </Tooltip>
         </div>
       ))}
     </div>

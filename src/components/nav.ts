@@ -1,4 +1,4 @@
-import { ItemsIcon, KanjiIcon, PaceIcon, SettingsIcon, TimelineIcon, TodayIcon } from './icons';
+import { ItemsIcon, KanjiIcon, PaceIcon, TimelineIcon, TodayIcon } from './icons';
 
 export const TABS = [
   { to: '/', label: 'Today', Icon: TodayIcon },
@@ -7,5 +7,3 @@ export const TABS = [
   { to: '/coverage', label: 'Coverage', Icon: KanjiIcon },
   { to: '/items', label: 'Items', Icon: ItemsIcon },
 ] as const;
-
-export const SETTINGS = { to: '/settings', label: 'Settings', Icon: SettingsIcon } as const;

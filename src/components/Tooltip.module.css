@@ -1,0 +1,30 @@
+.anchor {
+  display: contents;
+}
+
+/* Overrides the popover UA box (inset 0, auto margins, Canvas colours). */
+.tip {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: max-content;
+  max-width: min(260px, calc(100vw - 16px));
+  overflow: visible;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: var(--text-caption);
+  font-weight: 400;
+  line-height: var(--leading-caption);
+  text-align: left;
+  white-space: normal;
+}
+
+.tip strong {
+  display: block;
+  color: var(--ink);
+  font-size: var(--text-body);
+  font-weight: 700;
+}

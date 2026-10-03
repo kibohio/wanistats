@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
+import { Select } from '../../components/Select';
 import { usePref, type Prefs } from '../../db/prefs';
 import styles from './Coverage.module.css';
 import { ByLevelMode } from './ByLevelMode';
@@ -24,7 +25,7 @@ export function CoverageScreen() {
         aside={
           <label className={styles.knownAt}>
             Known at
-            <select
+            <Select
               value={knownStage}
               onChange={(e) => void setKnownStage(Number(e.target.value) as Prefs['knownStage'])}
             >
@@ -33,7 +34,7 @@ export function CoverageScreen() {
                   {o.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
         }
       />
