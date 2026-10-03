@@ -14,3 +14,4 @@ playwright-report/
 test-results/
 *.local
 .DS_Store
+scripts/data/.cache/
