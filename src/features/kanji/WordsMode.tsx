@@ -1,3 +1,4 @@
+import { usePref } from '../../db/prefs';
 import { useMemo, useState } from 'react';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
@@ -31,14 +32,20 @@ export function WordsMode() {
   const sampleMode = useAppMode() === 'sample';
   const manifest = useManifest().data;
   const installedRows = useInstalledPacks();
-  const [media, setMedia] = useState<WordsPackId>('words-global');
+  const [picked, setMedia] = useState<WordsPackId>('words-global');
   const [sheet, setSheet] = useState(false);
+  const [wanted] = usePref('wordMedia');
 
-  const wordPacks = manifest?.packs.filter((p) => p.id.startsWith('words-')) ?? [];
+  // Only the media lists chosen in Settings, Preferences.
+  const wordPacks =
+    manifest?.packs.filter(
+      (p) => p.id.startsWith('words-') && wanted.includes(p.id.slice('words-'.length)),
+    ) ?? [];
   const installedIds = new Set(installedRows?.map((r) => r.id));
   const options = wordPacks
     .filter((p) => installedIds.has(p.id) || (p.id === 'words-global' && sampleMode))
     .map((p) => ({ value: p.id as WordsPackId, label: shortLabel(p.label) }));
+  const media = options.some((o) => o.value === picked) ? picked : (options[0]?.value ?? picked);
   const missing = wordPacks.filter((p) => !installedIds.has(p.id)).map((p) => p.id);
 
   return (

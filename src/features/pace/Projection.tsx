@@ -65,10 +65,6 @@ export function Projection(p: Props) {
     finish.goal > p.level + 2
       ? `levels ${p.level + 1} to ${finish.goal - 1}`
       : `level ${p.level + 1}`;
-  // Sample data only covers the first levels; a missing level would count as zero time.
-  const knownLevels = Array.from({ length: finish.levelsLeft }, (_, i) => p.level + 1 + i).every(
-    (l) => p.minLevelTimes.has(l),
-  );
   const levelUpRow: [string, string] = ['Next level-up, earliest', fmtDateTime(lu)];
 
   const goalSelect = (
@@ -212,7 +208,7 @@ export function Projection(p: Props) {
       )}
 
       <dl className={styles.rows}>
-        {!finish.reached && finish.fastestAt !== null && knownLevels && (
+        {!finish.reached && finish.fastestAt !== null && (
           <div>
             <dt>Fastest the SRS allows</dt>
             <dd>

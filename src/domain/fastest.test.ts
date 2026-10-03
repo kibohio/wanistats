@@ -40,4 +40,7 @@ describe('minLevelTimes', () => {
   it('sums a level range, end exclusive', () => {
     expect(sumMinLevelTimes(times, 5, 7)).toBe(246 * HOUR_MS);
   });
+  it('is unknown when a level in the range has no subjects', () => {
+    expect(sumMinLevelTimes(times, 5, 9)).toBeNull();
+  });
 });

@@ -37,8 +37,17 @@ export function minLevelTimes(
 }
 
 /** Sum of minimum times for levels `from` up to but not including `to`. */
-export function sumMinLevelTimes(times: Map<number, number>, from: number, to: number): number {
+/** Null when a level in the range has no subjects synced, since its minimum is unknown. */
+export function sumMinLevelTimes(
+  times: Map<number, number>,
+  from: number,
+  to: number,
+): number | null {
   let sum = 0;
-  for (let level = from; level < to; level++) sum += times.get(level) ?? 0;
+  for (let level = from; level < to; level++) {
+    const t = times.get(level);
+    if (t === undefined) return null;
+    sum += t;
+  }
   return sum;
 }
