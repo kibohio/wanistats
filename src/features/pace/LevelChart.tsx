@@ -42,9 +42,8 @@ export function LevelChart({ stats, resets, onToggle }: Props) {
   const table = (
     <>
       <p>
-        The median of the counted levels: half took longer, half took less. Quartiles use inclusive
-        linear interpolation. Levels over 3 times the median of the others are left out unless you
-        count them.
+        The median is the middle of the counted levels: half were faster, half slower. A level that
+        took over 3 times the median is left out unless you tap it back in.
       </p>
       <div className={styles.tableWrap}>
         <table className={styles.table}>
@@ -156,26 +155,26 @@ export function LevelChart({ stats, resets, onToggle }: Props) {
           ? 'Levels appear here as you pass them.'
           : 'Tap a bar to count a level or leave it out.'}
         {auto.length > 0 &&
-          ` ${auto.length > 1 ? 'Levels' : 'Level'} ${andList(auto)} took over 3 times as long as the others and ${auto.length > 1 ? 'are' : 'is'} left out by default.`}
+          ` ${auto.length > 1 ? 'Levels' : 'Level'} ${andList(auto)} took over 3 times the usual, so ${auto.length > 1 ? "they're" : "it's"} left out.`}
         {stats.meanAllDays !== null && stats.medianAllDays !== null && (
           <>
             {' '}
-            Counting every passed level, the{' '}
+            Across every passed level, the{' '}
             <Figure
               title="Mean of every level"
               className={styles.inline}
               explain={
                 <p>
-                  The total time of all {plural(completed.length, 'passed level')}, idle ones
-                  included, divided by {completed.length}: {fmtDays(stats.meanAllDays)} days. The
-                  median of the same levels is {fmtDays(stats.medianAllDays)} days. A few long
-                  breaks pull the mean up, which is why the pace uses the median.
+                  Counting breaks, {plural(completed.length, 'passed level')} took{' '}
+                  {fmtDays(stats.meanAllDays)} days on average. The median is{' '}
+                  {fmtDays(stats.medianAllDays)}. A few long breaks drag the average up, so the
+                  projection uses the median.
                 </p>
               }
             >
-              mean reads {fmtDays(stats.meanAllDays)} days
-            </Figure>
-            ; the median reads {fmtDays(stats.medianAllDays)}.
+              mean is {fmtDays(stats.meanAllDays)} days
+            </Figure>{' '}
+            and the median {fmtDays(stats.medianAllDays)}.
           </>
         )}
       </p>

@@ -30,7 +30,7 @@ export function PaceScreen() {
   const resets = useResets();
   const systems = useSrsSystems();
   const now = useNow();
-  const owner = useAppMode() === 'live' ? 'your' : 'the sample';
+  const owner = useAppMode() === 'live' ? 'your' : "the sample's";
   const [overrides, setOverrides] = usePref('levelOverrides');
 
   const data = useMemo(() => {
