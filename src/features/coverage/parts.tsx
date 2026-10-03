@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import styles from './Kanji.module.css';
+import styles from './Coverage.module.css';
 
 // Floor, so a list with one unknown entry never reads 100%.
 export const pctText = (pct: number) => `${Math.floor(pct)}%`;

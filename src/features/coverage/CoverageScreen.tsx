@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { usePref, type Prefs } from '../../db/prefs';
-import styles from './Kanji.module.css';
+import styles from './Coverage.module.css';
 import { KanjiMode } from './KanjiMode';
 import { KNOWN_STAGES } from './stage';
 import { WordsMode } from './WordsMode';
@@ -12,13 +12,13 @@ const MODES = [
   { value: 'words', label: 'Words' },
 ] as const;
 
-export function KanjiScreen() {
+export function CoverageScreen() {
   const [mode, setMode] = useState<'kanji' | 'words'>('kanji');
   const [knownStage, setKnownStage] = usePref('knownStage');
   return (
     <>
       <ScreenHeader
-        title="Kanji"
+        title="Coverage"
         aside={
           <label className={styles.knownAt}>
             Known at

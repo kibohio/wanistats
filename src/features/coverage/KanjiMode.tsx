@@ -18,7 +18,7 @@ import { useNow } from '../../hooks/useNow';
 import { usePack } from '../../packs/hooks';
 import { SAMPLE_COVERAGE_LABEL, sampleKanji } from '../../packs/sampleCoverage';
 import { PackEmptyState, PackUpdateLine } from '../packs/PackPrompts';
-import styles from './Kanji.module.css';
+import styles from './Coverage.module.css';
 import { KanjiGrid, type GridHandle } from './KanjiGrid';
 import { CoverageBars, Estimated, Explained, num, pctText } from './parts';
 import { gradeLabel, knownRange, stageName } from './stage';

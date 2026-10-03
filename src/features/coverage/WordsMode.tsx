@@ -12,7 +12,7 @@ import { useInstalledPacks, useManifest, usePack } from '../../packs/hooks';
 import { SAMPLE_COVERAGE_LABEL, sampleWords } from '../../packs/sampleCoverage';
 import { DownloadSheet } from '../packs/DownloadSheet';
 import { PackEmptyState, PackUpdateLine } from '../packs/PackPrompts';
-import styles from './Kanji.module.css';
+import styles from './Coverage.module.css';
 import { CoverageBars, Estimated, Explained, num, pctText } from './parts';
 import { knownRange } from './stage';
 import { plural } from '../../format';

@@ -2,7 +2,7 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Ref } from 'react';
 import type { KanjiCell, KanjiGroup } from '../../domain/coverage';
-import styles from './Kanji.module.css';
+import styles from './Coverage.module.css';
 import { num } from './parts';
 
 const GAP = 5;

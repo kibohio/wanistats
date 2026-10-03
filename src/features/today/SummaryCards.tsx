@@ -25,7 +25,7 @@ export function CoverageCard({ d }: { d: TodayData }) {
       className={styles.summary}
       title="Kanji known, by JLPT level"
       aside={
-        <Link to="/kanji" className={styles.link}>
+        <Link to="/coverage" className={styles.link}>
           Open map
         </Link>
       }
