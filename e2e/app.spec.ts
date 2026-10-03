@@ -1,0 +1,152 @@
+import { readFileSync } from 'node:fs';
+import { expect, test } from '@playwright/test';
+import { login, loginToToday, mockApi, openAccountMenu, readTable, TOKEN } from './fixtures';
+
+const SAMPLE = 'Sample data. None of this is yours yet.';
+const todayKey = () => new Date().toLocaleDateString('sv');
+
+test.beforeEach(async ({ context }) => {
+  await mockApi(context);
+});
+
+test('logged out, every tab shows sample data and the footer', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+  page.on('pageerror', (e) => errors.push(e.message));
+  const tabs: [string, RegExp][] = [
+    ['/', /^(Today|Level \d+.*)$/],
+    ['/timeline', /^Timeline$/],
+    ['/pace', /^Pace$/],
+    ['/kanji', /^Kanji$/],
+    ['/items', /^Items$/],
+    ['/settings', /^Settings$/],
+  ];
+  for (const [path, heading] of tabs) {
+    await page.goto(path);
+    await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
+    await expect(page.getByText(SAMPLE)).toBeVisible();
+    await expect(
+      page.getByRole('contentinfo').getByText('Built and maintained by Kiboh Inc.'),
+    ).toBeVisible();
+  }
+  expect(errors).toEqual([]);
+});
+
+test('login runs the first sync, onboards, lands on Today and writes a snapshot', async ({
+  page,
+}) => {
+  await login(page);
+  await expect(page).toHaveURL(/\/welcome$/);
+  await expect(page.getByRole('heading', { name: 'Welcome' })).toBeVisible();
+  await page.getByRole('button', { name: 'Skip' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText(SAMPLE)).toBeHidden();
+
+  const today = await page.evaluate(todayKey);
+  const snapshots = await readTable<{ date: string }>(page, 'snapshots');
+  expect(snapshots.map((s) => s.date)).toEqual([today]);
+});
+
+test('a rejected token shows the 401 message', async ({ page }) => {
+  await login(page, 'not-the-fixture-token');
+  await expect(page.getByRole('alert')).toHaveText(
+    'WaniKani rejected that token. Check that you copied all of it.',
+  );
+  expect(await readTable(page, 'auth')).toEqual([]);
+});
+
+test('Refresh data updates the sync time and merges a 3-day gap into one delta set', async ({
+  page,
+}) => {
+  await loginToToday(page);
+  // Pretend the last snapshot was 3 days ago, with every counter at zero then.
+  const { today, gapStart } = await page.evaluate(
+    () =>
+      new Promise<{ today: string; gapStart: string }>((resolve, reject) => {
+        const key = (d: Date) => d.toLocaleDateString('sv');
+        const today = key(new Date());
+        const gapStart = key(new Date(Date.now() - 3 * 86_400_000));
+        const open = indexedDB.open('wanistats');
+        open.onsuccess = () => {
+          const tx = open.result.transaction(['snapshots', 'meta'], 'readwrite');
+          const snapshots = tx.objectStore('snapshots');
+          const get = snapshots.get(today);
+          get.onsuccess = () => {
+            snapshots.delete(today);
+            snapshots.put({ ...get.result, date: gapStart });
+            tx.objectStore('meta').put({ key: 'snapshotBaseline', value: {} });
+          };
+          tx.oncomplete = () => {
+            open.result.close();
+            resolve({ today, gapStart });
+          };
+          tx.onerror = () => reject(tx.error);
+        };
+      }),
+  );
+
+  const menu = await openAccountMenu(page);
+  await menu.getByRole('button', { name: 'Refresh data' }).click();
+  await expect(menu.getByText('Synced just now')).toBeVisible();
+  await expect(menu.getByText(/^Last synced /)).toBeVisible();
+
+  const snapshots = await readTable<{ date: string }>(page, 'snapshots');
+  expect(snapshots.map((s) => s.date)).toEqual([gapStart, today]);
+  const deltas = await readTable<{ date: string }>(page, 'snapshotDeltas');
+  // One row per fixture subject with reviews, all on today's date.
+  expect(deltas).toHaveLength(4);
+  expect(new Set(deltas.map((d) => d.date))).toEqual(new Set([today]));
+});
+
+test('logout returns to sample mode and removes the token', async ({ page }) => {
+  await loginToToday(page);
+  const menu = await openAccountMenu(page);
+  await menu.getByRole('button', { name: 'Log out' }).click();
+  await page
+    .getByRole('dialog', { name: 'Log out' })
+    .getByRole('button', { name: 'Log out' })
+    .click();
+  await expect(page.getByText(SAMPLE)).toBeVisible();
+  const auth = await readTable(page, 'auth');
+  expect(auth).not.toContain(TOKEN);
+  expect(auth).toEqual([]);
+});
+
+test.describe('with the service worker', () => {
+  test.use({ serviceWorkers: 'allow' });
+
+  test('offline reload still shows synced data', async ({ page, context }) => {
+    await page.goto('/');
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await loginToToday(page);
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.getByText(/^Offline\. Showing data from /)).toBeVisible();
+    await expect(page.getByText(SAMPLE)).toBeHidden();
+    await expect(page.getByRole('button', { name: 'Account and settings' })).toHaveText('T');
+  });
+});
+
+test('packs download nothing until Download is pressed', async ({ page }) => {
+  const manifest = JSON.parse(readFileSync('public/data/packs/manifest.json', 'utf8')) as {
+    packs: { id: string; label: string; bytes: number }[];
+  };
+  const kanji = manifest.packs.find((p) => p.id === 'kanji')!;
+  const packRequests: string[] = [];
+  page.on('request', (r) => /\/data\/packs\/.*\.gz$/.test(r.url()) && packRequests.push(r.url()));
+
+  await page.goto('/kanji');
+  await page.goto('/settings');
+  await page.getByRole('button', { name: `Download ${kanji.label}` }).click();
+  const sheet = page.getByRole('dialog', { name: 'Download coverage data' });
+  // formatBytes for a size in the KB range.
+  const download = sheet.getByRole('button', {
+    name: `Download ${Math.round(kanji.bytes / 1000)} KB`,
+  });
+  await expect(download).toBeVisible();
+  expect(packRequests).toEqual([]);
+
+  const request = page.waitForRequest(/\/data\/packs\/kanji\..*\.gz$/);
+  await download.click();
+  await request;
+});
