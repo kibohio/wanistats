@@ -12,14 +12,18 @@
   align-items: stretch;
 }
 
-.scroll {
-  flex: 999 1 560px;
+/* Wide enough for 168 hourly bars; narrower and the selection panel wraps below instead. */
+.plotCol {
+  flex: 999 1 640px;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  overflow-x: auto;
 }
 
-.scroll .plotWrap {
-  min-width: 640px;
+/* Bars grow to the selection panel's height so the card has no gap under the chart. */
+.plotCol .plotWrap,
+.plotCol .plot {
+  flex: 1;
 }
 
 .plotWrap {
@@ -36,7 +40,8 @@
 }
 
 .chartWide .plot {
-  height: 240px;
+  height: auto;
+  min-height: 240px;
 }
 
 .bars {
@@ -284,18 +289,21 @@
   font-variant-numeric: tabular-nums;
 }
 
+.selExtras:empty {
+  min-height: 1.5em;
+}
+
+/* Two and a half rows of 30px tiles: the cut-off row shows there is more to scroll. */
 .items {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   gap: 4px;
+  height: 84px;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
   list-style: none;
-}
-
-.more {
-  font-size: 12px;
-  color: var(--ink-3);
 }
 
 .toggle {
@@ -305,14 +313,34 @@
   gap: 10px;
   min-height: 44px;
   font-size: 14px;
+}
+
+.toggle label {
   cursor: pointer;
 }
 
-.toggle input {
+.toggle input[type='checkbox'] {
   width: 22px;
   height: 22px;
   margin: 0;
   accent-color: var(--primary-fill);
+  cursor: pointer;
+}
+
+.perDay {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+/* Narrower than the Settings stepper so the sentence fits a phone row. */
+.perDay button {
+  width: 34px;
+}
+
+.perDay input {
+  width: 44px;
 }
 
 /* Phone card around the chart */
@@ -496,4 +524,72 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--gap);
+}
+
+/* When to do lessons: Card's look, with an info button beside the heading */
+.lessonCard {
+  composes: card from '../../components/Card.module.css';
+}
+
+.cardHead {
+  composes: head from '../../components/Card.module.css';
+  align-items: center;
+}
+
+.cardTitle {
+  composes: title from '../../components/Card.module.css';
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cardTitle h2 {
+  font: inherit;
+}
+
+.cardAside {
+  composes: aside from '../../components/Card.module.css';
+}
+
+.infoButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -6px 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  anchor-name: --lesson-info;
+}
+
+.infoButton:hover {
+  color: var(--ink);
+}
+
+/* Under the button where anchor positioning is supported; centred on screen otherwise. */
+.infoPopover {
+  position-anchor: --lesson-info;
+  position-area: bottom span-right;
+  position-try-fallbacks: flip-inline;
+  width: max-content;
+  max-width: min(300px, calc(100vw - 32px));
+  margin: 6px 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.12);
+}
+
+.infoPopover a {
+  color: var(--ink);
+  font-weight: 700;
 }

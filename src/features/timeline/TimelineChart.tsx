@@ -1,6 +1,7 @@
 import { stageName } from '../../domain/items';
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { SegmentedControl } from '../../components/SegmentedControl';
+import { Stepper } from '../../components/Stepper';
 import { Tile } from '../../components/Tile';
 import { usePref } from '../../db/prefs';
 import { fmtHour } from '../../domain/lessonWindow';
@@ -37,7 +38,6 @@ const KEY_COLOR: Record<StackKey, string> = {
 };
 
 const BIN_NOUN: Record<Granularity, string> = { hour: 'hour', day: 'day', week: 'week' };
-const MAX_TILES = 60;
 
 const weekday = new Intl.DateTimeFormat(undefined, { weekday: 'short' });
 const dayMonth = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
@@ -129,7 +129,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
   const b = bins[sel];
   return (
     <div className={desktop ? styles.chartWide : styles.chart}>
-      <div className={desktop ? styles.scroll : undefined}>
+      <div className={desktop ? styles.plotCol : undefined}>
         <div className={styles.plotWrap}>
           <div className={styles.plot}>
             <div
@@ -265,7 +265,8 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
             ) : (
               <p>{keys.map((k) => `${KEY_LABEL[k]} ${b.counts[k] ?? 0}`).join(', ')}</p>
             )}
-            {extras(b).length > 0 && <p>{extras(b).join(', ')}.</p>}
+            {/* Always rendered so the panel keeps its height between bars. */}
+            <p className={styles.selExtras}>{extras(b).length > 0 && `${extras(b).join(', ')}.`}</p>
             {desktop && (
               <p>Running total {(b.runningTotal + b.runningEstimate).toLocaleString()}.</p>
             )}
@@ -282,30 +283,30 @@ function SelectionItems({ ids, data }: { ids: number[]; data: TimelineData }) {
     .map((id) => ({ id, ...data.items.get(id) }))
     .filter((it) => it.char !== undefined)
     .sort((a, b) => Number(b.critical) - Number(a.critical) || a.stage! - b.stage!);
-  if (!items.length) return null;
+  // Fixed height, scrolling inside, so long slots don't stretch the page or jump it.
   return (
-    <>
-      <ul className={styles.items} aria-label="Items in this slot">
-        {/* ponytail: first 60 only; a long list belongs on the Items screen. */}
-        {items.slice(0, MAX_TILES).map((it) => (
-          <li key={it.id}>
-            <Tile
-              char={it.char!}
-              srsStage={it.stage}
-              size={30}
-              mark={it.critical ? 'critical' : undefined}
-            />
-            <span className="visually-hidden">
-              , {stageName(it.stage ?? null)}
-              {it.critical ? ', level-critical' : ''}
-            </span>
-          </li>
-        ))}
-      </ul>
-      {items.length > MAX_TILES && (
-        <p className={styles.more}>And {plural(items.length - MAX_TILES, 'more item')}.</p>
-      )}
-    </>
+    <ul
+      // Focusable so keyboard users can scroll it.
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+      className={styles.items}
+      aria-label={`${plural(items.length, 'item')} in this slot`}
+    >
+      {items.map((it) => (
+        <li key={it.id}>
+          <Tile
+            char={it.char!}
+            srsStage={it.stage}
+            size={30}
+            mark={it.critical ? 'critical' : undefined}
+          />
+          <span className="visually-hidden">
+            , {stageName(it.stage ?? null)}
+            {it.critical ? ', level-critical' : ''}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -316,12 +317,32 @@ export function LessonsToggle({
   checked: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const [perDay] = usePref('lessonsPerDay');
+  const id = useId();
+  const [perDay, setPerDay] = usePref('lessonsPerDay');
   return (
-    <label className={styles.toggle}>
-      <span>Add {perDay} lessons a day</span>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-    </label>
+    <div className={styles.toggle}>
+      <span className={styles.perDay}>
+        <label htmlFor={id}>Add</label>
+        <label htmlFor={`${id}n`} className="visually-hidden">
+          Lessons a day
+        </label>
+        <Stepper
+          id={`${id}n`}
+          label="Lessons a day"
+          value={perDay}
+          min={0}
+          max={100}
+          onChange={(v) => void setPerDay(v)}
+        />
+        <label htmlFor={id}>lessons a day</label>
+      </span>
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+    </div>
   );
 }
 
