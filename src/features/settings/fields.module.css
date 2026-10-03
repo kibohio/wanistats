@@ -24,7 +24,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-input.control {
+input[type='number'].control {
   width: 96px;
   text-align: right;
 }

@@ -1,18 +1,35 @@
 import { Link } from '@tanstack/react-router';
-import { useState, type ReactNode } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import type { User } from '../../api/types';
 import { Button, buttonClass } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { LogoutSheet } from '../../components/LogoutSheet';
 import { RefreshData } from '../../components/RefreshData';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { SegmentedControl } from '../../components/SegmentedControl';
+import { Sheet } from '../../components/Sheet';
 import { COMPANY, JITEN_URL, SOURCE_URL } from '../../config';
 import { useHistoryRange, useLastSyncAt, useMaskedToken, useUser } from '../../db/hooks';
+import { usePref, type Prefs } from '../../db/prefs';
 import { liveDb, useAppMode } from '../../db/useAppMode';
 import { formatLocalDate, formatSyncTime } from '../../format';
-import { exportHistory } from '../../sync/session';
+import { useInstalledPacks, useManifest } from '../../packs/hooks';
+import { deletePack, formatBytes, hasUpdate, sizeOnDevice } from '../../packs/packs';
+import { deleteHistory, exportHistory, importHistory } from '../../sync/session';
 import { clearCachedData } from '../../sync/sync';
 import { useSync, waitForSync } from '../../sync/useSync';
+import { DownloadSheet } from '../packs/DownloadSheet';
+import {
+  Field,
+  GoalLevelField,
+  hourOptions,
+  InstallControl,
+  NumberField,
+  SelectField,
+  WakingHoursFields,
+} from './fields';
+import fieldStyles from './fields.module.css';
 import styles from './SettingsScreen.module.css';
 
 const SUBSCRIPTION: Record<User['subscription']['type'], string> = {
@@ -49,50 +66,26 @@ export function SettingsScreen() {
   return (
     <>
       <ScreenHeader title="Settings" />
-      <Section id="account" title="Account">
-        {live ? (
-          <LiveAccount />
-        ) : (
-          <>
-            <p>You&apos;re viewing sample data</p>
-            <Link to="/login" className={buttonClass('primary')}>
-              Log in with WaniKani
-            </Link>
-          </>
-        )}
-      </Section>
-      {live && <SyncSection />}
-      {live && <HistorySection />}
-      <Section id="data-packs" title="Data packs">
-        <p className={styles.muted}>Coverage data packs you download appear here.</p>
-      </Section>
-      <Section id="preferences" title="Preferences">
-        <p className={styles.muted}>Goal, workload band, waking hours and theme appear here.</p>
-      </Section>
-      <Section id="app" title="App">
-        <Rows
-          rows={[
-            ['Version', __APP_VERSION__],
-            ['Built', formatLocalDate(__BUILD_DATE__)],
-          ]}
-        />
-      </Section>
-      <Section id="about" title="About">
-        <p>
-          WaniStats shows when you level up, how heavy your reviews are and when you finish, from
-          your WaniKani data. Everything runs in this browser.
-        </p>
-        <ul className={styles.list}>
-          <li>
-            Word and kanji frequency from <a href={JITEN_URL}>Jiten</a>, CC BY-SA 4.0
-          </li>
-          <li>Kanji grades and stroke counts from KANJIDIC2 (EDRDG), CC BY-SA 4.0</li>
-          <li>JLPT levels from unofficial lists by Jonathan Waller, CC BY</li>
-        </ul>
-        <p>Built and maintained by {COMPANY}</p>
-        <a href={SOURCE_URL}>Source on GitHub</a>
-        <p className={styles.muted}>Not affiliated with WaniKani or Tofugu.</p>
-      </Section>
+      <div className={styles.sections}>
+        <Section id="account" title="Account">
+          {live ? (
+            <LiveAccount />
+          ) : (
+            <>
+              <p>You&apos;re viewing sample data</p>
+              <Link to="/login" className={buttonClass('primary')}>
+                Log in with WaniKani
+              </Link>
+            </>
+          )}
+        </Section>
+        {live && <SyncSection />}
+        {live && <HistorySection />}
+        <PacksSection />
+        <PreferencesSection />
+        <AppSection />
+        <AboutSection />
+      </div>
     </>
   );
 }
@@ -114,6 +107,10 @@ function LiveAccount() {
           ]}
         />
       )}
+      <p className={styles.muted}>
+        Your token stays in this browser and is only ever sent to api.wanikani.com. WaniStats only
+        needs read access, so a read-only token is enough.
+      </p>
       <div className={styles.actions}>
         <Link to="/login" className={buttonClass('secondary')}>
           Replace token
@@ -148,24 +145,386 @@ function SyncSection() {
   );
 }
 
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
 function HistorySection() {
   const history = useHistoryRange();
-  const date = (d?: string) => (d ? formatLocalDate(d) : 'None yet');
+  const lastTaken = useLiveQuery(
+    async () => (await liveDb.snapshots.orderBy('date').last())?.takenAt,
+    [],
+  );
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [message, setMessage] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const days = history?.days ?? 0;
+
+  const onFile = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const { days } = await importHistory(await file.text());
+      setMessage(`Imported. ${plural(days, 'day')} recorded.`);
+    } catch (e) {
+      // parseHistoryFile throws plain Errors with user-facing copy; anything else is IndexedDB.
+      setMessage(
+        e instanceof Error && e.name === 'Error'
+          ? e.message
+          : 'Could not save the imported history. Try again.',
+      );
+    }
+  };
+
   return (
     <Section id="history" title="History">
+      <p className={styles.muted}>
+        WaniKani keeps lifetime totals but not your day-by-day history, so WaniStats saves a
+        snapshot each day you open it. History lives only in this browser; export it to keep a
+        backup.
+      </p>
       <Rows
         rows={[
-          ['Days recorded', history?.days ?? 0],
-          ['First snapshot', date(history?.first)],
-          ['Last snapshot', date(history?.last)],
+          ['Days recorded', days],
+          ['First snapshot', history?.first ? formatLocalDate(history.first) : 'None yet'],
+          ['Last snapshot', lastTaken ? formatSyncTime(Date.parse(lastTaken)) : 'None yet'],
         ]}
       />
       <div className={styles.actions}>
         <Button onClick={() => void exportHistory()}>Export history</Button>
-        {/* ponytail: import and delete arrive with the history file work */}
-        <Button disabled>Import history</Button>
-        <Button disabled>Delete history</Button>
+        <Button onClick={() => fileRef.current?.click()}>Import history</Button>
+        <Button disabled={days === 0} onClick={() => setConfirmDelete(true)}>
+          Delete history
+        </Button>
       </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="application/json,.json"
+        hidden
+        aria-label="History file"
+        onChange={(e) => {
+          void onFile(e.target.files?.[0]);
+          e.target.value = '';
+        }}
+      />
+      <p role="status" className={styles.muted}>
+        {message}
+      </p>
+      <Sheet open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Delete history">
+        <div className={styles.sheet}>
+          <p>
+            Delete {plural(days, 'day')} of history from this browser? This can&apos;t be undone.
+            Export your history first if you want to keep it.
+          </p>
+          <Button onClick={() => void exportHistory()}>Export history</Button>
+          <Button
+            variant="primary"
+            onClick={() =>
+              void deleteHistory().then(() => {
+                setConfirmDelete(false);
+                setMessage('History deleted.');
+              })
+            }
+          >
+            Delete history
+          </Button>
+          <Button onClick={() => setConfirmDelete(false)}>Cancel</Button>
+        </div>
+      </Sheet>
+    </Section>
+  );
+}
+
+/** Manifest versions are build dates, YYYYMMDD. */
+const versionDate = (v: string) =>
+  formatLocalDate(`${v.slice(0, 4)}-${v.slice(4, 6)}-${v.slice(6, 8)}`);
+
+function PacksSection() {
+  const manifest = useManifest();
+  const installed = useInstalledPacks();
+  const [sheet, setSheet] = useState<string[] | null>(null);
+  // Serialising a pack is not free; only redo it when the installed rows change.
+  const sizes = useMemo(
+    () => new Map((installed ?? []).map((r) => [r.id, sizeOnDevice(r)])),
+    [installed],
+  );
+  const entries = manifest.data?.packs ?? [];
+  const rows = new Map((installed ?? []).map((r) => [r.id, r]));
+  const orphans = (installed ?? []).filter((r) => !entries.some((e) => e.id === r.id));
+  const total = [...sizes.values()].reduce((a, b) => a + b, 0);
+
+  const pack = (id: string, label: string, detail: string, actions: ReactNode) => (
+    <li key={id} className={styles.pack}>
+      <span className={styles.packText}>
+        <span className={styles.packName}>{label}</span>
+        <span className={styles.muted}>{detail}</span>
+      </span>
+      <span className={styles.actions}>{actions}</span>
+    </li>
+  );
+  const remove = (id: string, label: string) => (
+    <Button small aria-label={`Delete ${label}`} onClick={() => void deletePack(id)}>
+      Delete
+    </Button>
+  );
+
+  return (
+    <Section id="data-packs" title="Data packs">
+      <p className={styles.muted}>
+        Coverage data is an optional download that stays on this device. Nothing downloads until
+        you press Download.
+      </p>
+      {manifest.isError && (
+        <p role="alert" className={styles.error}>
+          Could not load the list of data packs. Check your connection and try again.
+        </p>
+      )}
+      <ul className={styles.packs}>
+        {entries.map((e) => {
+          const row = rows.get(e.id);
+          return pack(
+            e.id,
+            e.label,
+            row
+              ? `Version ${versionDate(row.version)}, ${formatBytes(sizes.get(e.id) ?? 0)} on device`
+              : `Not downloaded, ${formatBytes(e.bytes)}`,
+            <>
+              {!row && (
+                <Button small aria-label={`Download ${e.label}`} onClick={() => setSheet([e.id])}>
+                  Download
+                </Button>
+              )}
+              {hasUpdate(e, row) && (
+                <Button
+                  small
+                  aria-label={`Update ${e.label}, ${formatBytes(e.bytes)}`}
+                  onClick={() => setSheet([e.id])}
+                >
+                  Update
+                </Button>
+              )}
+              {row && remove(e.id, e.label)}
+            </>,
+          );
+        })}
+        {orphans.map((r) =>
+          pack(
+            r.id,
+            r.id,
+            `${formatBytes(sizes.get(r.id) ?? 0)} on device, no longer offered`,
+            remove(r.id, r.id),
+          ),
+        )}
+      </ul>
+      <Rows rows={[['Storage used', formatBytes(total)]]} />
+      <DownloadSheet open={sheet !== null} onClose={() => setSheet(null)} preselect={sheet ?? []} />
+    </Section>
+  );
+}
+
+const THEMES: { value: Prefs['theme']; label: string }[] = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+const SPLITS: { value: Prefs['timelineSplit']; label: string }[] = [
+  { value: 'stage', label: 'SRS stage' },
+  { value: 'type', label: 'Item type' },
+];
+
+function PreferencesSection() {
+  const [goalDate, setGoalDate] = usePref('goalDate');
+  const [band, setBand] = usePref('band');
+  const [lessonHour, setLessonHour] = usePref('lessonHour');
+  const [lessonsPerDay, setLessonsPerDay] = usePref('lessonsPerDay');
+  const [theme, setTheme] = usePref('theme');
+  const [split, setSplit] = usePref('timelineSplit');
+  const [overrides, setOverrides] = usePref('levelOverrides');
+  const overrideCount = Object.keys(overrides).length;
+
+  return (
+    <Section id="preferences" title="Preferences">
+      <div>
+        <GoalLevelField />
+        <Field label="Goal date">
+          {(id) => (
+            <input
+              id={id}
+              type="date"
+              className={fieldStyles.control}
+              value={goalDate ?? ''}
+              onChange={(e) => void setGoalDate(e.target.value || null)}
+            />
+          )}
+        </Field>
+        <NumberField
+          label="Comfortable load, from"
+          value={band.min}
+          min={0}
+          max={1000}
+          onChange={(min) => void setBand({ ...band, min })}
+        />
+        <NumberField
+          label="Comfortable load, to"
+          value={band.max}
+          min={0}
+          max={1000}
+          onChange={(max) => void setBand({ ...band, max })}
+        />
+        <WakingHoursFields />
+        <SelectField
+          label="Lesson time"
+          value={lessonHour}
+          options={hourOptions}
+          onChange={(v) => void setLessonHour(v)}
+        />
+        <NumberField
+          label="Lessons a day, for the timeline estimate"
+          value={lessonsPerDay}
+          min={0}
+          max={200}
+          onChange={(v) => void setLessonsPerDay(v)}
+        />
+        <div className={fieldStyles.field}>
+          <span>Theme</span>
+          <SegmentedControl
+            label="Theme"
+            options={THEMES}
+            value={theme}
+            onChange={(v) => void setTheme(v)}
+          />
+        </div>
+        <div className={fieldStyles.field}>
+          <span>Timeline split</span>
+          <SegmentedControl
+            label="Timeline split"
+            options={SPLITS}
+            value={split}
+            onChange={(v) => void setSplit(v)}
+          />
+        </div>
+        <WordMediaField />
+      </div>
+      <div className={styles.actions}>
+        <Button disabled={overrideCount === 0} onClick={() => void setOverrides({})}>
+          Reset level exclusions
+        </Button>
+      </div>
+      <p className={styles.muted}>
+        {overrideCount === 0
+          ? 'Pace includes or leaves out each level automatically.'
+          : `${plural(overrideCount, 'level')} set by hand on Pace. Resetting returns them to automatic.`}
+      </p>
+    </Section>
+  );
+}
+
+/** Media lists offered in Words mode, from the word packs the manifest lists. */
+function WordMediaField() {
+  const [media, setMedia] = usePref('wordMedia');
+  const options = (useManifest().data?.packs ?? []).filter((p) => p.id.startsWith('words-'));
+  if (!options.length) return null;
+  return (
+    <fieldset className={styles.media}>
+      <legend>Word coverage lists</legend>
+      {options.map((p) => {
+        const key = p.id.slice('words-'.length);
+        const checked = media.includes(key);
+        return (
+          <label key={p.id} className={styles.check}>
+            <input
+              type="checkbox"
+              checked={checked}
+              // Words mode always needs one list.
+              disabled={checked && media.length === 1}
+              onChange={() =>
+                void setMedia(checked ? media.filter((m) => m !== key) : [...media, key])
+              }
+            />
+            {p.label}
+          </label>
+        );
+      })}
+    </fieldset>
+  );
+}
+
+function AppSection() {
+  const [update, setUpdate] = useState('');
+  const check = async () => {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if (!reg) {
+      setUpdate('Updates are checked when WaniStats runs from wanistats.com.');
+      return;
+    }
+    setUpdate('Checking for updates');
+    try {
+      await reg.update();
+      // A found update installs in the background; the "A new version is ready." toast follows.
+      setUpdate(
+        reg.installing || reg.waiting
+          ? 'A new version is downloading.'
+          : 'You have the latest version.',
+      );
+    } catch {
+      setUpdate("Can't reach WaniStats. Check your connection and try again.");
+    }
+  };
+  return (
+    <Section id="app" title="App">
+      <InstallControl />
+      <Rows
+        rows={[
+          ['Version', __APP_VERSION__],
+          ['Built', formatLocalDate(__BUILD_DATE__)],
+        ]}
+      />
+      <div className={styles.actions}>
+        <Button onClick={() => void check()}>Check for updates</Button>
+        <Link to="/welcome" className={buttonClass('secondary')}>
+          Show the introduction again
+        </Link>
+      </div>
+      <p role="status" className={styles.muted}>
+        {update}
+      </p>
+    </Section>
+  );
+}
+
+function AboutSection() {
+  return (
+    <Section id="about" title="About">
+      <p>
+        WaniStats shows when you level up, how heavy your reviews are and when you finish, from
+        your WaniKani data.
+      </p>
+      <p>
+        Everything runs in this browser. The token, synced data, history and preferences are
+        stored here, and the token is only ever sent to api.wanikani.com. There is no WaniStats
+        account, server or analytics.
+      </p>
+      <p>
+        History is the daily snapshot WaniStats saves on this device, because WaniKani&apos;s API
+        doesn&apos;t keep a day-by-day record. Export or delete it under History. Logging out
+        deletes it along with the synced data.
+      </p>
+      <ul className={styles.list}>
+        <li>
+          Word and kanji frequency from <a href={JITEN_URL}>Jiten</a>, CC BY-SA 4.0
+        </li>
+        <li>Kanji grades and stroke counts from KANJIDIC2 by the EDRDG, CC BY-SA 4.0</li>
+        <li>
+          JLPT levels from unofficial lists by Jonathan Waller, CC BY, via{' '}
+          <a href="https://github.com/davidluzgouveia/kanji-data">davidluzgouveia/kanji-data</a>,
+          MIT
+        </li>
+      </ul>
+      <p>
+        Data packs are shared under CC BY-SA 4.0.{' '}
+        <a href="/data/LICENSE-DATA.md">Data licences and sources</a>
+      </p>
+      <p>Built and maintained by {COMPANY}</p>
+      <a href={SOURCE_URL}>Source on GitHub</a>
+      <p className={styles.muted}>Not affiliated with WaniKani or Tofugu.</p>
     </Section>
   );
 }
