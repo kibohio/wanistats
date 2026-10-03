@@ -74,13 +74,13 @@ export function AccuracySummary({ report }: { report: AccuracyReport }) {
             {plural(b.answers, 'answer')}.
           </p>
           <p>
-            <strong>Questions right</strong> is correct answers divided by all answers, meaning and
+            <strong>Questions right</strong> is right answers out of all answers, meaning and
             reading together.
           </p>
           <p>
-            <strong>Items, both parts right</strong> takes each item's meaning rate times its
-            reading rate (meaning only for radicals and kana vocabulary), weighted by its reviews.
-            WaniKani keeps totals, not single reviews, so this is an estimate.
+            <strong>Items, both parts right</strong> is how often an item&apos;s meaning and reading
+            are both right. WaniKani only keeps totals, so this multiplies each item&apos;s meaning
+            and reading rates (just meaning for radicals and kana vocabulary), weighted by reviews.
           </p>
           <p>
             <strong>Weakest</strong> is the lowest meaning or reading rate in the table below.
