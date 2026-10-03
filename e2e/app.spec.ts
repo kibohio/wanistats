@@ -152,6 +152,12 @@ test.describe('with the service worker', () => {
   });
 });
 
+test('the old Kanji address opens Coverage', async ({ page }) => {
+  await page.goto('/kanji');
+  await expect(page).toHaveURL(/\/coverage$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Coverage' })).toBeVisible();
+});
+
 test('packs download nothing until Download is pressed', async ({ page }) => {
   const manifest = JSON.parse(readFileSync('public/data/packs/manifest.json', 'utf8')) as {
     packs: { id: string; label: string; bytes: number }[];
