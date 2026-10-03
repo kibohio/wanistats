@@ -36,10 +36,9 @@ import { DownloadSheet } from '../packs/DownloadSheet';
 import {
   Field,
   GoalLevelField,
-  hourOptions,
   InstallControl,
-  NumberField,
-  SelectField,
+  LessonTimeField,
+  StepperField,
   WakingHoursFields,
 } from './fields';
 import fieldStyles from './fields.module.css';
@@ -403,7 +402,6 @@ const SPLITS: { value: Prefs['timelineSplit']; label: string }[] = [
 function PreferencesSection() {
   const [goalDate, setGoalDate] = usePref('goalDate');
   const [band, setBand] = usePref('band');
-  const [lessonHour, setLessonHour] = usePref('lessonHour');
   const [lessonsPerDay, setLessonsPerDay] = usePref('lessonsPerDay');
   const [theme, setTheme] = usePref('theme');
   const [split, setSplit] = usePref('timelineSplit');
@@ -425,28 +423,25 @@ function PreferencesSection() {
             />
           )}
         </Field>
-        <NumberField
+        <StepperField
           label="Comfortable load, from"
           value={band.min}
           min={0}
           max={1000}
+          step={10}
           onChange={(min) => void setBand({ ...band, min })}
         />
-        <NumberField
+        <StepperField
           label="Comfortable load, to"
           value={band.max}
           min={0}
           max={1000}
+          step={10}
           onChange={(max) => void setBand({ ...band, max })}
         />
         <WakingHoursFields />
-        <SelectField
-          label="Lesson time"
-          value={lessonHour}
-          options={hourOptions}
-          onChange={(v) => void setLessonHour(v)}
-        />
-        <NumberField
+        <LessonTimeField />
+        <StepperField
           label="Lessons a day, for the timeline estimate"
           value={lessonsPerDay}
           min={0}

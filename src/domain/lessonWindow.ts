@@ -2,44 +2,54 @@ import type { SpacedRepetitionSystem } from '../api/types';
 import { intervalFor } from './srs';
 
 export interface DayPrefs {
-  /** Local hours, 0 to 23. Sleep may be earlier than wake when the day crosses midnight. */
-  wakeHour: number;
-  sleepHour: number;
-  lessonHour: number;
+  /** Local minutes since midnight, in 30-minute steps. Sleep may be earlier than wake when the day crosses midnight. */
+  wakeMin: number;
+  sleepMin: number;
+  lessonMin: number;
 }
 
-/** Hours of the day, wrapping past midnight, `from` and `to` inclusive. */
-export interface HourRange {
+/** Minutes since midnight, wrapping past midnight, `from` and `to` inclusive. */
+export interface TimeRange {
   from: number;
   to: number;
 }
 
-export type HourKind = 'window' | 'evening' | 'awake' | 'asleep';
+export type SlotKind = 'window' | 'evening' | 'awake' | 'asleep';
 
 export interface LessonWindow {
-  morning: HourRange | null;
-  evening: HourRange | null;
-  /** "07:00 to 11:00 or 19:00 sharp"; null when no hour works. */
+  morning: TimeRange | null;
+  evening: TimeRange | null;
+  /** "07:00 to 11:00 or 19:30 sharp"; null when no time works. */
   label: string | null;
-  /** Index is the local hour. */
-  strip: HourKind[];
+  /** 48 half-hour slots; index n starts at n * 30 minutes. */
+  strip: SlotKind[];
   lessonTimeFits: boolean;
-  /** Only when no window exists: the waking hour whose reviews land least outside the day. */
-  closest: { hour: number; hoursOutside: number } | null;
+  /** Only when no window exists: the waking time whose reviews land least outside the day. */
+  closest: { min: number; hoursOutside: number } | null;
 }
 
-export const fmtHour = (h: number) => `${String(h).padStart(2, '0')}:00`;
+export const SLOT_MIN = 30;
+const SLOTS = (24 * 60) / SLOT_MIN;
+const wrapDay = (min: number) => ((min % 1440) + 1440) % 1440;
 
-const fmtRange = (r: HourRange) =>
-  r.from === r.to ? `${fmtHour(r.from)} sharp` : `${fmtHour(r.from)} to ${fmtHour(r.to)}`;
+/** "07:30" from minutes since midnight. */
+export const fmtTime = (min: number) => {
+  const m = wrapDay(Math.round(min));
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+};
+export const fmtHour = (h: number) => fmtTime(h * 60);
+
+const fmtRange = (r: TimeRange) =>
+  r.from === r.to ? `${fmtTime(r.from)} sharp` : `${fmtTime(r.from)} to ${fmtTime(r.to)}`;
 
 export function lessonWindow(system: SpacedRepetitionSystem, prefs: DayPrefs): LessonWindow {
-  const a1 = intervalFor(system, 1);
-  const a2 = intervalFor(system, 2);
-  const { wakeHour: wake, sleepHour: sleep } = prefs;
-  // Work in hours since wake so a day crossing midnight is one straight span 0..awake.
-  const awake = (sleep - wake + 24) % 24 || 24;
-  const hourAt = (o: number) => (wake + o) % 24;
+  const a1 = (intervalFor(system, 1) * 60) / SLOT_MIN;
+  const a2 = (intervalFor(system, 2) * 60) / SLOT_MIN;
+  const wake = Math.round(wrapDay(prefs.wakeMin) / SLOT_MIN);
+  const sleep = Math.round(wrapDay(prefs.sleepMin) / SLOT_MIN);
+  // Work in slots since wake so a day crossing midnight is one straight span 0..awake.
+  const awake = (sleep - wake + SLOTS) % SLOTS || SLOTS;
+  const minAt = (o: number) => ((wake + o) % SLOTS) * SLOT_MIN;
 
   const morningOffsets: number[] = [];
   const eveningOffsets: number[] = [];
@@ -47,15 +57,15 @@ export function lessonWindow(system: SpacedRepetitionSystem, prefs: DayPrefs): L
     const back1 = o + a1;
     const back2 = back1 + a2;
     if (back2 <= awake) morningOffsets.push(o);
-    else if (back1 <= awake && back2 >= 24 && back2 <= 24 + awake) eveningOffsets.push(o);
+    else if (back1 <= awake && back2 >= SLOTS && back2 <= SLOTS + awake) eveningOffsets.push(o);
   }
-  const range = (offs: number[]): HourRange | null =>
-    offs.length ? { from: hourAt(offs[0]), to: hourAt(offs[offs.length - 1]) } : null;
+  const range = (offs: number[]): TimeRange | null =>
+    offs.length ? { from: minAt(offs[0]), to: minAt(offs[offs.length - 1]) } : null;
   const morning = range(morningOffsets);
   const evening = range(eveningOffsets);
 
-  const strip: HourKind[] = Array.from({ length: 24 }, (_, h) => {
-    const o = (h - wake + 24) % 24;
+  const strip: SlotKind[] = Array.from({ length: SLOTS }, (_, s) => {
+    const o = (s - wake + SLOTS) % SLOTS;
     if (morningOffsets.includes(o)) return 'window';
     if (eveningOffsets.includes(o)) return 'evening';
     return o < awake ? 'awake' : 'asleep';
@@ -70,17 +80,17 @@ export function lessonWindow(system: SpacedRepetitionSystem, prefs: DayPrefs): L
   let closest: LessonWindow['closest'] = null;
   if (!label) {
     const outside = (x: number) => {
-      const y = x % 24;
-      return y <= awake ? 0 : Math.min(y - awake, 24 - y);
+      const y = x % SLOTS;
+      return y <= awake ? 0 : Math.min(y - awake, SLOTS - y);
     };
     for (let o = 0; o <= awake; o++) {
-      const miss = outside(o + a1) + outside(o + a1 + a2);
-      if (!closest || miss < closest.hoursOutside)
-        closest = { hour: hourAt(o), hoursOutside: miss };
+      const hours = ((outside(o + a1) + outside(o + a1 + a2)) * SLOT_MIN) / 60;
+      if (!closest || hours < closest.hoursOutside)
+        closest = { min: minAt(o), hoursOutside: hours };
     }
   }
 
-  const lessonKind = strip[prefs.lessonHour];
+  const lessonKind = strip[Math.floor(wrapDay(prefs.lessonMin) / SLOT_MIN)];
   return {
     morning,
     evening,

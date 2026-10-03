@@ -47,7 +47,7 @@ export interface TimelineOptions {
   stackBy: StackBy;
   criticalIds?: ReadonlySet<number>;
   /** "Add N lessons a day": all answers right, done as soon as they come back. */
-  lessons?: { perDay: number; lessonHour: number; system: SpacedRepetitionSystem };
+  lessons?: { perDay: number; lessonMin: number; system: SpacedRepetitionSystem };
 }
 
 const stageKey = (stage: number): StackKey =>
@@ -119,7 +119,7 @@ export function timeline(
     }
     const end = starts[starts.length - 1];
     for (let d = 0; ; d++) {
-      const lessonAt = new Date(localDayStart(now, d)).setHours(lessons.lessonHour);
+      const lessonAt = new Date(localDayStart(now, d)).setHours(0, lessons.lessonMin);
       if (lessonAt >= end) break;
       if (lessonAt < now) continue;
       for (const off of offsets) {

@@ -175,3 +175,23 @@ test('packs download nothing until Download is pressed', async ({ page }) => {
   await download.click();
   await request;
 });
+
+test('waking hours and lesson time move in half hours', async ({ page }) => {
+  await page.goto('/settings');
+  const wake = page.getByRole('slider', { name: 'Wake up' });
+  await wake.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(wake).toHaveAttribute('aria-valuetext', '07:30');
+  await expect(page.getByText('07:30 to 23:00')).toBeVisible();
+  await page.keyboard.press('ArrowLeft');
+  await page.keyboard.press('ArrowLeft');
+  await expect(wake).toHaveAttribute('aria-valuetext', '06:30');
+
+  const sleep = page.getByRole('slider', { name: 'Go to sleep' });
+  await sleep.focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(sleep).toHaveAttribute('aria-valuetext', '22:30');
+
+  await page.getByRole('button', { name: 'Increase lesson time' }).click();
+  await expect(page.getByRole('status', { name: 'Lesson time' })).toHaveText('09:30');
+});

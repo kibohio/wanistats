@@ -1,18 +1,14 @@
-import { useId, useState, type ReactNode } from 'react';
+import { useId, type ComponentProps, type ReactNode } from 'react';
 import { Button } from '../../components/Button';
+import { DayRange } from '../../components/DayRange';
+import { Stepper } from '../../components/Stepper';
+import { useUser } from '../../db/hooks';
 import { usePref } from '../../db/prefs';
+import { fmtTime } from '../../domain/lessonWindow';
 import { useInstall } from '../../hooks/useInstall';
 import styles from './fields.module.css';
 
-const HOURS = Array.from({ length: 24 }, (_, h) => h);
-const LEVELS = Array.from({ length: 59 }, (_, i) => i + 2);
-
-export function formatHour(h: number): string {
-  return new Date(2000, 0, 1, h).toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-}
+const MAX_LEVEL = 60;
 
 export function Field({ label, children }: { label: string; children: (id: string) => ReactNode }) {
   const id = useId();
@@ -24,111 +20,49 @@ export function Field({ label, children }: { label: string; children: (id: strin
   );
 }
 
-export function SelectField({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  options: { value: number; label: string }[];
-  onChange: (v: number) => void;
-}) {
-  return (
-    <Field label={label}>
-      {(id) => (
-        <select
-          id={id}
-          className={styles.control}
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-        >
-          {options.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      )}
-    </Field>
-  );
-}
-
-export const hourOptions = HOURS.map((h) => ({ value: h, label: formatHour(h) }));
-
-/** Keeps its own text so a half-typed number isn't overwritten by the stored value. */
-export function NumberField({
-  label,
-  value,
-  min,
-  max,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  onChange: (v: number) => void;
-}) {
-  const [text, setText] = useState(String(value));
-  const [shown, setShown] = useState(value);
-  if (shown !== value) {
-    setShown(value);
-    setText(String(value));
-  }
-  return (
-    <Field label={label}>
-      {(id) => (
-        <input
-          id={id}
-          type="number"
-          inputMode="numeric"
-          className={styles.control}
-          min={min}
-          max={max}
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            const n = Number(e.target.value);
-            if (e.target.value !== '' && Number.isInteger(n) && n >= min && n <= max) onChange(n);
-          }}
-        />
-      )}
-    </Field>
-  );
+export function StepperField(props: Omit<ComponentProps<typeof Stepper>, 'id'>) {
+  return <Field label={props.label}>{(id) => <Stepper id={id} {...props} />}</Field>;
 }
 
 export function GoalLevelField() {
   const [goal, setGoal] = usePref('goalLevel');
+  const min = Math.min((useUser()?.level ?? 1) + 1, MAX_LEVEL);
   return (
-    <SelectField
+    <StepperField
       label="Goal level"
-      value={goal}
-      options={LEVELS.map((l) => ({ value: l, label: `Level ${l}` }))}
+      value={Math.min(Math.max(goal, min), MAX_LEVEL)}
+      min={min}
+      max={MAX_LEVEL}
       onChange={(v) => void setGoal(v)}
     />
   );
 }
 
 export function WakingHoursFields() {
-  const [wake, setWake] = usePref('wakeHour');
-  const [sleep, setSleep] = usePref('sleepHour');
+  const [wake, setWake] = usePref('wakeMin');
+  const [sleep, setSleep] = usePref('sleepMin');
   return (
-    <>
-      <SelectField
-        label="Wake up"
-        value={wake}
-        options={hourOptions}
-        onChange={(v) => void setWake(v)}
-      />
-      <SelectField
-        label="Go to sleep"
-        value={sleep}
-        options={hourOptions}
-        onChange={(v) => void setSleep(v)}
-      />
-    </>
+    <DayRange
+      wake={wake}
+      sleep={sleep}
+      onWake={(v) => void setWake(v)}
+      onSleep={(v) => void setSleep(v)}
+    />
+  );
+}
+
+export function LessonTimeField() {
+  const [lessonMin, setLessonMin] = usePref('lessonMin');
+  return (
+    <StepperField
+      label="Lesson time"
+      value={lessonMin}
+      min={0}
+      max={1410}
+      step={30}
+      format={fmtTime}
+      onChange={(v) => void setLessonMin(v)}
+    />
   );
 }
 
