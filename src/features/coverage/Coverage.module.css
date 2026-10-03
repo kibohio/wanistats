@@ -536,3 +536,174 @@ label.list .listMeta {
 .segment.notKnown {
   border-bottom: none;
 }
+
+/* Cumulative and reading curves */
+.curve {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  grid-template-rows: 180px auto;
+  margin-bottom: 4px;
+}
+
+.curveY {
+  position: relative;
+  font-size: var(--text-caption);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.curveY span {
+  position: absolute;
+  right: 6px;
+  transform: translateY(-50%);
+}
+
+.curvePlot {
+  position: relative;
+}
+
+.curveSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.curveGrid {
+  stroke: var(--line-soft);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.curveGrid:first-child {
+  stroke: var(--line-strong);
+}
+
+.curveYou {
+  stroke: var(--ink-3);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.curveDot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  box-sizing: content-box;
+  transform: translate(-50%, -50%);
+  outline: 1px solid var(--ink-3);
+}
+
+.curveHits {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.curveHit {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.curveHit:hover,
+.curveHit:focus-visible,
+.curveHit[aria-pressed='true'] {
+  background: linear-gradient(var(--ink-3), var(--ink-3)) center / 1px 100% no-repeat;
+}
+
+.curveHit:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.curveX {
+  position: relative;
+  grid-column: 2;
+  height: 20px;
+  font-size: var(--text-caption);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.curveX span {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+}
+
+.lineSwatch {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.youSwatch {
+  width: 0;
+  height: 12px;
+  border-left: 1px dashed var(--ink-3);
+}
+
+.dotSwatch {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--ink-3);
+  border-radius: 50%;
+}
+
+.curveTableWrap {
+  max-height: 420px;
+  overflow: auto;
+}
+
+.curveTable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+.curveTable th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+}
+
+.curveTable thead th:first-child {
+  z-index: 2;
+}
+
+.curveTable tr.curveMine > * {
+  background: var(--control);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.curveMineTag {
+  margin-left: 2px;
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.curveTable tfoot > tr > * {
+  border-top: 1px solid var(--line-strong);
+  color: var(--ink);
+}
+
+.curveTip {
+  display: grid;
+  font-variant-numeric: tabular-nums;
+}
+
+.curveTableNarrow {
+  width: auto;
+  min-width: min(100%, 280px);
+}
