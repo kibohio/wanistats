@@ -6,6 +6,7 @@ import { Tooltip } from '../../components/Tooltip';
 import { usePref } from '../../db/prefs';
 import { formatTime } from '../../format';
 import { gaugeMax, trendPoints } from '../../domain/today';
+import { bandStatus } from '../../domain/workload';
 import type { StageCounts } from '../../db/schema';
 import { Explain } from './Explain';
 import { int, pct, plural } from './format';
@@ -13,6 +14,7 @@ import styles from './Today.module.css';
 import type { TodayData } from './useToday';
 
 const STATUS = { under: 'Below', in: 'Inside', over: 'Above' } as const;
+const PROJECTED = { under: 'below', in: 'inside', over: 'above' } as const;
 
 const SUB_STAGES: [keyof StageCounts, string, string][] = [
   ['a1', 'A1', 'var(--srs-a1)'],
@@ -238,7 +240,7 @@ function SteadyInfo({ d }: { d: TodayData }) {
   return (
     <>
       <p>
-        At {plural(d.lessonsPerDay, 'new lesson')} a day, load settles near {int(p.load)} (
+        At {plural(d.lessonsPerDay, 'new lesson')} a day, workload settles near {int(p.load)} (
         {int(p.apprentice)} Apprentice + {int(p.guru)} Guru ÷ 10), shown as the dashed mark.
       </p>
       <p>
@@ -246,8 +248,8 @@ function SteadyInfo({ d }: { d: TodayData }) {
         half a day per review until you get to it, stretched by {acc} for the ones that come back.
       </p>
       <p>
-        Reviews average about {int(d.steady!)} a day once items start burning ({d.lessonsPerDay}{' '}
-        lessons × 8 reviews each, adjusted for {acc}).
+        Separately, reviews average about {int(d.steady!)} a day once items start burning (
+        {d.lessonsPerDay} lessons × 8 reviews each, adjusted for {acc}).
       </p>
     </>
   );
@@ -270,11 +272,13 @@ function Projection({ d }: { d: TodayData }) {
         />
         <label htmlFor={id}>lessons a day</label>
       </span>
+      {/* Two different units: workload (the gauge's scale) and reviews a day. Label both. */}
       <p className={styles.para}>
         <span className={styles.ghostKey} aria-hidden="true" />
-        At {d.lessonsPerDay} a day: about {int(p.load)}
+        Workload heads for about {int(p.load)}, {PROJECTED[bandStatus(p.load, d.work.band)]}{' '}
+        {d.sample ? 'the' : 'your'} band.
       </p>
-      <p className={styles.para}>About {int(d.steady!)} reviews a day, long term.</p>
+      <p className={styles.para}>Reviews: about {int(d.steady!)} a day, long term.</p>
     </div>
   );
 }
