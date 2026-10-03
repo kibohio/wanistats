@@ -1,3 +1,4 @@
+import { activeDb } from '../../db/useAppMode';
 import { useNavigate } from '@tanstack/react-router';
 import { useId, useState, type FormEvent } from 'react';
 import { getUser, WkError } from '../../api/client';
@@ -43,7 +44,9 @@ export function LoginScreen() {
       await saveLogin(value, report.data);
       setPhase('syncing');
       await syncAsync();
-      await navigate({ to: '/welcome' });
+      // Onboarding shows once per account; logging back in goes straight to Today.
+      const seen = await (await activeDb())?.meta.get('onboardingSeen');
+      await navigate({ to: seen?.value ? '/' : '/welcome' });
     } catch (err) {
       setPhase('form');
       setError(tokenErrorCopy(err));
