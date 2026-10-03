@@ -113,7 +113,8 @@ test('clearing cached data keeps the token, history, prefs and meta', async () =
   expect(await db.syncState.count()).toBe(0);
   expect(await db.auth.get('token')).toBe('tok');
   expect(await db.prefs.count()).toBe(1);
-  expect(await db.meta.count()).toBe(1);
+  expect(await db.meta.get('onboardingSeen')).toEqual({ key: 'onboardingSeen', value: true });
+  expect(await db.snapshots.count()).toBe(1);
 });
 
 test('hourly sync runs one minute past the next hour', () => {

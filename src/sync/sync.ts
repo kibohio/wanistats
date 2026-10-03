@@ -1,4 +1,5 @@
 import { fetchCollection, getUserIfChanged, WkError } from '../api/client';
+import { writeDailySnapshot } from './snapshot';
 import type { CollectionName, SyncState, WaniStatsDb } from '../db/schema';
 
 export const SYNC_STEPS = [
@@ -101,7 +102,7 @@ export async function syncAll(
     throw e;
   }
   await db.meta.delete('tokenRejected');
-  // INTEGRATE: await writeDailySnapshot(db, Date.now())
+  await writeDailySnapshot(db, Date.now());
 }
 
 /** Drops everything fetched from WaniKani; keeps the token, history, prefs and meta. */
