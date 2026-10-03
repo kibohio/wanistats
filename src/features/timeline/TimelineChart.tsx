@@ -129,7 +129,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
   const b = bins[sel];
   return (
     <div className={desktop ? styles.chartWide : styles.chart}>
-      <div className={desktop ? styles.scroll : undefined}>
+      <div className={desktop ? styles.plotCol : undefined}>
         <div className={styles.plotWrap}>
           <div className={styles.plot}>
             <div

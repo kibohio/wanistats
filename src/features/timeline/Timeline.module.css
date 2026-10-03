@@ -12,14 +12,18 @@
   align-items: stretch;
 }
 
-.scroll {
-  flex: 999 1 560px;
+/* Wide enough for 168 hourly bars; narrower and the selection panel wraps below instead. */
+.plotCol {
+  flex: 999 1 640px;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  overflow-x: auto;
 }
 
-.scroll .plotWrap {
-  min-width: 640px;
+/* Bars grow to the selection panel's height so the card has no gap under the chart. */
+.plotCol .plotWrap,
+.plotCol .plot {
+  flex: 1;
 }
 
 .plotWrap {
@@ -36,7 +40,8 @@
 }
 
 .chartWide .plot {
-  height: 240px;
+  height: auto;
+  min-height: 240px;
 }
 
 .bars {
