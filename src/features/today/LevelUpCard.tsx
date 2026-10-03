@@ -302,7 +302,10 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
                 onClick={() => setOpen(k.subjectId)}
               />
               {label && (
-                <span aria-hidden="true" className={slack ? styles.tileLabelFaded : styles.tileLabel}>
+                <span
+                  aria-hidden="true"
+                  className={slack ? styles.tileLabelFaded : styles.tileLabel}
+                >
                   {label}
                 </span>
               )}

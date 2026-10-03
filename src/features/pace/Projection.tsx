@@ -106,7 +106,7 @@ export function Projection(p: Props) {
             <>
               <p>
                 Your earliest next level-up, then {plural(finish.levelsLeft, 'more level')} at the
-                pace below.
+                pace below. It follows level pace, so lessons a day doesn&apos;t change it.
               </p>
               <Facts
                 rows={[

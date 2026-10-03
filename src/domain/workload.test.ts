@@ -6,9 +6,11 @@ import {
   loadFromStages,
   loadTrend,
   stageCountsFromAssignments,
+  steadyStateLoad,
   steadyStateReviewsPerDay,
   workload,
 } from './workload';
+import { NORMAL } from './test/fixtures';
 
 let nextId = 1;
 function asg(stage: number, extra: Partial<AssignmentResource['data']> = {}): AssignmentResource {
@@ -82,6 +84,25 @@ describe('steadyStateReviewsPerDay', () => {
   });
   it('has no answer without an accuracy', () => {
     expect(steadyStateReviewsPerDay(20, 0)).toBeNull();
+  });
+});
+
+describe('steadyStateLoad', () => {
+  it('is lessons a day times the days items sit in each stage', () => {
+    // Apprentice: (4 + 8 + 23 + 47 h + 4 x 12 h lag) / 24 / 0.85 = 6.37 days.
+    // Guru: (167 + 335 h + 2 x 12 h lag) / 24 / 0.85 = 25.78 days.
+    expect(steadyStateLoad(15, 0.85, NORMAL.data)).toEqual({
+      apprentice: 96,
+      guru: 387,
+      load: 134,
+    });
+  });
+  it('scales with the lesson rate', () => {
+    expect(steadyStateLoad(30, 0.85, NORMAL.data)?.load).toBe(269);
+    expect(steadyStateLoad(0, 0.85, NORMAL.data)?.load).toBe(0);
+  });
+  it('has no answer without an accuracy', () => {
+    expect(steadyStateLoad(15, 0, NORMAL.data)).toBeNull();
   });
 });
 
