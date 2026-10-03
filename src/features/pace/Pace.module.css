@@ -272,7 +272,7 @@ button.bar {
 }
 
 .counted {
-  background: var(--srs-master);
+  background: var(--accent);
 }
 
 .left {
@@ -282,7 +282,7 @@ button.bar {
 }
 
 .current {
-  border: 1.5px solid var(--srs-master);
+  border: 1.5px solid var(--accent);
   border-bottom: none;
   background: transparent;
 }
@@ -349,7 +349,7 @@ button.bar {
 }
 
 .swatch.current {
-  border-bottom: 1.5px solid var(--srs-master);
+  border-bottom: 1.5px solid var(--accent);
 }
 
 .resetSwatch {

@@ -20,19 +20,25 @@
   --attention-text: light-dark(#8a3a1f, #f0a68c);
   --backdrop: light-dark(rgb(28 29 31 / 0.4), rgb(0 0 0 / 0.6));
 
-  /* SRS ramp keeps the same lightness order in both themes; text on it is fixed. */
-  --srs-a1: light-dark(#dceaee, #c9dde3);
-  --srs-a2: light-dark(#cfe2ea, #bcd5df);
-  --srs-a3: light-dark(#c2dce5, #afcdd9);
-  --srs-a4: light-dark(#b4d3de, #a2c4d2);
-  --srs-guru: light-dark(#8cbbcb, #7fb0c1);
-  --srs-guru-2: light-dark(#79adbf, #6da2b5);
-  --srs-master: #3c7aa2;
-  --srs-enlightened: light-dark(#1f3b6e, #2b4c86);
+  /* SRS ramp: one hue per group (lime, teal, green, navy) on a lightness order that holds in
+     greyscale and under red-green colour blindness; sub-stages step within their hue. Ink text on
+     A1 to G2 and burned, white on master and enlightened. Values and checks in DECISIONS.md. */
+  --srs-a1: light-dark(#e8f9d5, #dcebcb);
+  --srs-a2: light-dark(#ceebb7, #c3dcae);
+  --srs-a3: light-dark(#b4dc9c, #abcd95);
+  --srs-a4: light-dark(#9acd86, #91bf7f);
+  --srs-guru: light-dark(#48b7bd, #49adb2);
+  --srs-guru-2: light-dark(#1ca0ac, #2a9aa5);
+  --srs-master: light-dark(#24744d, #226d49);
+  --srs-enlightened: light-dark(#18386e, #274b88);
   --srs-burned: #e8b22e;
   --srs-burned-marker: #d9a21b;
   --on-srs-light: #1c1d1f;
   --on-srs-dark: #ffffff;
+  /* Neutral data accents for charts that are not about SRS stages. */
+  --accent: #3c7aa2;
+  --accent-soft: light-dark(#8cbbcb, #7fb0c1);
+  --accent-faint: light-dark(#cfe2ea, #bcd5df);
   --unstarted-border: light-dark(#d3dae0, #3a4048);
 
   --font-ui:

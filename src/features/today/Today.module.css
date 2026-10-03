@@ -295,7 +295,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  background: var(--srs-a2);
+  background: var(--accent-faint);
 }
 
 .gaugeMark {
@@ -370,7 +370,7 @@
 .hourEmpty {
   flex: 1;
   border-radius: 2px;
-  background: var(--srs-master);
+  background: var(--accent);
 }
 
 .hourPeak {

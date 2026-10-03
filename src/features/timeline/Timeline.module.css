@@ -461,12 +461,12 @@
 }
 
 .awake {
-  background: var(--srs-a1);
+  background: var(--accent-faint);
 }
 
 .window,
 .evening {
-  background: var(--srs-guru);
+  background: var(--accent-soft);
 }
 
 .stripMark {
@@ -475,7 +475,7 @@
   width: 3px;
   height: 22px;
   border-radius: 2px;
-  background: var(--srs-master);
+  background: var(--accent);
 }
 
 .stripLesson {
