@@ -1,0 +1,95 @@
+/* Practice-paper square (genko yoshi). Blank squares show the dashed centre cross. */
+.tile {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-cell);
+  font-family: var(--font-kanji);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--on-srs-light);
+}
+
+button.tile {
+  cursor: pointer;
+}
+
+.blank {
+  border-color: var(--unstarted-border);
+  background: var(--surface);
+  color: var(--ink-3);
+}
+
+.blank::before,
+.blank::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.blank::before {
+  left: 50%;
+  top: 3px;
+  bottom: 3px;
+  border-left: 1px dashed var(--unstarted-border);
+}
+
+.blank::after {
+  top: 50%;
+  left: 3px;
+  right: 3px;
+  border-top: 1px dashed var(--unstarted-border);
+}
+
+.char {
+  position: relative;
+}
+
+.s1 {
+  background: var(--srs-a1);
+}
+.s2 {
+  background: var(--srs-a2);
+}
+.s3 {
+  background: var(--srs-a3);
+}
+.s4 {
+  background: var(--srs-a4);
+}
+.s5 {
+  background: var(--srs-guru);
+}
+.s6 {
+  background: var(--srs-guru-2);
+}
+.s7 {
+  background: var(--srs-master);
+  color: var(--on-srs-dark);
+}
+.s8 {
+  background: var(--srs-enlightened);
+  color: var(--on-srs-dark);
+}
+.s9 {
+  background: var(--srs-burned);
+}
+
+.critical {
+  border: 1.5px solid var(--attention);
+}
+
+.slack {
+  border: 1.5px dashed var(--ink-3);
+  opacity: 0.75;
+}
+
+.outside {
+  border: 1px dashed var(--ink-3);
+  background: transparent;
+}

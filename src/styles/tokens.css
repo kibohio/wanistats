@@ -1,0 +1,65 @@
+/* Light and dark values per token. data-theme on <html> overrides the system setting. */
+:root {
+  color-scheme: light dark;
+
+  --ground: light-dark(#fafaf7, #121417);
+  --surface: light-dark(#ffffff, #1a1d21);
+  --sidebar: light-dark(#f4f5f2, #16191c);
+  --ink: light-dark(#1c1d1f, #ecedee);
+  --ink-2: light-dark(#3e4148, #c3c6cc);
+  --ink-3: light-dark(#5b5e66, #9a9ea6);
+  --line: light-dark(#e3e6ea, #2a2e34);
+  --line-soft: light-dark(#eef0f2, #22262b);
+  --line-strong: light-dark(#c9d3dd, #3d434b);
+  --control: light-dark(#eef1f3, #24282d);
+  --primary: light-dark(#1f3b6e, #8fb1e3);
+  --primary-fill: light-dark(#1f3b6e, #2b4c86);
+  --on-primary: #ffffff;
+  --on-primary-2: #c9d6ea;
+  --attention: light-dark(#b8401f, #e2775a);
+  --attention-text: light-dark(#8a3a1f, #f0a68c);
+  --backdrop: light-dark(rgb(28 29 31 / 0.4), rgb(0 0 0 / 0.6));
+
+  /* SRS ramp keeps the same lightness order in both themes; text on it is fixed. */
+  --srs-a1: light-dark(#dceaee, #c9dde3);
+  --srs-a2: light-dark(#cfe2ea, #bcd5df);
+  --srs-a3: light-dark(#c2dce5, #afcdd9);
+  --srs-a4: light-dark(#b4d3de, #a2c4d2);
+  --srs-guru: light-dark(#8cbbcb, #7fb0c1);
+  --srs-guru-2: light-dark(#79adbf, #6da2b5);
+  --srs-master: #3f7ea6;
+  --srs-enlightened: light-dark(#1f3b6e, #2b4c86);
+  --srs-burned: #e8b22e;
+  --srs-burned-marker: #d9a21b;
+  --on-srs-light: #1c1d1f;
+  --on-srs-dark: #ffffff;
+  --unstarted-border: light-dark(#d3dae0, #3a4048);
+
+  --font-ui:
+    'Zen Kaku Gothic New', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', system-ui, sans-serif;
+  --font-kanji: 'Shippori Mincho B1', 'Hiragino Mincho ProN', serif;
+
+  --radius-cell: 5px;
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+  --card-pad: 16px;
+  --gap: 12px;
+  --tabbar-height: 64px;
+  --sidebar-width: 220px;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --card-pad: 20px;
+    --gap: 20px;
+  }
+}
