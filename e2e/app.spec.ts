@@ -158,6 +158,29 @@ test('the old Kanji address opens Coverage', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1, name: 'Coverage' })).toBeVisible();
 });
 
+test('cumulative and reading charts step through levels with the arrow keys', async ({ page }) => {
+  await page.goto('/coverage');
+  await page.getByRole('button', { name: 'By level' }).click();
+  await page.getByRole('button', { name: 'Cumulative' }).click();
+  const chart = page.getByRole('toolbar', { name: /taught per WaniKani level/ });
+  // Starts on the sample's level.
+  await chart.getByRole('button', { name: /^By level 12: N5 / }).focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(chart.getByRole('button', { name: /^By level 11: / })).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect(chart.getByRole('button', { name: /^By level 1: / })).toBeFocused();
+
+  await page.getByText('Show as a table').click();
+  await expect(page.getByRole('row', { name: /^12 Sample level/ })).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
+
+  await page.getByRole('button', { name: 'Reading' }).click();
+  await expect(page.getByText('estimated', { exact: true })).toBeVisible();
+  await expect(page.getByRole('columnheader', { name: 'Jiten, all media' })).toBeVisible();
+});
+
 test('packs download nothing until Download is pressed', async ({ page }) => {
   const manifest = JSON.parse(readFileSync('public/data/packs/manifest.json', 'utf8')) as {
     packs: { id: string; label: string; bytes: number }[];

@@ -3,6 +3,8 @@ import styles from './Coverage.module.css';
 
 // Floor, so a list with one unknown entry never reads 100%.
 export const pctText = (pct: number) => `${Math.floor(pct)}%`;
+/** One decimal, also floored, for figures that move a little each level. */
+export const pctFine = (pct: number) => `${(Math.floor(pct * 10) / 10).toFixed(1)}%`;
 export const num = (n: number) => n.toLocaleString('en-US');
 
 export interface Bar {
