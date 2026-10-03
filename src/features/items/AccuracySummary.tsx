@@ -4,6 +4,7 @@ import { Sheet } from '../../components/Sheet';
 import type { AccuracyReport } from '../../domain/accuracy';
 import { weakestPart } from '../../domain/items';
 import styles from './Items.module.css';
+import { plural } from '../../format';
 
 type Range = '7' | '30' | 'all';
 const RANGES = [
@@ -70,7 +71,7 @@ export function AccuracySummary({ report }: { report: AccuracyReport }) {
             {shown === 'all'
               ? 'All time, from the answer totals WaniKani keeps for each item.'
               : `The last ${shown} days, from the daily snapshots saved on this device.`}{' '}
-            {b.answers.toLocaleString()} answers.
+            {plural(b.answers, 'answer')}.
           </p>
           <p>
             <strong>Questions right</strong> is correct answers divided by all answers, meaning and

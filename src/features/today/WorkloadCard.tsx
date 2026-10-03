@@ -4,7 +4,7 @@ import { formatMinutes, formatTime, formatWindow } from '../../format';
 import { gaugeMax, trendPoints } from '../../domain/today';
 import type { StageCounts } from '../../db/schema';
 import { Explain } from './Explain';
-import { int, pct } from './format';
+import { int, pct, plural } from './format';
 import styles from './Today.module.css';
 import type { TodayData } from './useToday';
 
@@ -176,7 +176,7 @@ function Hours({ d }: { d: TodayData }) {
             </>
           }
         >
-          {int(day24.total)} reviews in the next 24 hours
+          {plural(Math.round(day24.total), 'review')} in the next 24 hours
         </Explain>
         <Link to="/timeline" className={styles.link}>
           Timeline
@@ -250,7 +250,7 @@ function SteadyLine({ d }: { d: TodayData }) {
       }
     >
       {d.steady !== null &&
-        `At ${d.lessonsPerDay} lessons a day, reviews settle at about ${int(d.steady)} a day once burns start. `}
+        `At ${plural(d.lessonsPerDay, 'lesson')} a day, reviews settle at about ${int(d.steady)} a day once burns start. `}
       {window &&
         `Lessons fit best ${window.includes(' to ') ? 'between' : 'at'} ${window.replace(' to ', ' and ')}.`}
     </Explain>

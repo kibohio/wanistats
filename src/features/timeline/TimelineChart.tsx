@@ -5,7 +5,7 @@ import { Stepper } from '../../components/Stepper';
 import { ItemSheet } from '../../components/ItemSheet';
 import { Tile } from '../../components/Tile';
 import { usePref } from '../../db/prefs';
-import { formatTime, type Clock } from '../../format';
+import { formatTime, plural, type Clock } from '../../format';
 import { useClock } from '../../hooks/useClock';
 import { daysBetween, localDayStart } from '../../domain/localDate';
 import type { Granularity, StackKey, TimelineBin, TimelineRange } from '../../domain/timeline';
@@ -77,9 +77,6 @@ function binLabel(
   if (g === 'day' && n <= 7) return i === 0 ? 'Today' : weekday.format(b.start);
   return i % (g === 'week' ? 4 : n > 60 ? 28 : 7) === 0 ? dayMonth.format(b.start) : '';
 }
-
-const plural = (n: number, one: string, many = `${one}s`) =>
-  `${n.toLocaleString()} ${n === 1 ? one : many}`;
 
 function extras(b: TimelineBin): string[] {
   const out: string[] = [];
@@ -347,7 +344,7 @@ export function LessonsToggle({
 }
 
 export const rangeTotal = (data: TimelineData | undefined) =>
-  data ? (data.timeline.total + data.timeline.estimateTotal).toLocaleString() : '';
+  data ? plural(data.timeline.total + data.timeline.estimateTotal, 'review') : '';
 
 /** The desktop Timeline card: title, total, lessons toggle, range control and the chart. */
 export function TimelineCard({ title = 'Timeline' }: { title?: string }) {
@@ -361,7 +358,7 @@ export function TimelineCard({ title = 'Timeline' }: { title?: string }) {
       <div className={styles.wideHead}>
         <div className={styles.wideTitle}>
           <h2 id={id}>{title}</h2>
-          {data && <span>{rangeTotal(data)} reviews in range</span>}
+          {data && <span>{rangeTotal(data)} in range</span>}
         </div>
         <div className={styles.wideControls}>
           <LessonsToggle checked={withLessons} onChange={setWithLessons} />

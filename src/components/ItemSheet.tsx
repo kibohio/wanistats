@@ -9,7 +9,7 @@ import {
 } from '../db/hooks';
 import { buildItems, stageName, type Item } from '../domain/items';
 import { leeches } from '../domain/leeches';
-import { formatSyncTime, type Clock } from '../format';
+import { formatSyncTime, plural, type Clock } from '../format';
 import { useClock } from '../hooks/useClock';
 import { useNow } from '../hooks/useNow';
 import { ExternalIcon } from './icons';
@@ -196,7 +196,7 @@ function itemFacts(
       ? [
           [
             'Leech score',
-            `${item.leech.score.toFixed(1)}, from ${item.incorrect} wrong answers`,
+            `${item.leech.score.toFixed(1)}, from ${plural(item.incorrect, 'wrong answer')}`,
           ] as [string, string],
         ]
       : []),

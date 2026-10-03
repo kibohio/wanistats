@@ -1,5 +1,6 @@
 import { HOUR_MS } from '../../domain/srs';
 import { formatTime, type Clock } from '../../format';
+export { plural } from '../../format';
 
 export const DAY_MS = 24 * HOUR_MS;
 
@@ -14,5 +15,3 @@ export function fmtSpan(ms: number): string {
   const h = Math.round(ms / HOUR_MS);
   return `${Math.floor(h / 24)} d ${h % 24} h`;
 }
-
-export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;

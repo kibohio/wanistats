@@ -9,7 +9,7 @@ import { PackEmptyState } from '../packs/PackPrompts';
 import { usePack } from '../../packs/hooks';
 import { SAMPLE_COVERAGE_LABEL, sampleKanji } from '../../packs/sampleCoverage';
 import { Explain } from './Explain';
-import { int, pct, stageName } from './format';
+import { int, pct, plural, stageName } from './format';
 import styles from './Today.module.css';
 import type { TodayData } from './useToday';
 
@@ -143,11 +143,11 @@ export function LeechesCard({ d }: { d: TodayData }) {
                   title={`Leech: ${ch}`}
                   explain={
                     <p>
-                      {l.incorrect} wrong answers in total. Leech score = wrong answers ÷ shortest
-                      current streak<sup>1.5</sup> = {l.score.toFixed(1)}. Items scoring 1 or more,
-                      not burned and learned over a week ago are leeches.
+                      {plural(l.incorrect, 'wrong answer')} in total. Leech score = wrong answers ÷
+                      shortest current streak<sup>1.5</sup> = {l.score.toFixed(1)}. Items scoring 1
+                      or more, not burned and learned over a week ago are leeches.
                       {l.recentMisses !== null &&
-                        ` Missed ${l.recentMisses} times in the last 14 days.`}
+                        ` Missed ${plural(l.recentMisses, 'time')} in the last 14 days.`}
                     </p>
                   }
                 >

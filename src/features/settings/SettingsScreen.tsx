@@ -20,7 +20,7 @@ import {
 import { usePref, type Prefs } from '../../db/prefs';
 import { useAccountDb, useAppMode, useDb } from '../../db/useAppMode';
 import { otherAccount, type HistoryFile } from '../../domain/historyFile';
-import { formatLocalDate, formatSyncTime } from '../../format';
+import { formatLocalDate, formatSyncTime, plural } from '../../format';
 import { useClock } from '../../hooks/useClock';
 import { useInstalledPacks, useManifest } from '../../packs/hooks';
 import { deletePack, formatBytes, hasUpdate, packsDb, sizeOnDevice } from '../../packs/packs';
@@ -202,8 +202,6 @@ function SyncSection() {
     </Section>
   );
 }
-
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 function HistorySection() {
   const history = useHistoryRange();

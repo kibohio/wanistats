@@ -228,7 +228,13 @@ function restsOn(d: TodayData): string | null {
   const n = g.subjectIds.length;
   const c = g.critical;
   const who =
-    n === 1 ? 'it needs' : c === n ? `all ${word(n)} need` : `${word(c)} of those ${word(n)} need`;
+    n === 1
+      ? 'it needs'
+      : c === n
+        ? n === 2
+          ? 'both need'
+          : `all ${word(n)} need`
+        : `${word(c)} of those ${word(n)} need`;
   const reviews = `${word(g.reviewsToGuru)} ${g.reviewsToGuru === 1 ? 'review' : 'reviews'} in a row`;
   if (g.kind === 'lesson')
     return `The date rests on kanji still in lessons: ${who} a lesson, then ${reviews}.`;

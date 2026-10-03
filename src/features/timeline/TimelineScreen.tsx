@@ -18,7 +18,7 @@ import { lessonWindow } from '../../domain/lessonWindow';
 import { intervalFor } from '../../domain/srs';
 import type { TimelineRange } from '../../domain/timeline';
 import { steadyStateReviewsPerDay, workload } from '../../domain/workload';
-import { formatHours, formatMinutes, formatWindow } from '../../format';
+import { formatHours, formatMinutes, formatWindow, plural } from '../../format';
 import { useClock } from '../../hooks/useClock';
 import { useNow } from '../../hooks/useNow';
 import styles from './Timeline.module.css';
@@ -55,7 +55,7 @@ function PhoneTimeline() {
   const data = useTimelineData(range, granularity, withLessons);
   return (
     <>
-      <ScreenHeader title="Timeline" aside={data && `${rangeTotal(data)} reviews ahead`} />
+      <ScreenHeader title="Timeline" aside={data && `${rangeTotal(data)} ahead`} />
       <SegmentedControl label="Range" options={RANGES} value={range} onChange={setRange} />
       <section aria-label="Upcoming reviews" className={styles.panel}>
         <LessonsToggle checked={withLessons} onChange={setWithLessons} />
@@ -215,9 +215,10 @@ function InFlightCard() {
       </ul>
       {steady !== null && itemAccuracy && (
         <p className={styles.note}>
-          At {lessonsPerDay} lessons a day, reviews settle at about {steady.toLocaleString()} a day
-          once burns start: {lessonsPerDay} lessons times 8 reviews each to burn, divided by an
-          estimated item accuracy of {Math.round(itemAccuracy * 100)}%.
+          At {plural(lessonsPerDay, 'lesson')} a day, reviews settle at about{' '}
+          {steady.toLocaleString()} a day once burns start: {plural(lessonsPerDay, 'lesson')} times
+          8 reviews each to burn, divided by an estimated item accuracy of{' '}
+          {Math.round(itemAccuracy * 100)}%.
         </p>
       )}
     </Card>

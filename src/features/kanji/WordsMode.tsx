@@ -15,6 +15,7 @@ import { PackEmptyState, PackUpdateLine } from '../packs/PackPrompts';
 import styles from './Kanji.module.css';
 import { CoverageBars, Estimated, Explained, num, pctText } from './parts';
 import { knownRange } from './stage';
+import { plural } from '../../format';
 
 type WordsPackId = `words-${string}`;
 
@@ -154,7 +155,7 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
         <p className={styles.line}>
           {growth.vocab >= 0 ? '+' : ''}
           {num(growth.vocab)} WaniKani words known{knownStage > 5 && ' at Guru'} in the last{' '}
-          {growth.days} days.
+          {growth.days === 1 ? 'day' : `${growth.days} days`}.
         </p>
       )}
       <WordList
@@ -190,7 +191,7 @@ function WordList({
   const at = Math.min(page, pages - 1);
   const id = useId();
   return (
-    <Card title={title} aside={`${num(rows.length)} words, most frequent first`}>
+    <Card title={title} aside={`${plural(rows.length, 'word')}, most frequent first`}>
       {rows.length === 0 ? (
         <p className={styles.note}>{empty}</p>
       ) : (

@@ -1,5 +1,6 @@
 import { localDayStart } from '../../domain/localDate';
 import { formatTime, type Clock } from '../../format';
+export { plural } from '../../format';
 
 // Runtime locale throughout, like src/format.ts.
 const weekdayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short' });
@@ -71,4 +72,3 @@ export const int = (n: number) => Math.round(n).toLocaleString();
 
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 export const word = (n: number) => WORDS[n] ?? String(n);
-export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
