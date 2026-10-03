@@ -37,16 +37,12 @@ export function PrivacyPage() {
         <a href={HOST_PRIVACY_URL}>Cloudflare&apos;s privacy policy</a>.
       </p>
       <p>
-        Logging out deletes your token, synced data and history from this browser. You can export
-        your history first from{' '}
-        <Link to="/settings" hash="history">
-          Settings
-        </Link>
-        . Data packs hold no personal data and stay until you delete them in{' '}
-        <Link to="/settings" hash="data-packs">
-          Settings, Data packs
-        </Link>
-        .
+        Logging out removes your token from this browser. Synced data, history and data packs stay,
+        kept separately for each WaniKani account, so nothing is lost when you log in again.{' '}
+        <Link to="/settings" hash="local-data">
+          Settings, Delete local data
+        </Link>{' '}
+        removes everything from this browser and lets you export your history first.
       </p>
       <p>
         For questions or removal requests, email {contact}. Because nothing is stored on a server,

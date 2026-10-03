@@ -6,7 +6,6 @@ afterEach(() => Promise.all(['wanistats-sample', 'wanistats-packs'].map((n) => D
 
 test('opens the app schema and round-trips key shapes', async () => {
   const db = openDb('wanistats-sample');
-  await db.auth.put('t0ken', 'token');
   await db.snapshotDeltas.bulkPut([
     {
       date: '2026-10-01',
@@ -38,7 +37,6 @@ test('opens the app schema and round-trips key shapes', async () => {
   };
   await db.snapshots.put(snap);
 
-  expect(await db.auth.get('token')).toBe('t0ken');
   expect(await db.snapshots.get('2026-10-02')).toEqual(snap);
   const oct2 = await db.snapshotDeltas
     .where('[date+subjectId]')

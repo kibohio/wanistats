@@ -1,8 +1,8 @@
 import { useMutation, useMutationState } from '@tanstack/react-query';
 import { useEffect, useSyncExternalStore } from 'react';
-import type { WkError } from '../api/client';
+import { WkError } from '../api/client';
 import { useTokenRejected } from '../db/hooks';
-import { liveDb, useAppMode } from '../db/useAppMode';
+import { activeDb, sessionDb, useAppMode } from '../db/useAppMode';
 import { nextHourlyRun, syncAll, type SyncProgress } from './sync';
 
 const SYNC_KEY = ['sync'];
@@ -30,7 +30,11 @@ function subscribe(l: () => void) {
 function runSync(): Promise<void> {
   if (inFlight) return inFlight;
   setRun(true);
-  inFlight = syncAll(liveDb, (p) => setRun(true, p))
+  inFlight = activeDb()
+    .then((db) => {
+      if (!db) throw new WkError('unauthorized');
+      return syncAll(sessionDb, db, (p) => setRun(true, p));
+    })
     .then(() => {
       lastSuccessAt = Date.now();
     })

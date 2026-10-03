@@ -9,7 +9,8 @@ import type {
   User,
 } from '../api/types';
 
-export type DbName = 'wanistats' | 'wanistats-sample';
+/** `wanistats-sample`, or `wanistats-<WaniKani user id>` for an account. */
+export type DbName = `wanistats-${string}`;
 
 export type CollectionName =
   | 'user'
@@ -80,9 +81,8 @@ export interface KeyValue<V = unknown> {
   value: V;
 }
 
+/** One account's data, or the sample data. The token lives in SessionDb. */
 export class WaniStatsDb extends Dexie {
-  /** Single row: the API token under key 'token'. Only ever read by the API client. */
-  auth!: Table<string, 'token'>;
   subjects!: Table<SubjectResource, number>;
   assignments!: Table<AssignmentResource, number>;
   reviewStatistics!: Table<ReviewStatisticResource, number>;
@@ -116,11 +116,40 @@ export class WaniStatsDb extends Dexie {
       prefs: 'key',
       meta: 'key',
     });
+    this.version(2).stores({ auth: null });
   }
 }
 
 export function openDb(name: DbName): WaniStatsDb {
   return new WaniStatsDb(name);
+}
+
+export function accountDbName(userId: string): DbName {
+  return `wanistats-${userId}`;
+}
+
+export interface Account {
+  userId: string;
+  username: string;
+  lastActiveAt: string;
+}
+
+/** The token and the accounts used in this browser. Each account's data is in its own WaniStatsDb. */
+export class SessionDb extends Dexie {
+  /** Single row: the API token under key 'token'. Only ever read by the API client. */
+  auth!: Table<string, 'token'>;
+  accounts!: Table<Account, string>;
+  /** activeUserId (stays after logout), tokenRejected. */
+  meta!: Table<KeyValue, string>;
+
+  constructor() {
+    super('wanistats-session');
+    this.version(1).stores({ auth: '', accounts: 'userId', meta: 'key' });
+  }
+}
+
+export function openSessionDb(): SessionDb {
+  return new SessionDb();
 }
 
 export interface PackRow {

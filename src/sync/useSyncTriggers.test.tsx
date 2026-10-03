@@ -14,6 +14,7 @@ vi.mock('./sync', async (orig) => ({
 vi.mock('../db/useAppMode', async (orig) => ({
   ...(await orig<typeof import('../db/useAppMode')>()),
   useAppMode: () => 'live',
+  activeDb: () => Promise.resolve({}),
 }));
 vi.mock('../db/hooks', async (orig) => ({
   ...(await orig<typeof import('../db/hooks')>()),

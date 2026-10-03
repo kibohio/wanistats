@@ -1,4 +1,5 @@
-import { Link } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useRef, useState, type ReactNode } from 'react';
 import type { User } from '../../api/types';
@@ -10,13 +11,26 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { Sheet } from '../../components/Sheet';
 import { JITEN_URL } from '../../config';
-import { useHistoryRange, useLastSyncAt, useMaskedToken, useUser } from '../../db/hooks';
+import {
+  useHistoryRange,
+  useLastSyncAt,
+  useMaskedToken,
+  useOtherAccountsWithHistory,
+  useUser,
+} from '../../db/hooks';
 import { usePref, type Prefs } from '../../db/prefs';
-import { liveDb, useAppMode } from '../../db/useAppMode';
+import { useAccountDb, useAppMode, useDb } from '../../db/useAppMode';
+import { otherAccount, type HistoryFile } from '../../domain/historyFile';
 import { formatLocalDate, formatSyncTime } from '../../format';
 import { useInstalledPacks, useManifest } from '../../packs/hooks';
-import { deletePack, formatBytes, hasUpdate, packsDb, sizeOnDevice } from '../../packs/packs';
-import { deleteHistory, exportHistory, importHistory } from '../../sync/session';
+import { deletePack, formatBytes, hasUpdate, sizeOnDevice } from '../../packs/packs';
+import {
+  deleteHistory,
+  deleteLocalData,
+  exportHistory,
+  importHistory,
+  readHistoryFile,
+} from '../../sync/session';
 import { clearCachedData } from '../../sync/sync';
 import { useSync, waitForSync } from '../../sync/useSync';
 import { DownloadSheet } from '../packs/DownloadSheet';
@@ -84,15 +98,19 @@ export function SettingsScreen() {
         <PacksSection />
         <PreferencesSection />
         <AppSection />
+        <LocalDataSection />
         <AboutSection />
       </div>
     </>
   );
 }
 
+const andList = new Intl.ListFormat('en', { type: 'conjunction' });
+
 function LiveAccount() {
   const user = useUser();
   const token = useMaskedToken();
+  const others = useOtherAccountsWithHistory(user?.id);
   const [logoutOpen, setLogoutOpen] = useState(false);
   return (
     <>
@@ -111,6 +129,11 @@ function LiveAccount() {
         Your token stays in this browser and is only ever sent to api.wanikani.com. WaniStats only
         needs read access, so a read-only token is enough.
       </p>
+      {others && others.length > 0 && (
+        <p className={styles.muted}>
+          History for {andList.format(others)} is also stored in this browser.
+        </p>
+      )}
       <div className={styles.actions}>
         <Link to="/login" className={buttonClass('secondary')}>
           Replace token
@@ -123,11 +146,12 @@ function LiveAccount() {
 }
 
 function SyncSection() {
+  const db = useDb();
   const lastSync = useLastSyncAt();
   const { sync, running } = useSync();
   const resync = async () => {
     await waitForSync();
-    await clearCachedData(liveDb);
+    await clearCachedData(db);
     sync();
   };
   return (
@@ -149,27 +173,39 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 function HistorySection() {
   const history = useHistoryRange();
-  const lastTaken = useLiveQuery(
-    async () => (await liveDb.snapshots.orderBy('date').last())?.takenAt,
-    [],
-  );
+  const user = useUser();
   const fileRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [pending, setPending] = useState<HistoryFile | null>(null);
   const days = history?.days ?? 0;
+  const lastTaken = history?.lastTakenAt;
+  const foreign = pending && user ? otherAccount(pending, user.id) : undefined;
 
+  // readHistoryFile throws plain Errors with user-facing copy; anything else is IndexedDB.
+  const fail = (e: unknown) =>
+    setMessage(
+      e instanceof Error && e.name === 'Error'
+        ? e.message
+        : 'Could not save the imported history. Try again.',
+    );
+  const merge = async (file: HistoryFile) => {
+    setPending(null);
+    try {
+      const { days } = await importHistory(file);
+      setMessage(`Imported. ${plural(days, 'day')} recorded.`);
+    } catch (e) {
+      fail(e);
+    }
+  };
   const onFile = async (file: File | undefined) => {
     if (!file) return;
     try {
-      const { days } = await importHistory(await file.text());
-      setMessage(`Imported. ${plural(days, 'day')} recorded.`);
+      const parsed = readHistoryFile(await file.text());
+      if (user && otherAccount(parsed, user.id)) setPending(parsed);
+      else await merge(parsed);
     } catch (e) {
-      // parseHistoryFile throws plain Errors with user-facing copy; anything else is IndexedDB.
-      setMessage(
-        e instanceof Error && e.name === 'Error'
-          ? e.message
-          : 'Could not save the imported history. Try again.',
-      );
+      fail(e);
     }
   };
 
@@ -229,6 +265,17 @@ function HistorySection() {
           <Button onClick={() => setConfirmDelete(false)}>Cancel</Button>
         </div>
       </Sheet>
+      <Sheet open={!!foreign} onClose={() => setPending(null)} title="Import history">
+        <div className={styles.sheet}>
+          <p>
+            This file holds history for {foreign?.username}. Import it into {user?.username} anyway?
+          </p>
+          <Button variant="primary" onClick={() => pending && void merge(pending)}>
+            Import
+          </Button>
+          <Button onClick={() => setPending(null)}>Cancel</Button>
+        </div>
+      </Sheet>
     </Section>
   );
 }
@@ -241,7 +288,6 @@ function PacksSection() {
   const manifest = useManifest();
   const installed = useInstalledPacks();
   const [sheet, setSheet] = useState<string[] | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
   // Serialising a pack is not free; only redo it when the installed rows change.
   const sizes = useMemo(
     () => new Map((installed ?? []).map((r) => [r.id, sizeOnDevice(r)])),
@@ -316,29 +362,6 @@ function PacksSection() {
         )}
       </ul>
       <Rows rows={[['Storage used', formatBytes(total)]]} />
-      {installed && installed.length > 0 && (
-        <div className={styles.actions}>
-          <Button onClick={() => setConfirmDelete(true)}>Delete all data packs</Button>
-        </div>
-      )}
-      <Sheet
-        open={confirmDelete}
-        onClose={() => setConfirmDelete(false)}
-        title="Delete all data packs"
-      >
-        <div className={styles.sheet}>
-          <p>
-            Delete all downloaded coverage data from this browser? You can download it again later.
-          </p>
-          <Button
-            variant="primary"
-            onClick={() => void packsDb.packs.clear().then(() => setConfirmDelete(false))}
-          >
-            Delete all data packs
-          </Button>
-          <Button onClick={() => setConfirmDelete(false)}>Cancel</Button>
-        </div>
-      </Sheet>
       <DownloadSheet open={sheet !== null} onClose={() => setSheet(null)} preselect={sheet ?? []} />
     </Section>
   );
@@ -510,6 +533,51 @@ function AppSection() {
       <p role="status" className={styles.muted}>
         {update}
       </p>
+    </Section>
+  );
+}
+
+function LocalDataSection() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const account = useAccountDb();
+  // The last account's history, which stays after logout.
+  const days = useLiveQuery(() => account?.snapshots.count() ?? 0, [account]) ?? 0;
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const remove = async () => {
+    setBusy(true);
+    try {
+      await deleteLocalData(queryClient);
+      setOpen(false);
+      await navigate({ to: '/' });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Section id="local-data" title="Local data">
+      <p className={styles.muted}>
+        Logging out keeps your synced data and history. Deleting local data removes everything
+        WaniStats stores in this browser.
+      </p>
+      <div className={styles.actions}>
+        <Button onClick={() => setOpen(true)}>Delete local data</Button>
+      </div>
+      <Sheet open={open} onClose={() => setOpen(false)} title="Delete local data">
+        <div className={styles.sheet}>
+          <p>
+            Delete all WaniStats data from this browser? This removes your token, synced data,
+            history and preferences for every account used in this browser, and data packs. History
+            can&apos;t be rebuilt from WaniKani, so export it first if you want to keep it.
+          </p>
+          {days > 0 && <Button onClick={() => void exportHistory()}>Export history</Button>}
+          <Button variant="primary" disabled={busy} onClick={() => void remove()}>
+            Delete local data
+          </Button>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+        </div>
+      </Sheet>
     </Section>
   );
 }
