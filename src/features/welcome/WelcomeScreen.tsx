@@ -161,8 +161,8 @@ function StepInstall() {
         <WakingHoursFields />
       </div>
       <p className={styles.small}>
-        Kanji and word coverage need a small optional download. You&apos;ll be asked first, with
-        the size.
+        Kanji and word coverage need a small optional download. You&apos;ll be asked first, with the
+        size.
       </p>
     </section>
   );

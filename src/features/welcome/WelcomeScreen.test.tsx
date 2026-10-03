@@ -10,9 +10,7 @@ const glance = [
 ];
 
 const current = () =>
-  screen
-    .getAllByRole('listitem')
-    .findIndex((li) => li.getAttribute('aria-current') === 'step');
+  screen.getAllByRole('listitem').findIndex((li) => li.getAttribute('aria-current') === 'step');
 
 test('walks three steps with progress and ends with Go to Today', async () => {
   const onDone = vi.fn();
