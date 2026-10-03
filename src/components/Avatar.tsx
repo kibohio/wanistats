@@ -9,8 +9,8 @@ type AvatarId = keyof typeof AVATAR_GLYPHS;
 
 // Grounds come from the palette; ink follows the SRS text rule (dark on light grounds).
 const AVATARS: { id: AvatarId; label: string; ground: string; ink: string }[] = [
-  { id: 'wani', label: 'Crocodile', ground: 'var(--srs-guru-2)', ink: 'var(--on-srs-light)' },
-  { id: 'kani', label: 'Crab', ground: 'var(--srs-burned)', ink: 'var(--on-srs-light)' },
+  { id: 'hana', label: 'Flower', ground: 'var(--srs-guru-2)', ink: 'var(--on-srs-light)' },
+  { id: 'ki', label: 'Tree', ground: 'var(--srs-burned)', ink: 'var(--on-srs-light)' },
   { id: 'kame', label: 'Turtle', ground: 'var(--srs-master)', ink: 'var(--on-srs-dark)' },
   { id: 'neko', label: 'Cat', ground: 'var(--srs-a2)', ink: 'var(--on-srs-light)' },
   { id: 'inu', label: 'Dog', ground: 'var(--srs-enlightened)', ink: 'var(--on-srs-dark)' },
