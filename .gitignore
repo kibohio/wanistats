@@ -1,0 +1,16 @@
+CLAUDE.md
+.claude/
+docs/handoff/
+docs/DECISIONS.md
+.env
+.env.*
+.direnv/
+.devbox/
+node_modules/
+dist/
+dev-dist/
+coverage/
+playwright-report/
+test-results/
+*.local
+.DS_Store
