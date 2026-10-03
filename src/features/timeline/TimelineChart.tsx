@@ -17,7 +17,12 @@ import { useClock } from '../../hooks/useClock';
 import { daysBetween, localDayStart } from '../../domain/localDate';
 import type { Granularity, StackKey, TimelineBin, TimelineRange } from '../../domain/timeline';
 import styles from './Timeline.module.css';
-import { granularityFor, useTimelineData, type TimelineData } from './useTimelineData';
+import {
+  granularityFor,
+  useRemembered,
+  useTimelineData,
+  type TimelineData,
+} from './useTimelineData';
 
 export const RANGES = [
   { value: '24h', label: '24 hours' },
@@ -25,6 +30,14 @@ export const RANGES = [
   { value: '30d', label: '30 days' },
   { value: '120d', label: '120 days' },
 ] as const satisfies readonly { value: TimelineRange; label: string }[];
+
+/** Range and lessons toggle, remembered across screens (Timeline and desktop Today share them). */
+export function useTimelineView() {
+  const [r, setRange] = useRemembered<TimelineRange>('range', '7d');
+  const [l, setWithLessons] = useRemembered('lessons', false);
+  const range = RANGES.find((x) => x.value === r)?.value ?? '7d';
+  return { range, setRange, withLessons: l === true, setWithLessons };
+}
 
 const KEY_LABEL: Record<StackKey, string> = {
   apprentice: 'Apprentice',
@@ -96,20 +109,26 @@ function extras(b: TimelineBin): string[] {
 interface ChartProps {
   data: TimelineData;
   granularity: Granularity;
+  /** Remembers the selected bar under this key, e.g. per range and granularity. */
+  memoryKey: string;
   /** Running-total line, denser labels and the selection panel beside the bars. */
   desktop?: boolean;
 }
 
 /**
  * Stacked review bars with markers and a selection panel. Arrow keys, Home and End move the
- * selection. Remount with a `key` per range so the selection starts at the first bar.
+ * selection. The selected bar is remembered by its start time; once time moves past it, the
+ * first bar is selected.
  */
-export function TimelineChart({ data, granularity, desktop = false }: ChartProps) {
+export function TimelineChart({ data, granularity, memoryKey, desktop = false }: ChartProps) {
   const { bins, keys, total, estimateTotal } = data.timeline;
-  const [picked, setPicked] = useState(0);
+  const [picked, setPicked] = useRemembered(`bar:${memoryKey}`, 0);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const n = bins.length;
-  const sel = Math.min(picked, n - 1);
+  const sel = Math.max(
+    0,
+    bins.findIndex((b) => b.start === picked),
+  );
   const today = bins[0] ? localDayStart(bins[0].start) : 0;
   const clock = useClock();
   const max = Math.max(1, ...bins.map((b) => b.total + b.estimate));
@@ -120,7 +139,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
 
   const move = (i: number) => {
     const j = Math.max(0, Math.min(n - 1, i));
-    setPicked(j);
+    setPicked(bins[j].start);
     refs.current[j]?.focus();
   };
   const onKey = (e: KeyboardEvent) => {
@@ -162,7 +181,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
                       ', ',
                     )}
                     className={styles.bar}
-                    onClick={() => setPicked(i)}
+                    onClick={() => setPicked(bin.start)}
                     onKeyDown={onKey}
                   >
                     {granularity === 'hour' &&
@@ -374,8 +393,7 @@ export const rangeTotal = (data: TimelineData | undefined) =>
 /** The desktop Timeline card: title, total, lessons toggle, range control and the chart. */
 export function TimelineCard({ title = 'Timeline' }: { title?: string }) {
   const id = useId();
-  const [range, setRange] = useState<TimelineRange>('7d');
-  const [withLessons, setWithLessons] = useState(false);
+  const { range, setRange, withLessons, setWithLessons } = useTimelineView();
   const granularity = granularityFor(range, true);
   const data = useTimelineData(range, granularity, withLessons);
   return (
@@ -391,7 +409,13 @@ export function TimelineCard({ title = 'Timeline' }: { title?: string }) {
         </div>
       </div>
       {data ? (
-        <TimelineChart key={range} data={data} granularity={granularity} desktop />
+        <TimelineChart
+          key={range}
+          data={data}
+          granularity={granularity}
+          memoryKey={`${range}-${granularity}`}
+          desktop
+        />
       ) : (
         <p className={styles.loading}>Loading reviews</p>
       )}
