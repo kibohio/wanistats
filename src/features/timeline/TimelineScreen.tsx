@@ -14,10 +14,12 @@ import {
 import { usePref } from '../../db/prefs';
 import type { StageCounts } from '../../db/schema';
 import { accuracy } from '../../domain/accuracy';
-import { fmtTime, lessonWindow } from '../../domain/lessonWindow';
+import { lessonWindow } from '../../domain/lessonWindow';
 import { intervalFor } from '../../domain/srs';
 import type { TimelineRange } from '../../domain/timeline';
 import { steadyStateReviewsPerDay, workload } from '../../domain/workload';
+import { formatMinutes, formatWindow } from '../../format';
+import { useClock } from '../../hooks/useClock';
 import { useNow } from '../../hooks/useNow';
 import styles from './Timeline.module.css';
 import { LessonsToggle, RANGES, rangeTotal, TimelineCard, TimelineChart } from './TimelineChart';
@@ -82,6 +84,9 @@ function LessonWindowCard() {
   const [wakeMin] = usePref('wakeMin');
   const [sleepMin] = usePref('sleepMin');
   const [lessonMin] = usePref('lessonMin');
+  const clock = useClock();
+  const fmtTime = (m: number) => formatMinutes(m, clock);
+  const short = (m: number) => formatMinutes(m, clock, true);
   const w = useMemo(
     () => system && lessonWindow(system, { wakeMin, sleepMin, lessonMin }),
     [system, wakeMin, sleepMin, lessonMin],
@@ -91,7 +96,8 @@ function LessonWindowCard() {
   const a2 = intervalFor(system, 2);
   const back1 = (m: number) => m + a1 * 60;
   const back2 = (m: number) => m + (a1 + a2) * 60;
-  const [big, ...rest] = (w.label ?? 'No window').split(' or ');
+  const parts = formatWindow([w.morning, w.evening], clock);
+  const [big, ...rest] = parts.length ? parts : ['No window'];
 
   return (
     <section aria-labelledby={`${id}h`} className={styles.lessonCard}>
@@ -138,16 +144,16 @@ function LessonWindowCard() {
         <span className={styles.stripMark} style={{ left: pos(back2(lessonMin)) }} />
       </div>
       <div aria-hidden="true" className={styles.stripLabels}>
-        <span style={labelAt(0)}>{fmtTime(0)}</span>
+        <span style={labelAt(0)}>{short(0)}</span>
         <span className={styles.lessonLabel} style={labelAt(lessonMin)}>
-          Lessons {fmtTime(lessonMin)}
+          Lessons {short(lessonMin)}
         </span>
-        <span style={labelAt(back1(lessonMin))}>{fmtTime(back1(lessonMin))}</span>
-        <span style={labelAt(back2(lessonMin))}>{fmtTime(back2(lessonMin))}</span>
+        <span style={labelAt(back1(lessonMin))}>{short(back1(lessonMin))}</span>
+        <span style={labelAt(back2(lessonMin))}>{short(back2(lessonMin))}</span>
       </div>
       <p className={styles.note}>
         Apprentice 1 comes back {a1} hours after a lesson and Apprentice 2 {a2} hours after that.{' '}
-        {w.label ? (
+        {parts.length ? (
           <>
             Lessons in the window keep both inside your day.
             {w.evening &&

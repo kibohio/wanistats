@@ -1,15 +1,12 @@
 import { HOUR_MS } from '../../domain/srs';
+import { formatTime, type Clock } from '../../format';
 
 export const DAY_MS = 24 * HOUR_MS;
 
-const dateTime = new Intl.DateTimeFormat(undefined, {
-  day: 'numeric',
-  month: 'short',
-  hour: 'numeric',
-  minute: '2-digit',
-});
+const dayMonth = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
 
-export const fmtDateTime = (ms: number) => dateTime.format(ms);
+export const fmtDateTime = (ms: number, clock: Clock) =>
+  `${dayMonth.format(ms)}, ${formatTime(ms, clock)}`;
 export const fmtDays = (days: number) => days.toFixed(1);
 
 /** "3 d 10 h". */

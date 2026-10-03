@@ -3,6 +3,7 @@ import { useHistoryRange, useLastSyncAt } from '../db/hooks';
 import { useAppMode, useSampleSeed } from '../db/useAppMode';
 import { formatSyncTime } from '../format';
 import { usePeriodicSync } from '../hooks/useInstall';
+import { useApplyClock, useClock } from '../hooks/useClock';
 import { useApplyTheme } from '../hooks/useTheme';
 import { useSyncTriggers } from '../sync/useSync';
 import styles from './AppShell.module.css';
@@ -18,6 +19,7 @@ export function AppShell() {
   useSyncTriggers();
   useSampleSeed();
   useApplyTheme();
+  useApplyClock();
   usePeriodicSync();
   return (
     <div className={styles.shell}>
@@ -85,10 +87,11 @@ function Sidebar() {
 function LiveStatus() {
   const lastSync = useLastSyncAt();
   const history = useHistoryRange();
+  const clock = useClock();
   return (
     <>
       <RefreshData small />
-      {lastSync != null && <span>Synced {formatSyncTime(lastSync)}</span>}
+      {lastSync != null && <span>Synced {formatSyncTime(lastSync, clock)}</span>}
       <Link to="/settings" hash="history" className={styles.statusLink}>
         {historyDaysCopy(history?.days ?? 0)}
       </Link>

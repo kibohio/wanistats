@@ -9,7 +9,8 @@ import {
 } from '../db/hooks';
 import { buildItems, stageName, type Item } from '../domain/items';
 import { leeches } from '../domain/leeches';
-import { formatSyncTime } from '../format';
+import { formatSyncTime, type Clock } from '../format';
+import { useClock } from '../hooks/useClock';
 import { useNow } from '../hooks/useNow';
 import { ExternalIcon } from './icons';
 import styles from './ItemSheet.module.css';
@@ -76,6 +77,7 @@ function OpenSheet({
   extraFacts,
 }: Omit<Props, 'subject' | 'byId'> & { subject: SheetSubject; byId: Map<number, Item> }) {
   const now = useNow();
+  const clock = useClock();
   const [trail, setTrail] = useState<SheetSubject[]>([subject]);
   const bodyRef = useRef<HTMLDivElement>(null);
   const moved = useRef(false);
@@ -101,7 +103,7 @@ function OpenSheet({
   const chars = item ? item.characters : (current as string);
   const extra = chars && extraFacts ? extraFacts(chars, type) : [];
   const facts: [string, string][] = item
-    ? itemFacts(item, now, extra)
+    ? itemFacts(item, now, clock, extra)
     : [['Type', TYPE_NAME.kanji], ['Stage', 'Not in WaniKani'], ...extra];
   const lists = item ? relatedLists(item, byId) : [];
 
@@ -158,7 +160,12 @@ function OpenSheet({
   );
 }
 
-function itemFacts(item: Item, now: number, extra: [string, string][]): [string, string][] {
+function itemFacts(
+  item: Item,
+  now: number,
+  clock: Clock,
+  extra: [string, string][],
+): [string, string][] {
   const a = item.answers;
   const readings = item.readings.some((r) => r.type)
     ? (['onyomi', 'kunyomi', 'nanori'] as const)
@@ -177,7 +184,7 @@ function itemFacts(item: Item, now: number, extra: [string, string][]): [string,
     ['Stage', stageName(item.stage)],
     ['Level', String(item.level)],
     ...extra,
-    ['Next review', nextReviewText(item, now)],
+    ['Next review', nextReviewText(item, now, clock)],
     [
       'Accuracy',
       item.accuracy === null || !a
@@ -232,7 +239,7 @@ export function ItemGlyph({ item, size }: { item: Item; size?: 'large' }) {
   );
 }
 
-export function nextReviewText(item: Item, now: number): string {
+export function nextReviewText(item: Item, now: number, clock: Clock): string {
   if (item.availableAt === null) return item.stage === 9 ? 'Burned' : 'Not started';
-  return item.availableAt <= now ? 'Available now' : formatSyncTime(item.availableAt, now);
+  return item.availableAt <= now ? 'Available now' : formatSyncTime(item.availableAt, clock, now);
 }

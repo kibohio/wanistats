@@ -1,10 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { Card } from '../../components/Card';
-import { fmtTime } from '../../domain/lessonWindow';
+import { formatMinutes, formatTime, formatWindow } from '../../format';
 import { gaugeMax, trendPoints } from '../../domain/today';
 import type { StageCounts } from '../../db/schema';
 import { Explain } from './Explain';
-import { clock, int, pct } from './format';
+import { int, pct } from './format';
 import styles from './Today.module.css';
 import type { TodayData } from './useToday';
 
@@ -157,15 +157,15 @@ function Hours({ d }: { d: TodayData }) {
             <>
               <p>
                 Started, unburned reviews whose next review falls before{' '}
-                {clock(day24.bins.at(-1)!.end)} tomorrow, counting {int(d.availableNow)} already
-                waiting. New lessons are not included.
+                {formatTime(day24.bins.at(-1)!.end, d.clock)} tomorrow, counting{' '}
+                {int(d.availableNow)} already waiting. New lessons are not included.
               </p>
               <ul className={styles.itemList}>
                 {day24.bins
                   .filter((b) => b.total > 0)
                   .map((b) => (
                     <li key={b.start}>
-                      <span>{clock(b.start)}</span>
+                      <span>{formatTime(b.start, d.clock)}</span>
                       <span className={styles.itemMeta}>
                         {b.total} {b.total === 1 ? 'review' : 'reviews'}
                         {b.critical > 0 && `, ${b.critical} level-critical`}
@@ -186,14 +186,14 @@ function Hours({ d }: { d: TodayData }) {
         className={styles.hours}
         aria-label={
           peak
-            ? `Reviews by hour. Heaviest at ${clock(day24.bins[peak.index].start)} with ${peak.total}.`
+            ? `Reviews by hour. Heaviest at ${formatTime(day24.bins[peak.index].start, d.clock)} with ${peak.total}.`
             : 'Reviews by hour. None due.'
         }
       >
         {day24.bins.map((b, i) => (
           <li
             key={b.start}
-            aria-label={`${clock(b.start)}, ${b.total} ${b.total === 1 ? 'review' : 'reviews'}`}
+            aria-label={`${formatTime(b.start, d.clock)}, ${b.total} ${b.total === 1 ? 'review' : 'reviews'}`}
             className={
               b.total === 0 ? styles.hourEmpty : i === peak?.index ? styles.hourPeak : styles.hour
             }
@@ -207,8 +207,10 @@ function Hours({ d }: { d: TodayData }) {
         <span>Now</span>
         {peak && (
           <span>
-            {peak.index === 0 ? 'Peak now' : `${clock(day24.bins[peak.index].start)} peak`},{' '}
-            {peak.total}
+            {peak.index === 0
+              ? 'Peak now'
+              : `${formatTime(day24.bins[peak.index].start, d.clock)} peak`}
+            , {peak.total}
           </span>
         )}
         <span>+24h</span>
@@ -219,7 +221,8 @@ function Hours({ d }: { d: TodayData }) {
 
 function SteadyLine({ d }: { d: TodayData }) {
   const own = d.sample ? 'the' : 'your';
-  const window = d.lessonWindow.label;
+  const window =
+    formatWindow([d.lessonWindow.morning, d.lessonWindow.evening], d.clock).join(' or ') || null;
   if (d.steady === null && !window) return null;
   return (
     <Explain
@@ -239,7 +242,8 @@ function SteadyLine({ d }: { d: TodayData }) {
           {window && (
             <p>
               Lessons at {window} keep the first two Apprentice reviews inside {own} waking hours,{' '}
-              {fmtTime(d.wakeMin)} to {fmtTime(d.sleepMin)}. Waking hours are set in Settings.
+              {formatMinutes(d.wakeMin, d.clock)} to {formatMinutes(d.sleepMin, d.clock)}. Waking
+              hours are set in Settings.
             </p>
           )}
         </>

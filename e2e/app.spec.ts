@@ -178,6 +178,8 @@ test('packs download nothing until Download is pressed', async ({ page }) => {
 
 test('waking hours and lesson time move in half hours', async ({ page }) => {
   await page.goto('/settings');
+  const clock = page.getByRole('group', { name: 'Clock' });
+  await clock.getByRole('button', { name: '24-hour' }).click();
   const wake = page.getByRole('slider', { name: 'Wake up' });
   await wake.focus();
   await page.keyboard.press('ArrowRight');
@@ -194,4 +196,8 @@ test('waking hours and lesson time move in half hours', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Increase lesson time' }).click();
   await expect(page.getByRole('status', { name: 'Lesson time' })).toHaveText('09:30');
+
+  await clock.getByRole('button', { name: '12-hour' }).click();
+  await expect(page.getByRole('status', { name: 'Lesson time' })).toHaveText(/^9:30\sAM$/i);
+  await expect(wake).toHaveAttribute('aria-valuetext', /^6:30\sAM$/i);
 });

@@ -19,8 +19,6 @@ export type SlotKind = 'window' | 'evening' | 'awake' | 'asleep';
 export interface LessonWindow {
   morning: TimeRange | null;
   evening: TimeRange | null;
-  /** "07:00 to 11:00 or 19:30 sharp"; null when no time works. */
-  label: string | null;
   /** 48 half-hour slots; index n starts at n * 30 minutes. */
   strip: SlotKind[];
   lessonTimeFits: boolean;
@@ -31,16 +29,6 @@ export interface LessonWindow {
 export const SLOT_MIN = 30;
 const SLOTS = (24 * 60) / SLOT_MIN;
 const wrapDay = (min: number) => ((min % 1440) + 1440) % 1440;
-
-/** "07:30" from minutes since midnight. */
-export const fmtTime = (min: number) => {
-  const m = wrapDay(Math.round(min));
-  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
-};
-export const fmtHour = (h: number) => fmtTime(h * 60);
-
-const fmtRange = (r: TimeRange) =>
-  r.from === r.to ? `${fmtTime(r.from)} sharp` : `${fmtTime(r.from)} to ${fmtTime(r.to)}`;
 
 export function lessonWindow(system: SpacedRepetitionSystem, prefs: DayPrefs): LessonWindow {
   const a1 = (intervalFor(system, 1) * 60) / SLOT_MIN;
@@ -71,14 +59,8 @@ export function lessonWindow(system: SpacedRepetitionSystem, prefs: DayPrefs): L
     return o < awake ? 'awake' : 'asleep';
   });
 
-  const label =
-    [morning, evening]
-      .filter((r) => r !== null)
-      .map(fmtRange)
-      .join(' or ') || null;
-
   let closest: LessonWindow['closest'] = null;
-  if (!label) {
+  if (!morning && !evening) {
     const outside = (x: number) => {
       const y = x % SLOTS;
       return y <= awake ? 0 : Math.min(y - awake, SLOTS - y);
@@ -94,7 +76,6 @@ export function lessonWindow(system: SpacedRepetitionSystem, prefs: DayPrefs): L
   return {
     morning,
     evening,
-    label,
     strip,
     lessonTimeFits: lessonKind === 'window' || lessonKind === 'evening',
     closest,

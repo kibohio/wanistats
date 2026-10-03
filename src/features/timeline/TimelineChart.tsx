@@ -5,7 +5,8 @@ import { Stepper } from '../../components/Stepper';
 import { ItemSheet } from '../../components/ItemSheet';
 import { Tile } from '../../components/Tile';
 import { usePref } from '../../db/prefs';
-import { fmtHour } from '../../domain/lessonWindow';
+import { formatTime, type Clock } from '../../format';
+import { useClock } from '../../hooks/useClock';
 import { daysBetween, localDayStart } from '../../domain/localDate';
 import type { Granularity, StackKey, TimelineBin, TimelineRange } from '../../domain/timeline';
 import styles from './Timeline.module.css';
@@ -53,8 +54,8 @@ function dayWord(ms: number, today: number): string {
   return d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : weekday.format(ms);
 }
 
-function binTitle(b: TimelineBin, i: number, g: Granularity, today: number): string {
-  if (g === 'hour') return `${dayWord(b.start, today)}, ${fmtHour(new Date(b.start).getHours())}`;
+function binTitle(b: TimelineBin, i: number, g: Granularity, today: number, clock: Clock): string {
+  if (g === 'hour') return `${dayWord(b.start, today)}, ${formatTime(b.start, clock)}`;
   if (g === 'day') return i === 0 ? 'Rest of today' : fullDay.format(b.start);
   return `Week of ${dayMonth.format(b.start)}`;
 }
@@ -66,10 +67,11 @@ function binLabel(
   g: Granularity,
   desktop: boolean,
   today: number,
+  clock: Clock,
 ) {
   if (g === 'hour') {
     const h = new Date(b.start).getHours();
-    if (n <= 24) return i % (desktop ? 3 : 6) === 0 ? fmtHour(h) : '';
+    if (n <= 24) return i % (desktop ? 3 : 6) === 0 ? formatTime(b.start, clock, true) : '';
     return i === 0 || h === 0 ? dayWord(b.start, today) : '';
   }
   if (g === 'day' && n <= 7) return i === 0 ? 'Today' : weekday.format(b.start);
@@ -105,6 +107,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
   const n = bins.length;
   const sel = Math.min(picked, n - 1);
   const today = bins[0] ? localDayStart(bins[0].start) : 0;
+  const clock = useClock();
   const max = Math.max(1, ...bins.map((b) => b.total + b.estimate));
   const grand = total + estimateTotal;
   const marks = granularity === 'hour' || n <= (desktop ? 30 : 7);
@@ -140,7 +143,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
               style={{ gap }}
             >
               {bins.map((bin, i) => {
-                const title = binTitle(bin, i, granularity, today);
+                const title = binTitle(bin, i, granularity, today, clock);
                 const x = extras(bin);
                 return (
                   <button
@@ -201,7 +204,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
           </div>
           <div aria-hidden="true" className={styles.labels} style={{ gap }}>
             {bins.map((bin, i) => (
-              <span key={bin.start}>{binLabel(bin, i, n, granularity, desktop, today)}</span>
+              <span key={bin.start}>{binLabel(bin, i, n, granularity, desktop, today, clock)}</span>
             ))}
           </div>
         </div>
@@ -244,7 +247,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
           <div aria-live="polite" className={styles.selText}>
             {desktop && <span className={styles.selLabel}>Selected</span>}
             <div className={styles.selHead}>
-              <span>{binTitle(b, sel, granularity, today)}</span>
+              <span>{binTitle(b, sel, granularity, today, clock)}</span>
               <span className={styles.selTotal}>
                 {desktop
                   ? (b.total + b.estimate).toLocaleString()

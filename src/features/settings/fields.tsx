@@ -4,7 +4,8 @@ import { DayRange } from '../../components/DayRange';
 import { Stepper } from '../../components/Stepper';
 import { useUser } from '../../db/hooks';
 import { usePref } from '../../db/prefs';
-import { fmtTime } from '../../domain/lessonWindow';
+import { formatMinutes } from '../../format';
+import { useClock } from '../../hooks/useClock';
 import { useInstall } from '../../hooks/useInstall';
 import styles from './fields.module.css';
 
@@ -53,6 +54,7 @@ export function WakingHoursFields() {
 
 export function LessonTimeField() {
   const [lessonMin, setLessonMin] = usePref('lessonMin');
+  const clock = useClock();
   return (
     <StepperField
       label="Lesson time"
@@ -60,7 +62,7 @@ export function LessonTimeField() {
       min={0}
       max={1410}
       step={30}
-      format={fmtTime}
+      format={(m) => formatMinutes(m, clock)}
       onChange={(v) => void setLessonMin(v)}
     />
   );
