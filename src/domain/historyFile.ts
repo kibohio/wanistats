@@ -1,10 +1,17 @@
 import type { ReviewCounters, Snapshot, SnapshotDelta, StageCounts } from '../db/schema';
 
-export const HISTORY_SCHEMA_VERSION = 1;
+/** 2 added `account`. Version 1 files, with no account, still import. */
+export const HISTORY_SCHEMA_VERSION = 2;
+
+export interface HistoryAccount {
+  userId: string;
+  username: string;
+}
 
 export interface HistoryFile {
-  schemaVersion: typeof HISTORY_SCHEMA_VERSION;
+  schemaVersion: number;
   exportedAt: string;
+  account?: HistoryAccount;
   snapshots: Snapshot[];
   snapshotDeltas: SnapshotDelta[];
 }
@@ -18,10 +25,12 @@ export function exportHistory(
   snapshots: Snapshot[],
   snapshotDeltas: SnapshotDelta[],
   now: number,
+  account?: HistoryAccount,
 ): HistoryFile {
   return {
     schemaVersion: HISTORY_SCHEMA_VERSION,
     exportedAt: new Date(now).toISOString(),
+    ...(account && { account }),
     snapshots,
     snapshotDeltas,
   };
@@ -61,12 +70,14 @@ function pick<K extends string>(o: Obj, keys: K[]): Record<K, number> {
 /** Validates an untrusted, JSON-parsed history file. Throws an Error with user-facing copy. */
 export function parseHistoryFile(input: unknown): HistoryFile {
   const f = obj(input);
-  if (f.schemaVersion !== HISTORY_SCHEMA_VERSION) {
+  if (f.schemaVersion !== 1 && f.schemaVersion !== HISTORY_SCHEMA_VERSION) {
     throw new Error('This history file comes from an unsupported version of WaniStats.');
   }
+  const account = f.account === undefined ? undefined : obj(f.account);
   return {
-    schemaVersion: HISTORY_SCHEMA_VERSION,
+    schemaVersion: f.schemaVersion,
     exportedAt: str(f.exportedAt),
+    ...(account && { account: { userId: str(account.userId), username: str(account.username) } }),
     snapshots: arr(f.snapshots).map((v) => {
       const s = obj(v);
       return {
@@ -82,6 +93,11 @@ export function parseHistoryFile(input: unknown): HistoryFile {
       return { date: str(d.date, DAY_OR_MONTH), ...pick(d, ['subjectId', ...COUNTERS]) };
     }),
   };
+}
+
+/** The file's account when it belongs to someone other than `userId`; files without one match. */
+export function otherAccount(file: HistoryFile, userId: string): HistoryAccount | undefined {
+  return file.account && file.account.userId !== userId ? file.account : undefined;
 }
 
 /**

@@ -4,6 +4,7 @@ import {
   exportHistory,
   HISTORY_SCHEMA_VERSION,
   mergeHistory,
+  otherAccount,
   parseHistoryFile,
 } from './historyFile';
 
@@ -36,10 +37,11 @@ const NOW = Date.parse('2026-10-03T10:00:00Z');
 test('export then parse round-trips', () => {
   const snapshots = [snap('2026-10-01', '2026-10-01T08:00:00.000Z')];
   const deltas = [delta('2025-06', 3), delta('2026-10-01', 4)];
-  const file = exportHistory(snapshots, deltas, NOW);
+  const file = exportHistory(snapshots, deltas, NOW, { userId: 'u1', username: 'kibo' });
   expect(file).toEqual({
     schemaVersion: HISTORY_SCHEMA_VERSION,
     exportedAt: '2026-10-03T10:00:00.000Z',
+    account: { userId: 'u1', username: 'kibo' },
     snapshots,
     snapshotDeltas: deltas,
   });
@@ -62,6 +64,12 @@ describe('parseHistoryFile', () => {
     const badDate = good();
     badDate.snapshotDeltas[0].date = '1 Oct';
     expect(() => parseHistoryFile(badDate)).toThrow();
+  });
+
+  test('accepts version 1 files, which have no account', () => {
+    const v1 = { ...good(), schemaVersion: 1 };
+    expect(parseHistoryFile(v1).account).toBeUndefined();
+    expect(() => parseHistoryFile({ ...good(), account: { userId: 1 } })).toThrow();
   });
 
   test('drops unknown fields', () => {
@@ -110,4 +118,13 @@ test('merge by date: newer takenAt wins and brings its deltas', () => {
     ['2026-10-01', 7, 1],
     ['2026-10-02', 1, 5],
   ]);
+});
+
+test('otherAccount flags a file from a different account; same or unknown account passes', () => {
+  const file = (account?: { userId: string; username: string }) =>
+    exportHistory([], [], NOW, account);
+  const alice = { userId: 'a', username: 'alice' };
+  expect(otherAccount(file(alice), 'b')).toEqual(alice);
+  expect(otherAccount(file(alice), 'a')).toBeUndefined();
+  expect(otherAccount(file(), 'b')).toBeUndefined();
 });
