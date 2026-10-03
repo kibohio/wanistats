@@ -127,6 +127,12 @@ test('maps 401, other statuses and network failures to typed errors', async () =
   expect(err).toMatchObject({ kind: 'network' });
 });
 
+test('gives every request a timeout so a hung connection cannot stall a sync', async () => {
+  fetchMock.mockResolvedValueOnce(json({ data: {} }));
+  await getUser('t');
+  expect(fetchMock.mock.calls[0]![1]!.signal).toBeInstanceOf(AbortSignal);
+});
+
 test('starts at most 60 requests in any minute', async () => {
   fetchMock.mockImplementation(() => Promise.resolve(json({ object: 'user', data: {} })));
   const all = Array.from({ length: 61 }, () => getUser('t'));

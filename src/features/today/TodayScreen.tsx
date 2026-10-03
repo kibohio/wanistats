@@ -75,8 +75,10 @@ function Desktop({ d }: { d: TodayData }) {
       <Notices d={d} />
       <div className={styles.row}>
         <LevelUpCardDesktop d={d} />
-        <WorkloadCard d={d} desktop />
-        <FinishCard d={d} desktop />
+        <div className={styles.side}>
+          <WorkloadCard d={d} desktop />
+          <FinishCard d={d} desktop />
+        </div>
       </div>
       <TimelineCard />
       <div className={styles.row}>
