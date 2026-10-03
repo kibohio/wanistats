@@ -20,7 +20,11 @@ export function ItemTip({ item, note }: { item: Item; note?: string }) {
         {item.reading && <span>{item.reading}</span>}
         <Chip className={styles.chip}>{stageName(item.stage)}</Chip>
         {item.availableAt !== null && (
-          <span className={styles.muted}>Next review {nextReviewText(item, now, clock)}</span>
+          <span className={styles.muted}>
+            {item.availableAt <= now
+              ? 'Available now'
+              : `Next review ${nextReviewText(item, now, clock)}`}
+          </span>
         )}
         {note && <span className={styles.muted}>{note}</span>}
       </span>
