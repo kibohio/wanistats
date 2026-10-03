@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import type { AssignmentResource, SubjectResource } from '../api/types';
 import type { KanjiPack } from './coverage';
-import { levelChart } from './levelCharts';
+import { cumulativeCoverage, levelChart, readingCoverage } from './levelCharts';
 
 function kanji(id: number, characters: string, level: number, hidden = false): SubjectResource {
   return {
@@ -86,4 +86,56 @@ test('known follows the threshold', () => {
 
 test('no kanji, no bars', () => {
   expect(levelChart('jlpt', [], [], pack).levels).toEqual([]);
+});
+
+test('cumulative: share of each group taught through each level, hidden and unlisted left out', () => {
+  const curve = cumulativeCoverage('jlpt', subjects, pack, assignments);
+  expect(curve.series.map((s) => [s.label, s.size])).toEqual([
+    ['N5', 3],
+    ['N4', 1],
+    ['N3', 0],
+    ['N2', 0],
+    ['N1', 1],
+  ]);
+  expect(curve.rows.map((r) => r.covered)).toEqual([
+    [2, 0, 0, 0, 0],
+    [2, 0, 0, 0, 0],
+    // 日 is hidden, so N5 stays at 2 of 3.
+    [2, 1, 0, 0, 1],
+  ]);
+  expect(curve.rows[2]!.pct).toEqual([(100 * 2) / 3, 100, 0, 0, 100]);
+});
+
+test('cumulative: known now per group at the threshold', () => {
+  const guru = cumulativeCoverage('jlpt', subjects, pack, assignments);
+  // 一 and 人 passed (N5), 曜 never passed (N4), 鬱 passed (N1).
+  expect(guru.series.map((s) => s.known)).toEqual([2, 0, 0, 0, 1]);
+  expect(guru.series[0]!.knownPct).toBeCloseTo(66.667, 2);
+  const burned = cumulativeCoverage('jlpt', subjects, pack, assignments, 9);
+  expect(burned.series.map((s) => s.known)).toEqual([1, 0, 0, 0, 0]);
+});
+
+test('cumulative: Jōyō leaves Jinmeiyō out of every group', () => {
+  const curve = cumulativeCoverage('joyo', subjects, pack);
+  expect(curve.series.map((s) => s.size)).toEqual([3, 1, 0, 0, 0, 0, 1]);
+  expect(curve.rows.at(-1)!.covered).toEqual([2, 1, 0, 0, 0, 0, 1]);
+});
+
+test('reading: Zipf-weighted share of ranked kanji appearances, one series', () => {
+  const curve = readingCoverage(subjects, pack, assignments);
+  // Ranks 1, 2, 3, 600, 2600; 龍 is unranked and weighs nothing.
+  const w = [1, 1 / 2, 1 / 3, 1 / 600, 1 / 2600];
+  const all = w.reduce((a, b) => a + b);
+  expect(curve.estimated).toBe(true);
+  expect(curve.series).toHaveLength(1);
+  expect(curve.series[0]!.size).toBe(5);
+  // Level 1 teaches 一 (rank 3) and 人 (rank 1).
+  expect(curve.rows[0]!.pct[0]).toBeCloseTo((100 * (1 + 1 / 3)) / all, 6);
+  expect(curve.rows[2]!.pct[0]).toBeCloseTo((100 * (1 + 1 / 3 + 1 / 600 + 1 / 2600)) / all, 6);
+  expect(curve.series[0]!.knownPct).toBeCloseTo((100 * (1 + 1 / 3 + 1 / 2600)) / all, 6);
+});
+
+test('no kanji, no rows', () => {
+  expect(cumulativeCoverage('jlpt', [], pack).rows).toEqual([]);
+  expect(readingCoverage([], pack).rows).toEqual([]);
 });
