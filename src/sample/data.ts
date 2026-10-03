@@ -682,6 +682,170 @@ export const VOCAB = `
 頭|あたま|head
 食事|しょくじ|meal
 計画|けいかく|plan
+海外|かいがい|overseas
+海水|かいすい|seawater
+電池|でんち|battery
+決して|けっして|never
+工場|こうじょう|factory
+作文|さくぶん|essay
+物語|ものがたり|story
+始まる|はじまる|to start
+気持ち|きもち|feeling
+主語|しゅご|subject (grammar)
+注文|ちゅうもん|order
+悪口|わるぐち|insult
+急|きゅう|sudden
+意外|いがい|unexpected
+感心|かんしん|admiration
+病人|びょうにん|sick person
+医院|いいん|clinic
+部分|ぶぶん|part
+運ぶ|はこぶ|to carry
+自動車|じどうしゃ|car
+動物|どうぶつ|animal
+重さ|おもさ|weight
+息|いき|breath
+息子|むすこ|son
+里|さと|hometown
+研ぐ|とぐ|to sharpen
+究める|きわめる|to master
+物質|ぶっしつ|substance
+本質|ほんしつ|essence
+気質|きしつ|temperament
+問う|とう|to ask
+学問|がくもん|learning
+問答|もんどう|dialogue
+答え|こたえ|answer
+口答え|くちごたえ|talking back
+計る|はかる|to measure
+入試|にゅうし|entrance exam
+試食|ししょく|tasting
+体験|たいけん|experience
+馬車|ばしゃ|carriage
+子馬|こうま|foal
+竹馬|たけうま|stilts
+木馬|もくば|wooden horse
+算数|さんすう|arithmetic
+数|かず|number
+人数|にんずう|number of people
+数字|すうじ|numeral
+少数|しょうすう|minority
+多数|たすう|majority
+教会|きょうかい|church
+教科書|きょうかしょ|textbook
+理科|りか|science (school subject)
+内科|ないか|internal medicine
+外科|げか|surgery
+番人|ばんにん|guard
+二番目|にばんめ|second
+年号|ねんごう|era name
+心理|しんり|psychology
+地理|ちり|geography
+自由|じゆう|freedom
+料金|りょうきん|fee
+食料|しょくりょう|food supplies
+送料|そうりょう|shipping fee
+朝ご飯|あさごはん|breakfast
+昼ご飯|ひるごはん|lunch
+夕ご飯|ゆうごはん|dinner
+夕飯|ゆうはん|evening meal
+飯|めし|cooked rice
+父親|ちちおや|father
+母親|ははおや|mother
+親友|しんゆう|close friend
+親切|しんせつ|kind
+親子|おやこ|parent and child
+新聞|しんぶん|newspaper
+新年|しんねん|new year
+新人|しんじん|newcomer
+新車|しんしゃ|new car
+新入生|しんにゅうせい|new student
+新米|しんまい|novice
+新月|しんげつ|new moon
+旅|たび|journey
+旅人|たびびと|traveller
+旅館|りょかん|inn
+旅先|たびさき|destination
+水族館|すいぞくかん|aquarium
+王族|おうぞく|royal family
+自転車|じてんしゃ|bicycle
+転ぶ|ころぶ|to fall over
+運転手|うんてんしゅ|driver
+転校|てんこう|changing schools
+気軽|きがる|carefree
+手軽|てがる|easy
+軽食|けいしょく|light meal
+会館|かいかん|hall
+本館|ほんかん|main building
+本屋|ほんや|bookstore
+花屋|はなや|florist
+八百屋|やおや|greengrocer
+小屋|こや|hut
+外界|がいかい|outside world
+学界|がっかい|academic world
+写す|うつす|to copy
+写生|しゃせい|sketching
+真っ白|まっしろ|pure white
+真っ赤|まっか|bright red
+真っ青|まっさお|deep blue
+真夜中|まよなか|middle of the night
+真心|まごころ|sincerity
+真上|まうえ|directly above
+真下|ました|directly below
+真水|まみず|fresh water
+映る|うつる|to be reflected
+上映|じょうえい|screening
+名画|めいが|famous painting
+仕方|しかた|way of doing
+仕上げる|しあげる|to finish off
+仕切る|しきる|to partition
+火事|かじ|fire (blaze)
+大事|だいじ|important
+工事|こうじ|construction
+人事|じんじ|personnel affairs
+何事|なにごと|what sort of thing
+悪事|あくじ|wrongdoing
+理事|りじ|director
+私立|しりつ|private (institution)
+私生活|しせいかつ|private life
+私物|しぶつ|personal belongings
+私見|しけん|personal opinion
+駅長|えきちょう|stationmaster
+新学年|しんがくねん|new school year
+新作|しんさく|new work
+新語|しんご|new word
+新生活|しんせいかつ|new life
+親しい|したしい|close (friendly)
+親分|おやぶん|boss
+親日|しんにち|pro-Japanese
+旅立つ|たびだつ|to set off
+長旅|ながたび|long journey
+一人旅|ひとりたび|travelling alone
+転じる|てんじる|to turn
+転入|てんにゅう|moving in
+転売|てんばい|resale
+軽石|かるいし|pumice
+館長|かんちょう|museum director
+古本屋|ふるほんや|second-hand bookshop
+米屋|こめや|rice shop
+真空|しんくう|vacuum
+真冬|まふゆ|midwinter
+真夏|まなつ|midsummer
+真昼|まひる|broad daylight
+真北|まきた|due north
+映写|えいしゃ|projection
+画数|かくすう|stroke count
+字画|じかく|strokes of a character
+動画|どうが|video
+仕立てる|したてる|to tailor
+行事|ぎょうじ|event
+物事|ものごと|things
+見事|みごと|splendid
+私語|しご|whispering
+私学|しがく|private school
+下界|げかい|the world below
+一族|いちぞく|clan
+書き写す|かきうつす|to copy out
 鳥|とり|bird
 島|しま|island
 美しい|うつくしい|beautiful
