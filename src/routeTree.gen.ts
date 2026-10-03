@@ -14,6 +14,7 @@ import { Route as ItemsRouteImport } from './routes/items'
 import { Route as KanjiRouteImport } from './routes/kanji'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PaceRouteImport } from './routes/pace'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as WelcomeRouteImport } from './routes/welcome'
@@ -43,6 +44,11 @@ const PaceRoute = PaceRouteImport.update({
   path: '/pace',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/kanji': typeof KanjiRoute
   '/login': typeof LoginRoute
   '/pace': typeof PaceRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
   '/welcome': typeof WelcomeRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/kanji': typeof KanjiRoute
   '/login': typeof LoginRoute
   '/pace': typeof PaceRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
   '/welcome': typeof WelcomeRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/kanji': typeof KanjiRoute
   '/login': typeof LoginRoute
   '/pace': typeof PaceRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
   '/welcome': typeof WelcomeRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/kanji'
     | '/login'
     | '/pace'
+    | '/privacy'
     | '/settings'
     | '/timeline'
     | '/welcome'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/kanji'
     | '/login'
     | '/pace'
+    | '/privacy'
     | '/settings'
     | '/timeline'
     | '/welcome'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/kanji'
     | '/login'
     | '/pace'
+    | '/privacy'
     | '/settings'
     | '/timeline'
     | '/welcome'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   KanjiRoute: typeof KanjiRoute
   LoginRoute: typeof LoginRoute
   PaceRoute: typeof PaceRoute
+  PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
   TimelineRoute: typeof TimelineRoute
   WelcomeRoute: typeof WelcomeRoute
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   KanjiRoute: KanjiRoute,
   LoginRoute: LoginRoute,
   PaceRoute: PaceRoute,
+  PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
   TimelineRoute: TimelineRoute,
   WelcomeRoute: WelcomeRoute,

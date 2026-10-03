@@ -1,0 +1,8 @@
+.page {
+  max-width: 720px;
+}
+
+.updated {
+  font-size: 13px;
+  color: var(--ink-3);
+}
