@@ -307,6 +307,48 @@
   background: var(--ink);
 }
 
+.gaugeGhost,
+.ghostKey {
+  width: 2px;
+  height: 18px;
+  background: repeating-linear-gradient(var(--ink-2) 0 3px, transparent 3px 5px);
+}
+
+.gaugeGhost {
+  position: absolute;
+  top: -4px;
+}
+
+.ghostKey {
+  display: inline-block;
+  height: 12px;
+  margin-right: 8px;
+  vertical-align: -1px;
+}
+
+.projection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.perDay {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-body);
+  color: var(--ink-2);
+}
+
+/* Narrower than the Settings stepper so it sits inside the card. */
+.perDay button {
+  width: 34px;
+}
+
+.perDay input {
+  width: 44px;
+}
+
 .gaugeLabels {
   position: relative;
   height: 16px;
