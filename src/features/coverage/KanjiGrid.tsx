@@ -4,7 +4,7 @@ import type { Ref } from 'react';
 import type { KanjiCell, KanjiGroup } from '../../domain/coverage';
 import { SubjectTip } from '../../components/ItemTip';
 import { Tooltip } from '../../components/Tooltip';
-import styles from './Kanji.module.css';
+import styles from './Coverage.module.css';
 import { num } from './parts';
 
 const GAP = 5;

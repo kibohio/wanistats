@@ -25,7 +25,7 @@ test('logged out, every tab shows sample data and the footer', async ({ page }) 
     ['/', /^(Today|Level \d+.*)$/],
     ['/timeline', /^Timeline$/],
     ['/pace', /^Pace$/],
-    ['/kanji', /^Kanji$/],
+    ['/coverage', /^Coverage$/],
     ['/items', /^Items$/],
     ['/settings', /^Settings$/],
     ['/about', /^About$/],
@@ -152,6 +152,12 @@ test.describe('with the service worker', () => {
   });
 });
 
+test('the old Kanji address opens Coverage', async ({ page }) => {
+  await page.goto('/kanji');
+  await expect(page).toHaveURL(/\/coverage$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Coverage' })).toBeVisible();
+});
+
 test('packs download nothing until Download is pressed', async ({ page }) => {
   const manifest = JSON.parse(readFileSync('public/data/packs/manifest.json', 'utf8')) as {
     packs: { id: string; label: string; bytes: number }[];
@@ -160,7 +166,7 @@ test('packs download nothing until Download is pressed', async ({ page }) => {
   const packRequests: string[] = [];
   page.on('request', (r) => /\/data\/packs\/.*\.gz$/.test(r.url()) && packRequests.push(r.url()));
 
-  await page.goto('/kanji');
+  await page.goto('/coverage');
   await page.goto('/settings');
   await page.getByRole('button', { name: `Download ${kanji.label}` }).click();
   const sheet = page.getByRole('dialog', { name: 'Download coverage data' });

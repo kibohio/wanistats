@@ -29,7 +29,12 @@ import {
   radicalProgress,
   reviewsAvailableNow,
 } from '../../domain/today';
-import { loadTrend, steadyStateReviewsPerDay, workload } from '../../domain/workload';
+import {
+  loadTrend,
+  steadyStateLoad,
+  steadyStateReviewsPerDay,
+  workload,
+} from '../../domain/workload';
 import { useNow } from '../../hooks/useNow';
 
 /** Everything Today shows, computed once per data change or minute. Null while loading. */
@@ -120,6 +125,8 @@ export function useToday() {
       itemAccuracy,
       lessonsPerDay,
       steady: itemAccuracy === null ? null : steadyStateReviewsPerDay(lessonsPerDay, itemAccuracy),
+      projected:
+        itemAccuracy === null ? null : steadyStateLoad(lessonsPerDay, itemAccuracy, system.data),
       clock,
       levelStartAt: current?.startAt ?? null,
       levelDay: current ? Math.floor(current.durationMs / 86_400_000) + 1 : null,

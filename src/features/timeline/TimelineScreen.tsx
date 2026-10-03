@@ -1,6 +1,6 @@
 import { stageName } from '../../domain/items';
 import { Link } from '@tanstack/react-router';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Card } from '../../components/Card';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
@@ -16,13 +16,19 @@ import type { StageCounts } from '../../db/schema';
 import { accuracy } from '../../domain/accuracy';
 import { lessonWindow } from '../../domain/lessonWindow';
 import { intervalFor } from '../../domain/srs';
-import type { TimelineRange } from '../../domain/timeline';
 import { steadyStateReviewsPerDay, workload } from '../../domain/workload';
 import { formatHours, formatMinutes, formatWindow, plural } from '../../format';
 import { useClock } from '../../hooks/useClock';
 import { useNow } from '../../hooks/useNow';
 import styles from './Timeline.module.css';
-import { LessonsToggle, RANGES, rangeTotal, TimelineCard, TimelineChart } from './TimelineChart';
+import {
+  LessonsToggle,
+  RANGES,
+  rangeTotal,
+  TimelineCard,
+  TimelineChart,
+  useTimelineView,
+} from './TimelineChart';
 import { granularityFor, useIsDesktop, useLessonSystem, useTimelineData } from './useTimelineData';
 
 export function TimelineScreen() {
@@ -49,8 +55,7 @@ export function TimelineScreen() {
 }
 
 function PhoneTimeline() {
-  const [range, setRange] = useState<TimelineRange>('7d');
-  const [withLessons, setWithLessons] = useState(false);
+  const { range, setRange, withLessons, setWithLessons } = useTimelineView();
   const granularity = granularityFor(range, false);
   const data = useTimelineData(range, granularity, withLessons);
   return (
@@ -60,7 +65,12 @@ function PhoneTimeline() {
       <section aria-label="Upcoming reviews" className={styles.panel}>
         <LessonsToggle checked={withLessons} onChange={setWithLessons} />
         {data ? (
-          <TimelineChart key={range} data={data} granularity={granularity} />
+          <TimelineChart
+            key={range}
+            data={data}
+            granularity={granularity}
+            memoryKey={`${range}-${granularity}`}
+          />
         ) : (
           <p className={styles.loading}>Loading reviews</p>
         )}
@@ -213,7 +223,7 @@ function InFlightCard() {
         ))}
       </ul>
       {steady !== null && (
-        <p className={styles.note}>About {steady.toLocaleString()} reviews a day long term.</p>
+        <p className={styles.note}>About {steady.toLocaleString()} reviews a day, long term.</p>
       )}
     </Card>
   );

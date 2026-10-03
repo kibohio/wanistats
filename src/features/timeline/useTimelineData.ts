@@ -1,4 +1,4 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useCallback, useMemo, useState, useSyncExternalStore } from 'react';
 import { useAssignments, useSrsSystems, useSubjects, useUser } from '../../db/hooks';
 import { usePref } from '../../db/prefs';
 import { earliestLevelUp } from '../../domain/levelUp';
@@ -32,6 +32,41 @@ const subscribeDesktop = (cb: () => void) => {
 
 export function useIsDesktop(): boolean {
   return useSyncExternalStore(subscribeDesktop, () => window.matchMedia(DESKTOP).matches);
+}
+
+// Module map first so memory survives navigation even where sessionStorage throws; the
+// sessionStorage copy keeps it across reloads in the same tab only.
+const memory = new Map<string, unknown>();
+const STORE = 'wanistats:timeline:';
+
+function recall(key: string): unknown {
+  if (memory.has(key)) return memory.get(key);
+  try {
+    return JSON.parse(sessionStorage.getItem(STORE + key) ?? 'null');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Timeline view state (range, lessons toggle, selected bar) that outlives the component, so
+ * leaving and coming back keeps the view. Callers validate what comes back.
+ */
+export function useRemembered<T>(key: string, fallback: T): [unknown, (v: T) => void] {
+  const [value, setValue] = useState<unknown>(() => recall(key) ?? fallback);
+  const remember = useCallback(
+    (v: T) => {
+      setValue(v);
+      memory.set(key, v);
+      try {
+        sessionStorage.setItem(STORE + key, JSON.stringify(v));
+      } catch {
+        // Private mode or blocked storage: the module map still covers in-app navigation.
+      }
+    },
+    [key],
+  );
+  return [value, remember];
 }
 
 /** Spec 9.7 bins: phones get fewer, wider bars. */

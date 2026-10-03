@@ -17,7 +17,7 @@ export interface Prefs {
   theme: 'system' | 'light' | 'dark';
   clock: Clock;
   timelineSplit: 'stage' | 'type';
-  /** Pack ids after `words-`, e.g. 'global', 'anime'. */
+  /** Pack ids after `words-`, e.g. 'global', 'anime'. Words mode uses the first. */
   wordMedia: string[];
   /** Pace inclusion by level: true forces include, false forces exclude. Absent means automatic. */
   levelOverrides: Record<number, boolean>;

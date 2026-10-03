@@ -1,6 +1,9 @@
 import { Link } from '@tanstack/react-router';
+import { useId } from 'react';
 import { Card } from '../../components/Card';
+import { Stepper } from '../../components/Stepper';
 import { Tooltip } from '../../components/Tooltip';
+import { usePref } from '../../db/prefs';
 import { formatTime } from '../../format';
 import { gaugeMax, trendPoints } from '../../domain/today';
 import type { StageCounts } from '../../db/schema';
@@ -75,7 +78,8 @@ function LoadExplain({ d, children }: { d: TodayData; children: React.ReactNode 
 
 function Gauge({ d, labels }: { d: TodayData; labels: boolean }) {
   const { work } = d;
-  const max = gaugeMax(work.load, work.band);
+  const ghost = d.projected?.load;
+  const max = gaugeMax(Math.max(work.load, ghost ?? 0), work.band);
   const at = (n: number) => `${Math.min(100, (n / max) * 100)}%`;
   return (
     <div className={styles.gaugeWrap}>
@@ -87,6 +91,9 @@ function Gauge({ d, labels }: { d: TodayData; labels: boolean }) {
             width: `calc(${at(work.band.max)} - ${at(work.band.min)})`,
           }}
         />
+        {ghost != null && (
+          <span className={styles.gaugeGhost} style={{ left: `calc(${at(ghost)} - 1px)` }} />
+        )}
         <span className={styles.gaugeMark} style={{ left: `calc(${at(work.load)} - 1px)` }} />
       </div>
       {labels && (
@@ -226,22 +233,49 @@ function Hours({ d }: { d: TodayData }) {
 }
 
 function SteadyInfo({ d }: { d: TodayData }) {
+  const p = d.projected!;
+  const acc = `${d.sample ? "the sample's" : 'your'} ${pct(d.itemAccuracy)} accuracy`;
   return (
     <>
       <p>
-        With {plural(d.lessonsPerDay, 'new lesson')} a day you&apos;ll average about{' '}
-        {int(d.steady!)} reviews a day once items start burning ({d.lessonsPerDay} lessons × 8
-        reviews each, adjusted for {d.sample ? "the sample's" : 'your'} {pct(d.itemAccuracy)}{' '}
-        accuracy).
+        At {plural(d.lessonsPerDay, 'new lesson')} a day, load settles near {int(p.load)} (
+        {int(p.apprentice)} Apprentice + {int(p.guru)} Guru ÷ 10), shown as the dashed mark.
       </p>
       <p>
-        Change lessons a day in{' '}
-        <Link to="/settings" hash="preferences">
-          Settings
-        </Link>
-        .
+        Each count is lessons a day times the days items spend in those stages: the SRS waits plus
+        half a day per review until you get to it, stretched by {acc} for the ones that come back.
+      </p>
+      <p>
+        Reviews average about {int(d.steady!)} a day once items start burning ({d.lessonsPerDay}{' '}
+        lessons × 8 reviews each, adjusted for {acc}).
       </p>
     </>
+  );
+}
+
+function Projection({ d }: { d: TodayData }) {
+  const id = useId();
+  const [, setPerDay] = usePref('lessonsPerDay');
+  const p = d.projected!;
+  return (
+    <div className={styles.projection}>
+      <span className={styles.perDay}>
+        <Stepper
+          id={id}
+          label="Lessons a day"
+          value={d.lessonsPerDay}
+          min={0}
+          max={100}
+          onChange={(v) => void setPerDay(v)}
+        />
+        <label htmlFor={id}>lessons a day</label>
+      </span>
+      <p className={styles.para}>
+        <span className={styles.ghostKey} aria-hidden="true" />
+        At {d.lessonsPerDay} a day: about {int(p.load)}
+      </p>
+      <p className={styles.para}>About {int(d.steady!)} reviews a day, long term.</p>
+    </div>
   );
 }
 
@@ -252,7 +286,7 @@ export function WorkloadCard({ d, desktop }: { d: TodayData; desktop?: boolean }
     <Card
       className={desktop ? styles.workloadDesktop : undefined}
       title="Workload"
-      info={desktop && d.steady !== null && <SteadyInfo d={d} />}
+      info={d.projected && d.steady !== null && <SteadyInfo d={d} />}
       aside={
         desktop
           ? 'Apprentice + Guru ÷ 10'
@@ -268,13 +302,11 @@ export function WorkloadCard({ d, desktop }: { d: TodayData; desktop?: boolean }
         </span>
       </div>
       <Gauge d={d} labels={!desktop} />
+      {d.projected && d.steady !== null && <Projection d={d} />}
       <Trend d={d} />
       {desktop && <SubStages d={d} />}
       <div className={styles.divider} />
       <Hours d={d} />
-      {desktop && d.steady !== null && (
-        <p className={styles.para}>About {int(d.steady)} reviews a day long term.</p>
-      )}
     </Card>
   );
 }

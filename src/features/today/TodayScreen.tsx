@@ -90,34 +90,24 @@ function Desktop({ d }: { d: TodayData }) {
   );
 }
 
-/** Level numeral with a small "Level" label, the level day and, on desktop, today's date. */
+/** "Level 9", the level day and, on desktop, today's date. */
 function LevelLead({ d, desktop }: { d: TodayData; desktop?: boolean }) {
   return (
     <div className={styles.lead}>
-      <h1 className={styles.levelHeading}>
-        <span className={styles.numeral} aria-hidden="true">
-          {d.user.level}
-        </span>
-        <span className="visually-hidden">Level {d.user.level}</span>
-      </h1>
-      <div className={styles.levelText}>
-        <span className={styles.levelLabel} aria-hidden="true">
-          Level
-        </span>
-        <span>
-          {d.levelDay !== null && (
-            <DayExplain d={d}>
-              <span className={styles.day}>Day {d.levelDay}</span>
-            </DayExplain>
-          )}
-          {desktop && (
-            <span className={styles.today}>
-              {d.levelDay !== null && ', '}
-              {fullDay(d.now)}
-            </span>
-          )}
-        </span>
-      </div>
+      <h1 className={styles.levelHeading}>Level {d.user.level}</h1>
+      <span className={styles.levelText}>
+        {d.levelDay !== null && (
+          <DayExplain d={d}>
+            <span className={styles.day}>Day {d.levelDay}</span>
+          </DayExplain>
+        )}
+        {desktop && (
+          <>
+            {d.levelDay !== null && ', '}
+            {fullDay(d.now)}
+          </>
+        )}
+      </span>
       {d.sample && <Chip>Sample</Chip>}
     </div>
   );
