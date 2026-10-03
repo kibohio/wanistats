@@ -1,6 +1,6 @@
 import type { AssignmentResource, SubjectResource } from '../api/types';
 import type { Snapshot } from '../db/schema';
-import { daysBetween, localDateKey, shiftDate } from './snapshots';
+import { daysBetweenKeys, localDateKey, shiftDate } from './localDate';
 import { matchWords } from './wordMatch';
 
 /** `kanji` pack, column-oriented. Parallel arrays; 0 means none. */
@@ -295,6 +295,6 @@ export function coverageGrowth(
   return {
     kanji: last.passedKanji - base.passedKanji,
     vocab: last.passedVocab - base.passedVocab,
-    days: daysBetween(base.date, last.date),
+    days: daysBetweenKeys(base.date, last.date),
   };
 }

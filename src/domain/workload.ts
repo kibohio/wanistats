@@ -1,6 +1,6 @@
 import type { AssignmentResource } from '../api/types';
 import type { Snapshot, StageCounts } from '../db/schema';
-import { addDaysToKey, windowStartKey } from './localDate';
+import { shiftDate, windowStartKey } from './localDate';
 
 export interface Band {
   min: number;
@@ -80,7 +80,7 @@ export function loadTrend(
   const points: LoadPoint[] = [];
   sorted.forEach((s, i) => {
     if (s.date < start) return;
-    const from = i > 0 ? addDaysToKey(sorted[i - 1].date, 1) : s.date;
+    const from = i > 0 ? shiftDate(sorted[i - 1].date, 1) : s.date;
     points.push({ from: from < start ? start : from, to: s.date, load: s.load });
   });
   return { available: true, points };

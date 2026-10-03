@@ -21,7 +21,12 @@ export function daysBetween(fromDayStart: number, toDayStart: number): number {
   return Math.round((toDayStart - fromDayStart) / 86_400_000);
 }
 
-export function addDaysToKey(key: string, days: number): string {
-  const [y, m, d] = key.split('-').map(Number);
-  return localDateKey(new Date(y, m - 1, d + days).getTime());
+// Date keys are calendar days, so key arithmetic runs in UTC to stay clear of DST.
+const DAY_MS = 86_400_000;
+const dayNumber = (key: string) => Date.parse(`${key}T00:00:00Z`) / DAY_MS;
+
+export function shiftDate(key: string, days: number): string {
+  return new Date((dayNumber(key) + days) * DAY_MS).toISOString().slice(0, 10);
 }
+
+export const daysBetweenKeys = (from: string, to: string) => dayNumber(to) - dayNumber(from);
