@@ -8,6 +8,8 @@ import {
 } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { CacheFirst } from 'workbox-strategies';
+import { openDb } from './db/schema';
+import { backgroundSync } from './sync/sync';
 
 declare const self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: (PrecacheEntry | string)[];
@@ -37,7 +39,14 @@ self.addEventListener('message', (event) => {
   if ((event.data as { type?: string } | null)?.type === 'SKIP_WAITING') void self.skipWaiting();
 });
 
+// Registered by the page only when installed and logged in. Reads the token from IndexedDB; a
+// failure (offline, 401) just waits for the next run or the next time the app opens.
 self.addEventListener('periodicsync', ((event: PeriodicSyncEvent) => {
-  // ponytail: no-op until the sync engine exists; it will sync and write the day's snapshot.
-  if (event.tag === 'snapshot') event.waitUntil(Promise.resolve());
+  if (event.tag !== 'snapshot') return;
+  const db = openDb('wanistats');
+  event.waitUntil(
+    backgroundSync(db)
+      .catch(() => {})
+      .finally(() => db.close()),
+  );
 }) as EventListener);

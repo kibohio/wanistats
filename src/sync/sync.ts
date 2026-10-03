@@ -28,6 +28,69 @@ const COLLECTIONS: [step: number, name: CollectionName, table: string][] = [
   [4, 'spaced_repetition_systems', 'srsSystems'],
 ];
 
+type Report = (step: number, loaded?: number, total?: number) => void;
+
+function stamp(
+  db: WaniStatsDb,
+  name: CollectionName,
+  prev: SyncState | undefined,
+  next: Partial<SyncState>,
+) {
+  return db.syncState.put({
+    collection: name,
+    lastUpdatedAt: prev?.lastUpdatedAt ?? null,
+    etag: prev?.etag,
+    lastModified: prev?.lastModified,
+    ...next,
+    lastSyncAt: new Date().toISOString(),
+  });
+}
+
+async function syncCollection(
+  db: WaniStatsDb,
+  token: string,
+  [step, name, tableName]: (typeof COLLECTIONS)[number],
+  report: Report,
+): Promise<void> {
+  report(step);
+  const prev = await db.syncState.get(name);
+  const table = db.table(tableName);
+  const res = await fetchCollection(token, name, {
+    updatedAfter: prev?.lastUpdatedAt,
+    etag: prev?.etag,
+    lastModified: prev?.lastModified,
+    onPage: async (items, loaded, total) => {
+      await table.bulkPut(items);
+      report(step, loaded, total);
+    },
+  });
+  await stamp(
+    db,
+    name,
+    prev,
+    res.notModified
+      ? {}
+      : {
+          // Null when nothing changed since updated_after: keep the old cursor.
+          lastUpdatedAt: res.dataUpdatedAt ?? prev?.lastUpdatedAt ?? null,
+          etag: res.etag,
+          lastModified: res.lastModified,
+        },
+  );
+}
+
+async function withRejection(db: WaniStatsDb, run: () => Promise<void>): Promise<void> {
+  try {
+    await run();
+  } catch (e) {
+    if (e instanceof WkError && e.kind === 'unauthorized') {
+      await db.meta.put({ key: 'tokenRejected', value: true });
+    }
+    throw e;
+  }
+  await db.meta.delete('tokenRejected');
+}
+
 /**
  * Incremental sync of every collection into `db`. Resources are stored exactly as returned,
  * hidden subjects included (their data.hidden_at is the flag domain code filters on).
@@ -40,24 +103,17 @@ export async function syncAll(
 ): Promise<void> {
   const token = await db.auth.get('token');
   if (!token) throw new WkError('unauthorized');
-  const report = (step: number, loaded = 0, total = 0) =>
+  const report: Report = (step, loaded = 0, total = 0) =>
     onProgress({ step, label: SYNC_STEPS[step]!, loaded, total });
-  const stamp = (prev: SyncState | undefined, next: Partial<SyncState>, name: CollectionName) =>
-    db.syncState.put({
-      collection: name,
-      lastUpdatedAt: prev?.lastUpdatedAt ?? null,
-      etag: prev?.etag,
-      lastModified: prev?.lastModified,
-      ...next,
-      lastSyncAt: new Date().toISOString(),
-    });
 
-  try {
+  await withRejection(db, async () => {
     report(0);
     const userState = await db.syncState.get('user');
     const user = await getUserIfChanged(token, userState ?? {});
     if (user) await db.user.put(user.report.data, 'me');
     await stamp(
+      db,
+      'user',
       userState,
       user
         ? {
@@ -66,42 +122,30 @@ export async function syncAll(
             lastModified: user.lastModified,
           }
         : {},
-      'user',
     );
+    for (const c of COLLECTIONS) await syncCollection(db, token, c, report);
+  });
+  await writeDailySnapshot(db, Date.now());
+}
 
-    for (const [step, name, tableName] of COLLECTIONS) {
-      report(step);
-      const prev = await db.syncState.get(name);
-      const table = db.table(tableName);
-      const res = await fetchCollection(token, name, {
-        updatedAfter: prev?.lastUpdatedAt,
-        etag: prev?.etag,
-        lastModified: prev?.lastModified,
-        onPage: async (items, loaded, total) => {
-          await table.bulkPut(items);
-          report(step, loaded, total);
-        },
-      });
-      await stamp(
-        prev,
-        res.notModified
-          ? {}
-          : {
-              // Null when nothing changed since updated_after: keep the old cursor.
-              lastUpdatedAt: res.dataUpdatedAt ?? prev?.lastUpdatedAt ?? null,
-              etag: res.etag,
-              lastModified: res.lastModified,
-            },
-        name,
-      );
+/**
+ * The service worker's periodic run: only what a snapshot needs to be current, then today's
+ * snapshot if none exists. Skipped when logged out, before the first sync, or after a 401.
+ */
+export async function backgroundSync(db: WaniStatsDb): Promise<void> {
+  const [token, user, rejected] = await Promise.all([
+    db.auth.get('token'),
+    db.user.get('me'),
+    db.meta.get('tokenRejected'),
+  ]);
+  if (!token || !user || rejected) return;
+  await withRejection(db, async () => {
+    for (const c of COLLECTIONS) {
+      if (c[1] === 'assignments' || c[1] === 'review_statistics') {
+        await syncCollection(db, token, c, () => {});
+      }
     }
-  } catch (e) {
-    if (e instanceof WkError && e.kind === 'unauthorized') {
-      await db.meta.put({ key: 'tokenRejected', value: true });
-    }
-    throw e;
-  }
-  await db.meta.delete('tokenRejected');
+  });
   await writeDailySnapshot(db, Date.now());
 }
 

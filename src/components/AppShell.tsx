@@ -2,6 +2,8 @@ import { Link, Outlet } from '@tanstack/react-router';
 import { useHistoryRange, useLastSyncAt } from '../db/hooks';
 import { useAppMode, useSampleSeed } from '../db/useAppMode';
 import { formatSyncTime } from '../format';
+import { usePeriodicSync } from '../hooks/useInstall';
+import { useApplyTheme } from '../hooks/useTheme';
 import { useSyncTriggers } from '../sync/useSync';
 import styles from './AppShell.module.css';
 import { Button } from './Button';
@@ -15,6 +17,8 @@ import { UpdateToast } from './UpdateToast';
 export function AppShell() {
   useSyncTriggers();
   useSampleSeed();
+  useApplyTheme();
+  usePeriodicSync();
   return (
     <div className={styles.shell}>
       <Sidebar />
