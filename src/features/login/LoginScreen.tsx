@@ -57,52 +57,61 @@ export function LoginScreen() {
     <>
       <ScreenHeader title="Log in" />
       <Card className={styles.card}>
-        <h2 className={styles.heading}>Connect your WaniKani account</h2>
-        <p>
-          Paste a personal access token. WaniStats only needs read access. Your token stays in this
-          browser and is only ever sent to api.wanikani.com.
-        </p>
-        <a href={WK_TOKEN_URL} target="_blank" rel="noreferrer" className={styles.external}>
-          Create a token on WaniKani
-          <ExternalIcon size={16} />
-        </a>
         {phase === 'syncing' ? (
-          <SyncSteps progress={progress} />
+          <>
+            <h2 className={styles.heading}>Importing your WaniKani data</h2>
+            <p>
+              WaniStats is copying your subjects, progress and accuracy from WaniKani into this
+              browser. The first import takes a minute; later syncs only fetch what changed.
+            </p>
+            <SyncSteps progress={progress} />
+          </>
         ) : (
-          <form className={styles.form} onSubmit={(e) => void connect(e)}>
-            <label htmlFor={inputId} className={styles.label}>
-              Personal access token
-            </label>
-            <div className={styles.row}>
-              <input
-                id={inputId}
-                type={show ? 'text' : 'password'}
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                autoComplete="off"
-                autoCapitalize="off"
-                spellCheck={false}
-                aria-invalid={!!error}
-                aria-describedby={error ? errorId : undefined}
-                className={styles.input}
-              />
-              <Button aria-pressed={show} onClick={() => setShow(!show)}>
-                {show ? 'Hide' : 'Show'}
+          <>
+            <h2 className={styles.heading}>Connect your WaniKani account</h2>
+            <p>
+              Paste a personal access token. WaniStats only needs read access. Your token stays in
+              this browser and is only ever sent to api.wanikani.com.
+            </p>
+            <a href={WK_TOKEN_URL} target="_blank" rel="noreferrer" className={styles.external}>
+              Create a token on WaniKani
+              <ExternalIcon size={16} />
+            </a>
+            <form className={styles.form} onSubmit={(e) => void connect(e)}>
+              <label htmlFor={inputId} className={styles.label}>
+                Personal access token
+              </label>
+              <div className={styles.row}>
+                <input
+                  id={inputId}
+                  type={show ? 'text' : 'password'}
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  aria-invalid={!!error}
+                  aria-describedby={error ? errorId : undefined}
+                  className={styles.input}
+                />
+                <Button aria-pressed={show} onClick={() => setShow(!show)}>
+                  {show ? 'Hide' : 'Show'}
+                </Button>
+              </div>
+              {error && (
+                <p id={errorId} role="alert" className={styles.error}>
+                  {error}
+                </p>
+              )}
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={phase === 'checking' || !token.trim()}
+              >
+                {phase === 'checking' ? 'Connecting' : 'Connect'}
               </Button>
-            </div>
-            {error && (
-              <p id={errorId} role="alert" className={styles.error}>
-                {error}
-              </p>
-            )}
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={phase === 'checking' || !token.trim()}
-            >
-              {phase === 'checking' ? 'Connecting' : 'Connect'}
-            </Button>
-          </form>
+            </form>
+          </>
         )}
       </Card>
     </>

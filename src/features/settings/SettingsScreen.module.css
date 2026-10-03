@@ -45,12 +45,6 @@
   color: var(--ink-3);
 }
 
-.list {
-  margin: 0;
-  padding-left: 20px;
-  color: var(--ink-2);
-}
-
 .sections {
   display: flex;
   flex-direction: column;
