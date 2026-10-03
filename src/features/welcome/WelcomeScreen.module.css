@@ -1,0 +1,187 @@
+.card {
+  gap: 20px;
+  max-width: 640px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.progress li {
+  width: 24px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--control);
+}
+
+.progress li[data-done='true'] {
+  background: var(--primary-fill);
+}
+
+.count {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.skip {
+  margin-left: auto;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: var(--ink-2);
+}
+
+.heading {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.small {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.glance {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.glance > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.glance > div:last-child {
+  border-bottom: none;
+}
+
+.glance dt {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.glance dd {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  font-size: 14px;
+}
+
+.paper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0;
+}
+
+/* Practice paper: two rows of 15 on phones, one row of 30 when there's room. */
+.squares {
+  display: grid;
+  grid-template-columns: repeat(15, minmax(0, 1fr));
+  gap: 3px;
+}
+
+@media (min-width: 640px) {
+  .squares {
+    grid-template-columns: repeat(30, minmax(0, 1fr));
+  }
+}
+
+.square {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: 1px solid var(--unstarted-border);
+  border-radius: 2px;
+  background: var(--surface);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Dashed centre cross, as on genkō yōshi. */
+.square::before,
+.square::after {
+  content: '';
+  position: absolute;
+  border: 0 dashed var(--unstarted-border);
+}
+
+.square::before {
+  inset: 2px auto 2px 50%;
+  border-left-width: 1px;
+}
+
+.square::after {
+  inset: 50% 2px auto 2px;
+  border-top-width: 1px;
+}
+
+.square[data-today='true'] {
+  border-color: var(--primary-fill);
+  background: var(--primary-fill);
+}
+
+.square[data-today='true']::before,
+.square[data-today='true']::after {
+  display: none;
+}
+
+.square[data-marker='true'] {
+  border-color: var(--primary);
+  border-width: 1.5px;
+}
+
+.square[data-marker='true']::before,
+.square[data-marker='true']::after {
+  display: none;
+}
+
+.markers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-size: 13px;
+}
+
+.markerDay {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
