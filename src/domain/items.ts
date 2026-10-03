@@ -1,8 +1,10 @@
 import type {
   AssignmentResource,
+  KanjiReading,
   ReviewStatisticResource,
   SubjectResource,
   SubjectType,
+  VocabularyReading,
 } from '../api/types';
 import type { AccuracyBreakdown, AccuracyFigures } from './accuracy';
 import { leechScore, type Leech } from './leeches';
@@ -89,7 +91,7 @@ export function buildItems(input: {
       'readings' in data
         ? data.readings
             .filter((r) => r.accepted_answer)
-            .map((r) => ({
+            .map((r: KanjiReading | VocabularyReading) => ({
               reading: r.reading,
               primary: r.primary,
               ...('type' in r && { type: r.type }),
@@ -132,7 +134,7 @@ export function buildItems(input: {
       lookAlikeIds:
         leech?.lookAlikeIds ??
         (subject.object === 'kanji'
-          ? data.visually_similar_subject_ids.filter((id) => visible.has(id))
+          ? subject.data.visually_similar_subject_ids.filter((id) => visible.has(id))
           : []),
       documentUrl: data.document_url,
     });
@@ -217,10 +219,7 @@ export interface WeakestPart {
 /** The lowest meaning or reading rate across subject types, for "Kanji reading, weakest". */
 export function weakestPart(b: AccuracyBreakdown): WeakestPart | null {
   let weakest: WeakestPart | null = null;
-  for (const [type, f] of Object.entries(b.bySubjectType) as [
-    SubjectType,
-    AccuracyFigures,
-  ][]) {
+  for (const [type, f] of Object.entries(b.bySubjectType) as [SubjectType, AccuracyFigures][]) {
     for (const part of ['meaning', 'reading'] as const) {
       const rate = f[part];
       if (rate !== null && (!weakest || rate < weakest.rate)) weakest = { type, part, rate };
