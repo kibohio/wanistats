@@ -439,3 +439,122 @@ label.list .listMeta {
   font-weight: 500;
   color: var(--ink-2);
 }
+
+/* By level */
+.switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.switches > * {
+  flex: 1 1 260px;
+}
+
+.levelScroller {
+  overflow-x: auto;
+  margin: 0 calc(-1 * var(--card-pad));
+  padding: 0 var(--card-pad);
+}
+
+.levelBars {
+  display: flex;
+  gap: 2px;
+  min-width: 100%;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.levelCol {
+  flex: 1 0 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.levelPlot {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  height: 164px;
+  padding: 4px 0 0;
+  border: none;
+  border-bottom: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.levelPlot[aria-pressed='true'] {
+  background: var(--control);
+}
+
+.segment {
+  flex: none;
+  width: 100%;
+  border-top: 1px solid var(--surface);
+}
+
+.segment:last-child {
+  border-radius: 3px 3px 0 0;
+}
+
+.levelNum {
+  padding-top: 4px;
+  font-size: var(--text-caption);
+  color: var(--ink-3);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.levelSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.tableToggle summary {
+  cursor: pointer;
+  font-size: var(--text-caption);
+  color: var(--primary);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  margin-top: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: 5px 8px 5px 0;
+  border-top: 1px solid var(--line-soft);
+  text-align: right;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.table th:first-child {
+  text-align: left;
+}
+
+.table thead th {
+  border-top: none;
+  color: var(--ink-3);
+}
+
+.notKnown {
+  border: 1px dashed var(--ink-3);
+  background: transparent;
+}
+
+.segment.notKnown {
+  border-bottom: none;
+}

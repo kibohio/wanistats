@@ -49,9 +49,9 @@ test('JLPT: one bar per level up to the highest, hidden and non-kanji left out',
     'No JLPT level',
   ]);
   expect(chart.levels).toEqual([
-    { level: 1, counts: [2, 0, 0, 0, 0, 0], total: 2, known: 2 },
-    { level: 2, counts: [0, 0, 0, 0, 0, 0], total: 0, known: 0 },
-    { level: 3, counts: [0, 1, 0, 0, 1, 2], total: 4, known: 1 },
+    { level: 1, counts: [2, 0, 0, 0, 0, 0], knownCounts: [2, 0, 0, 0, 0, 0], total: 2, known: 2 },
+    { level: 2, counts: [0, 0, 0, 0, 0, 0], knownCounts: [0, 0, 0, 0, 0, 0], total: 0, known: 0 },
+    { level: 3, counts: [0, 1, 0, 0, 1, 2], knownCounts: [0, 0, 0, 0, 1, 0], total: 4, known: 1 },
   ]);
 });
 

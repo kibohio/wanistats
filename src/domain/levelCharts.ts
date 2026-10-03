@@ -15,6 +15,8 @@ export interface LevelBar {
   level: number;
   /** Kanji per category, parallel to `categories`. */
   counts: number[];
+  /** Known kanji per category, at the known stage. */
+  knownCounts: number[];
   total: number;
   known: number;
 }
@@ -53,6 +55,7 @@ export function levelChart(
   const levels = Array.from({ length: top }, (_, i) => ({
     level: i + 1,
     counts: Array<number>(defs.length + 1).fill(0),
+    knownCounts: Array<number>(defs.length + 1).fill(0),
     total: 0,
     known: 0,
   }));
@@ -60,9 +63,13 @@ export function levelChart(
     const bar = levels[s.data.level - 1]!;
     const entry = entryOf.get(s.data.characters!);
     const at = entry ? defs.findIndex((d) => d.has(entry)) : -1;
-    bar.counts[at < 0 ? defs.length : at]! += 1;
+    const cat = at < 0 ? defs.length : at;
+    bar.counts[cat]! += 1;
     bar.total += 1;
-    if (progress.get(s.id)?.known) bar.known += 1;
+    if (progress.get(s.id)?.known) {
+      bar.knownCounts[cat]! += 1;
+      bar.known += 1;
+    }
   }
   return {
     categories: [
