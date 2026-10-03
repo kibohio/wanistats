@@ -231,8 +231,8 @@
 
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
-  gap: 8px 6px;
+  grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+  gap: 8px 2px;
 }
 
 .tileCell {
@@ -247,6 +247,7 @@
   font-size: var(--text-caption);
   line-height: var(--leading-caption);
   text-align: center;
+  white-space: nowrap;
 }
 
 .tileLabelFaded {

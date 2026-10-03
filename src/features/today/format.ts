@@ -16,6 +16,12 @@ const fullDayFmt = new Intl.DateTimeFormat(undefined, {
 });
 
 export const clock = (ms: number) => clockFmt.format(ms);
+
+const hourFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric' });
+const twelveHour = /^h1[12]$/.test(clockFmt.resolvedOptions().hourCycle ?? '');
+/** "4 PM" on the hour in 12-hour locales so tile labels fit on one line; else the full clock. */
+export const shortClock = (ms: number) =>
+  twelveHour && new Date(ms).getMinutes() === 0 ? hourFmt.format(ms) : clock(ms);
 /** "Tue 6 Oct" */
 export const dayDate = (ms: number) => dayDateFmt.format(ms);
 /** "6 Oct" */
@@ -43,11 +49,12 @@ export function when(ms: number, now: number): string {
   return `${day} ${clock(ms)}`;
 }
 
-/** Tile label: "18:00" today, "Sun 09:00" later, "Now" when due. */
+/** Tile label: "18:00" or "6 PM" today, "Sun 09:00" or "Sun 9 AM" later, "Now" when due. */
 export function shortWhen(ms: number, now: number): string {
   if (ms <= now) return 'Now';
   const d = dayOffset(ms, now);
-  return d === 0 ? clock(ms) : `${d < 7 ? weekdayFmt.format(ms) : dayMonth(ms)} ${clock(ms)}`;
+  const at = shortClock(ms);
+  return d === 0 ? at : `${d < 7 ? weekdayFmt.format(ms) : dayMonth(ms)} ${at}`;
 }
 
 /** Local YYYY-MM-DD as "Tue" within the last week, else "21 Sep". */
