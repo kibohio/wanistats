@@ -62,6 +62,7 @@ function Sidebar() {
           ))}
         </nav>
         <div className={styles.account}>
+          {!sample && <SyncStatus />}
           <ProfileButton />
           {sample ? (
             <span className={styles.who}>
@@ -79,9 +80,6 @@ function Sidebar() {
 
 function LiveStatus() {
   const user = useUser();
-  const lastSync = useLastSyncAt();
-  const history = useHistoryRange();
-  const clock = useClock();
   return (
     <>
       <span className={styles.who}>
@@ -89,6 +87,16 @@ function LiveStatus() {
         {user && <span className={styles.level}>Level {user.level}</span>}
       </span>
       <RefreshData compact />
+    </>
+  );
+}
+
+function SyncStatus() {
+  const lastSync = useLastSyncAt();
+  const history = useHistoryRange();
+  const clock = useClock();
+  return (
+    <>
       {lastSync != null && (
         <span className={styles.line}>Synced {formatSyncTime(lastSync, clock)}</span>
       )}
