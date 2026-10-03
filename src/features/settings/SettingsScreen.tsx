@@ -22,7 +22,7 @@ import { useAccountDb, useAppMode, useDb } from '../../db/useAppMode';
 import { otherAccount, type HistoryFile } from '../../domain/historyFile';
 import { formatLocalDate, formatSyncTime } from '../../format';
 import { useInstalledPacks, useManifest } from '../../packs/hooks';
-import { deletePack, formatBytes, hasUpdate, sizeOnDevice } from '../../packs/packs';
+import { deletePack, formatBytes, hasUpdate, packsDb, sizeOnDevice } from '../../packs/packs';
 import {
   deleteHistory,
   deleteLocalData,
@@ -287,6 +287,7 @@ function PacksSection() {
   const manifest = useManifest();
   const installed = useInstalledPacks();
   const [sheet, setSheet] = useState<string[] | null>(null);
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
   // Serialising a pack is not free; only redo it when the installed rows change.
   const sizes = useMemo(
     () => new Map((installed ?? []).map((r) => [r.id, sizeOnDevice(r)])),
@@ -360,7 +361,30 @@ function PacksSection() {
           ),
         )}
       </ul>
+      {(installed?.length ?? 0) > 0 && (
+        <div className={styles.actions}>
+          <Button onClick={() => setConfirmDeleteAll(true)}>Delete all data packs</Button>
+        </div>
+      )}
       <Rows rows={[['Storage used', formatBytes(total)]]} />
+      <Sheet
+        open={confirmDeleteAll}
+        onClose={() => setConfirmDeleteAll(false)}
+        title="Delete all data packs"
+      >
+        <div className={styles.sheet}>
+          <p>
+            Delete all downloaded coverage data from this browser? You can download it again later.
+          </p>
+          <Button
+            variant="primary"
+            onClick={() => void packsDb.packs.clear().then(() => setConfirmDeleteAll(false))}
+          >
+            Delete all data packs
+          </Button>
+          <Button onClick={() => setConfirmDeleteAll(false)}>Cancel</Button>
+        </div>
+      </Sheet>
       <DownloadSheet open={sheet !== null} onClose={() => setSheet(null)} preselect={sheet ?? []} />
     </Section>
   );
