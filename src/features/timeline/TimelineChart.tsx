@@ -1,3 +1,4 @@
+import { stageName } from '../../domain/items';
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { Tile } from '../../components/Tile';
@@ -6,7 +7,7 @@ import { fmtHour } from '../../domain/lessonWindow';
 import { daysBetween, localDayStart } from '../../domain/localDate';
 import type { Granularity, StackKey, TimelineBin, TimelineRange } from '../../domain/timeline';
 import styles from './Timeline.module.css';
-import { granularityFor, STAGE_NAMES, useTimelineData, type TimelineData } from './useTimelineData';
+import { granularityFor, useTimelineData, type TimelineData } from './useTimelineData';
 
 export const RANGES = [
   { value: '24h', label: '24 hours' },
@@ -296,7 +297,7 @@ function SelectionItems({ ids, data }: { ids: number[]; data: TimelineData }) {
               className={it.char!.length > 1 ? styles.longTile : undefined}
             />
             <span className="visually-hidden">
-              , {STAGE_NAMES[it.stage!]}
+              , {stageName(it.stage ?? null)}
               {it.critical ? ', level-critical' : ''}
             </span>
           </li>

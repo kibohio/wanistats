@@ -1,3 +1,4 @@
+import { stageName } from '../../domain/items';
 import { useMemo, useState } from 'react';
 import { Card } from '../../components/Card';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -18,13 +19,7 @@ import { steadyStateReviewsPerDay, workload } from '../../domain/workload';
 import { useNow } from '../../hooks/useNow';
 import styles from './Timeline.module.css';
 import { LessonsToggle, RANGES, rangeTotal, TimelineCard, TimelineChart } from './TimelineChart';
-import {
-  granularityFor,
-  STAGE_NAMES,
-  useIsDesktop,
-  useLessonSystem,
-  useTimelineData,
-} from './useTimelineData';
+import { granularityFor, useIsDesktop, useLessonSystem, useTimelineData } from './useTimelineData';
 
 export function TimelineScreen() {
   const desktop = useIsDesktop();
@@ -172,9 +167,9 @@ function InFlightCard() {
           <li key={key}>
             <span className={styles.flightBar} style={{ background: `var(--srs-${token})` }} />
             <span className={styles.flightN}>{stages[key].toLocaleString()}</span>
-            <abbr title={STAGE_NAMES[i + 1]}>
+            <abbr title={stageName(i + 1)}>
               <span aria-hidden="true">{short}</span>
-              <span className="visually-hidden">{STAGE_NAMES[i + 1]}</span>
+              <span className="visually-hidden">{stageName(i + 1)}</span>
             </abbr>
           </li>
         ))}
