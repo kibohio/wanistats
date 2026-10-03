@@ -38,7 +38,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  background: var(--srs-guru);
+  background: var(--accent-soft);
 }
 
 /* Two overlaid native ranges; only the thumbs take pointer input so both stay draggable. */
