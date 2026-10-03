@@ -1,5 +1,12 @@
 import { stageName } from '../../domain/items';
-import { useId, useRef, useState, type KeyboardEvent } from 'react';
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { Stepper } from '../../components/Stepper';
 import { ItemSheet } from '../../components/ItemSheet';
@@ -130,7 +137,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
   const b = bins[sel];
   return (
     <div className={desktop ? styles.chartWide : styles.chart}>
-      <div className={desktop ? styles.plotCol : undefined}>
+      <div>
         <div className={styles.plotWrap}>
           <div className={styles.plot}>
             <div
@@ -240,7 +247,7 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
       </div>
 
       {b && (
-        <div className={styles.selection}>
+        <Grow className={styles.selection}>
           <div aria-live="polite" className={styles.selText}>
             {desktop && <span className={styles.selLabel}>Selected</span>}
             <div className={styles.selHead}>
@@ -266,15 +273,34 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
             ) : (
               <p>{keys.map((k) => `${KEY_LABEL[k]} ${b.counts[k] ?? 0}`).join(', ')}</p>
             )}
-            {/* Always rendered so the panel keeps its height between bars. */}
             <p className={styles.selExtras}>{extras(b).length > 0 && `${extras(b).join(', ')}.`}</p>
             {desktop && (
               <p>Running total {(b.runningTotal + b.runningEstimate).toLocaleString()}.</p>
             )}
           </div>
           <SelectionItems ids={b.subjectIds} data={data} />
-        </div>
+        </Grow>
       )}
+    </div>
+  );
+}
+
+/** Eases its height to its content's (150ms; the global reduced-motion rule turns it off). */
+function Grow({ className, children }: { className: string; children: ReactNode }) {
+  const inner = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number>();
+  useLayoutEffect(() => {
+    const el = inner.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setHeight(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div className={styles.grow} style={{ height }}>
+      <div ref={inner} className={className}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -285,7 +311,6 @@ function SelectionItems({ ids, data }: { ids: number[]; data: TimelineData }) {
     .map((id) => ({ id, ...data.items.get(id) }))
     .filter((it) => it.char !== undefined)
     .sort((a, b) => Number(b.critical) - Number(a.critical) || a.stage! - b.stage!);
-  // Fixed height, scrolling inside, so long slots don't stretch the page or jump it.
   return (
     <>
       <ul className={styles.items} aria-label={`${plural(items.length, 'item')} in this slot`}>

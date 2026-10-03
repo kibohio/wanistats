@@ -7,23 +7,8 @@
 
 .chartWide {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  align-items: stretch;
-}
-
-/* Wide enough for 168 hourly bars; narrower and the selection panel wraps below instead. */
-.plotCol {
-  flex: 999 1 640px;
-  display: flex;
   flex-direction: column;
-  min-width: 0;
-}
-
-/* Bars grow to the selection panel's height so the card has no gap under the chart. */
-.plotCol .plotWrap,
-.plotCol .plot {
-  flex: 1;
+  gap: 16px;
 }
 
 .plotWrap {
@@ -39,9 +24,9 @@
   border-bottom: 1px solid var(--line-strong);
 }
 
+/* Fixed, with the selection panel below, so a tall item list never resizes the bars. */
 .chartWide .plot {
-  height: auto;
-  min-height: 240px;
+  height: 240px;
 }
 
 .bars {
@@ -215,8 +200,6 @@
 }
 
 .chartWide .selection {
-  flex: 1 1 240px;
-  min-width: 0;
   padding: 16px;
   border: none;
   border-radius: 12px;
@@ -261,18 +244,16 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* One tight column beside the bars, two to four across when the panel wraps below them. */
 .selRows {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(136px, 168px));
-  gap: 2px 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 20px;
   margin: 0;
 }
 
 .selRows div {
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
 }
 
 .selRows dt {
@@ -292,40 +273,23 @@
   display: none;
 }
 
-/* Up to two and a half rows of 30px tiles: the cut-off row shows there is more to scroll. */
+/* The panel eases to its new height. The 4px padding, cancelled by the margin, keeps tile focus
+   rings clear of the clip. */
+.grow {
+  box-sizing: content-box;
+  margin: -4px;
+  padding: 4px;
+  overflow: hidden;
+  transition: height 150ms ease-out;
+}
+
 .items {
   display: flex;
   flex-wrap: wrap;
-  align-content: flex-start;
   gap: 4px;
-  max-height: 84px;
   margin: 0;
   padding: 0;
-  overflow-y: auto;
   list-style: none;
-}
-
-/* Beside the bars (the plot's 640px, the gap and the panel's 240px fit), the panel stretches to
-   the chart: the tiles fill what is left and the extras line keeps its place so the bars don't
-   change height between selections. */
-.chartWide {
-  container-type: inline-size;
-}
-
-@container (min-width: 900px) {
-  .selRows {
-    grid-template-columns: 1fr;
-  }
-
-  .selExtras:empty {
-    display: block;
-    min-height: 1.5em;
-  }
-
-  .items {
-    flex: 1 0 84px;
-    max-height: none;
-  }
 }
 
 .toggle {
