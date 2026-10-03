@@ -9,7 +9,7 @@ docs/DECISIONS.md
 node_modules/
 dist/
 dev-dist/
-coverage/
+/coverage/
 playwright-report/
 test-results/
 *.local
