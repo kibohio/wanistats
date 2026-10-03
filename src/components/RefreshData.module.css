@@ -4,6 +4,19 @@
   gap: 6px;
 }
 
+.compact {
+  display: contents;
+}
+
+.iconButton {
+  width: 44px;
+  padding: 0;
+}
+
+.compact .caption {
+  grid-column: 1 / -1;
+}
+
 .caption {
   font-size: var(--text-caption);
   color: var(--ink-3);

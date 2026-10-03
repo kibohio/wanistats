@@ -20,7 +20,8 @@ interface ViewProps {
   error: WkError | null;
   offline: boolean;
   onRefresh: () => void;
-  small?: boolean;
+  /** Icon-only button; the wrapper drops out of layout so the parent places button and caption. */
+  compact?: boolean;
 }
 
 export function RefreshDataView(p: ViewProps) {
@@ -37,15 +38,16 @@ export function RefreshDataView(p: ViewProps) {
           ? 'Synced just now'
           : '';
   return (
-    <div className={styles.refresh}>
+    <div className={p.compact ? styles.compact : styles.refresh}>
       <Button
-        small={p.small}
         disabled={p.running || p.offline}
+        aria-label={p.compact ? 'Refresh data' : undefined}
         aria-describedby={id}
+        className={p.compact ? styles.iconButton : undefined}
         onClick={() => p.onRefresh()}
       >
         <RefreshIcon size={16} strokeWidth={2} className={p.running ? styles.spin : undefined} />
-        Refresh data
+        {!p.compact && 'Refresh data'}
       </Button>
       <span id={id} role="status" className={styles.caption}>
         {caption}
@@ -55,7 +57,7 @@ export function RefreshDataView(p: ViewProps) {
 }
 
 /** Refresh data button wired to the shared sync. */
-export function RefreshData({ small }: { small?: boolean }) {
+export function RefreshData({ compact }: { compact?: boolean }) {
   const { sync, running, progress, justSynced, error } = useSync();
   const offline = !useOnline();
   return (
@@ -66,7 +68,7 @@ export function RefreshData({ small }: { small?: boolean }) {
       error={error}
       offline={offline}
       onRefresh={() => sync()}
-      small={small}
+      compact={compact}
     />
   );
 }
