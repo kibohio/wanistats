@@ -9,9 +9,10 @@ const OFFLINE = 'The download failed. Check your connection and try again.';
 
 export async function fetchManifest(): Promise<PackManifest> {
   const res = await fetch(PACKS_MANIFEST).catch(() => {
-    throw new Error('Could not load the list of data packs. Check your connection and try again.');
+    throw new Error("Couldn't load the list of data packs. Check your connection and try again.");
   });
-  if (!res.ok) throw new Error(`Could not load the list of data packs (HTTP ${res.status}).`);
+  if (!res.ok)
+    throw new Error(`Couldn't load the list of data packs (HTTP ${res.status}). Try again later.`);
   return res.json();
 }
 
@@ -29,7 +30,7 @@ export async function downloadPack(
   };
   const res = await fetch(PACKS_DIR + entry.file, { signal }).catch(offline);
   if (!res.ok || !res.body) {
-    throw new Error(`The server could not send this data (HTTP ${res.status}). Try again later.`);
+    throw new Error(`The server couldn't send this data (HTTP ${res.status}). Try again later.`);
   }
   const raw = await readAll(res.body, entry.bytes, onProgress).catch(offline);
 
@@ -37,13 +38,11 @@ export async function downloadPack(
   const isGzip = raw[0] === 0x1f && raw[1] === 0x8b;
   const json = isGzip
     ? await gunzip(raw).catch(() => {
-        throw new Error('The downloaded file could not be read, so it was not saved. Try again.');
+        throw new Error("Couldn't read the downloaded file, so it wasn't saved. Try again.");
       })
     : raw;
   if ((await sha256(json)) !== entry.sha256) {
-    throw new Error(
-      'The download did not pass its integrity check, so it was not saved. Try again.',
-    );
+    throw new Error("The download failed its integrity check, so it wasn't saved. Try again.");
   }
 
   const row: PackRow = {
@@ -55,7 +54,7 @@ export async function downloadPack(
   };
   await packsDb.packs.put(row).catch(() => {
     throw new Error(
-      'This device has no room to save the data. Free up some storage and try again.',
+      "There's no room on this device for the data. Free up some storage and try again.",
     );
   });
   return row;

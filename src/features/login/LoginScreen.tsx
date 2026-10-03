@@ -61,8 +61,8 @@ export function LoginScreen() {
           <>
             <h2 className={styles.heading}>Importing your WaniKani data</h2>
             <p>
-              WaniStats is copying your subjects, progress and accuracy from WaniKani into this
-              browser. The first import takes a minute; later syncs only fetch what changed.
+              Copying your subjects, progress and accuracy into this browser. The first import takes
+              about a minute. After that, syncs only fetch what changed.
             </p>
             <SyncSteps progress={progress} />
           </>

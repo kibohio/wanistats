@@ -97,7 +97,7 @@ export function useGlance(now: number): GlanceRow[] | undefined {
           : formatLocalDate(localDateKey(finish.finishAt!)),
       note: !finish
         ? 'The finish date uses the median time per level.'
-        : `At ${pace.medianDays!.toFixed(1)} days a level${finish.capped ? ', the subscription limit' : ''}`,
+        : `${pace.medianDays!.toFixed(1)} days per level${finish.capped ? ', the subscription limit' : ''}`,
     };
     return [levelUp, work, end];
   }, [

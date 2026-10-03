@@ -51,7 +51,7 @@ function Body({
     return (
       <>
         <p role="alert" className={styles.error}>
-          Could not load the list of data packs. Check your connection and try again.
+          Couldn&apos;t load the list of data packs. Check your connection and try again.
         </p>
         <div className={styles.actions}>
           <Button variant="primary" onClick={() => void manifest.refetch()}>

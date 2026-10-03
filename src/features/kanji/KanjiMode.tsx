@@ -147,9 +147,9 @@ export function KanjiMode() {
             <Explained
               how={
                 <p>
-                  Jiten publishes frequency ranks, not counts, so each kanji is weighted by 1 / rank
-                  (a Zipf fit). The figure is the weight of known kanji over the weight of every
-                  ranked kanji. Known means {knownRange(knownStage)}
+                  Common kanji count for more. Jiten only publishes frequency ranks, so each kanji
+                  is weighted 1 ÷ rank (Zipf&apos;s law), which makes this an estimate. Known means{' '}
+                  {knownRange(knownStage)}
                   {knownStage === 5 ? ' at least once' : ' now'}.
                 </p>
               }
@@ -163,8 +163,8 @@ export function KanjiMode() {
             <Explained
               how={
                 <p>
-                  Kanji passed in the latest daily snapshot minus the snapshot from{' '}
-                  {plural(growth.days, 'day')} before it.
+                  The change between the latest snapshot and the one from{' '}
+                  {plural(growth.days, 'day')} before.
                 </p>
               }
             >

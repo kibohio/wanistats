@@ -28,3 +28,9 @@
   font-size: var(--text-caption);
   color: var(--ink-3);
 }
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}

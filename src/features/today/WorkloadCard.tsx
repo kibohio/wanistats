@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Card } from '../../components/Card';
-import { formatMinutes, formatTime, formatWindow } from '../../format';
+import { formatTime } from '../../format';
 import { gaugeMax, trendPoints } from '../../domain/today';
 import type { StageCounts } from '../../db/schema';
 import { Explain } from './Explain';
@@ -52,8 +52,10 @@ function LoadExplain({ d, children }: { d: TodayData; children: React.ReactNode 
         <>
           <p>
             Load = Apprentice + Guru ÷ 10 = {work.apprentice} + {work.guru} ÷ 10 = {int(work.load)}.
-            Apprentice items come back within days, Guru items about every one or two weeks, so each
-            Guru item weighs a tenth.
+          </p>
+          <p>
+            Apprentice items come back within hours or days. Guru items come back every week or two,
+            so each one counts a tenth as much.
           </p>
           <p>
             The comfortable band is {work.band.min} to {work.band.max}. Change it in Settings.
@@ -111,8 +113,8 @@ function Trend({ d }: { d: TodayData }) {
       explain={
         <>
           <p>
-            Load from each daily snapshot over the last 30 days. Missed days merge into the next
-            snapshot, so a gap shows as one longer step, never as zeros.
+            Load on each day of the last 30. Missed days merge into the next one, so a gap shows as
+            one longer step, not a drop to zero.
           </p>
           <ul className={styles.itemList}>
             {d.trend.points.map((p) => (
@@ -156,9 +158,9 @@ function Hours({ d }: { d: TodayData }) {
           explain={
             <>
               <p>
-                Started, unburned reviews whose next review falls before{' '}
-                {formatTime(day24.bins.at(-1)!.end, d.clock)} tomorrow, counting{' '}
-                {int(d.availableNow)} already waiting. New lessons are not included.
+                Reviews due before {formatTime(day24.bins.at(-1)!.end, d.clock)} tomorrow
+                {d.availableNow > 0 && `, including the ${int(d.availableNow)} waiting now`}. New
+                lessons aren&apos;t counted.
               </p>
               <ul className={styles.itemList}>
                 {day24.bins
@@ -219,41 +221,23 @@ function Hours({ d }: { d: TodayData }) {
   );
 }
 
-function SteadyLine({ d }: { d: TodayData }) {
-  const own = d.sample ? 'the' : 'your';
-  const window =
-    formatWindow([d.lessonWindow.morning, d.lessonWindow.evening], d.clock).join(' or ') || null;
-  if (d.steady === null && !window) return null;
+function SteadyInfo({ d }: { d: TodayData }) {
   return (
-    <Explain
-      className={styles.para}
-      title="Steady state"
-      explain={
-        <>
-          {d.steady !== null && (
-            <p>
-              Reviews a day once lessons reach burn = lessons a day × 8 ÷ item accuracy ={' '}
-              {d.lessonsPerDay} × 8 ÷ {pct(d.itemAccuracy)} = about {int(d.steady)}. Each item takes
-              eight right answers to burn; misses add more. Item accuracy is an estimate (
-              {d.accuracy.recent30 ? 'last 30 days' : 'lifetime'}). Lessons a day is set in
-              Settings.
-            </p>
-          )}
-          {window && (
-            <p>
-              Lessons at {window} keep the first two Apprentice reviews inside {own} waking hours,{' '}
-              {formatMinutes(d.wakeMin, d.clock)} to {formatMinutes(d.sleepMin, d.clock)}. Waking
-              hours are set in Settings.
-            </p>
-          )}
-        </>
-      }
-    >
-      {d.steady !== null &&
-        `At ${plural(d.lessonsPerDay, 'lesson')} a day, reviews settle at about ${int(d.steady)} a day once burns start. `}
-      {window &&
-        `Lessons fit best ${window.includes(' to ') ? 'between' : 'at'} ${window.replace(' to ', ' and ')}.`}
-    </Explain>
+    <>
+      <p>
+        With {plural(d.lessonsPerDay, 'new lesson')} a day you&apos;ll average about{' '}
+        {int(d.steady!)} reviews a day once items start burning ({d.lessonsPerDay} lessons × 8
+        reviews each, adjusted for {d.sample ? "the sample's" : 'your'} {pct(d.itemAccuracy)}{' '}
+        accuracy).
+      </p>
+      <p>
+        Change lessons a day in{' '}
+        <Link to="/settings" hash="preferences">
+          Settings
+        </Link>
+        .
+      </p>
+    </>
   );
 }
 
@@ -264,6 +248,7 @@ export function WorkloadCard({ d, desktop }: { d: TodayData; desktop?: boolean }
     <Card
       className={desktop ? styles.workloadDesktop : undefined}
       title="Workload"
+      info={desktop && d.steady !== null && <SteadyInfo d={d} />}
       aside={
         desktop
           ? 'Apprentice + Guru ÷ 10'
@@ -283,7 +268,9 @@ export function WorkloadCard({ d, desktop }: { d: TodayData; desktop?: boolean }
       {desktop && <SubStages d={d} />}
       <div className={styles.divider} />
       <Hours d={d} />
-      {desktop && <SteadyLine d={d} />}
+      {desktop && d.steady !== null && (
+        <p className={styles.para}>About {int(d.steady)} reviews a day long term.</p>
+      )}
     </Card>
   );
 }
