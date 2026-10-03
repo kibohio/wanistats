@@ -276,17 +276,10 @@ export function WorkloadCard({ d, desktop }: { d: TodayData; desktop?: boolean }
       </div>
       <Gauge d={d} labels={!desktop} />
       <Trend d={d} />
-      {desktop ? (
-        <>
-          <SubStages d={d} />
-          <SteadyLine d={d} />
-        </>
-      ) : (
-        <>
-          <div className={styles.divider} />
-          <Hours d={d} />
-        </>
-      )}
+      {desktop && <SubStages d={d} />}
+      <div className={styles.divider} />
+      <Hours d={d} />
+      {desktop && <SteadyLine d={d} />}
     </Card>
   );
 }
