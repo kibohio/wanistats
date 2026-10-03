@@ -1,12 +1,18 @@
 .footer {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
+  flex-direction: column;
+  gap: 4px;
   margin-top: 12px;
   padding: 16px 1px 0;
   border-top: 1px solid var(--line-soft);
   font-size: 12px;
   color: var(--ink-3);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
 }
 
 .footer a {

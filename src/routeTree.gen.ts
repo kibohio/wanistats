@@ -14,7 +14,9 @@ import { Route as ItemsRouteImport } from './routes/items'
 import { Route as KanjiRouteImport } from './routes/kanji'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PaceRouteImport } from './routes/pace'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 
@@ -43,9 +45,19 @@ const PaceRoute = PaceRouteImport.update({
   path: '/pace',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TimelineRoute = TimelineRouteImport.update({
@@ -65,7 +77,9 @@ export interface FileRoutesByFullPath {
   '/kanji': typeof KanjiRoute
   '/login': typeof LoginRoute
   '/pace': typeof PaceRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/timeline': typeof TimelineRoute
   '/welcome': typeof WelcomeRoute
 }
@@ -75,7 +89,9 @@ export interface FileRoutesByTo {
   '/kanji': typeof KanjiRoute
   '/login': typeof LoginRoute
   '/pace': typeof PaceRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/timeline': typeof TimelineRoute
   '/welcome': typeof WelcomeRoute
 }
@@ -86,7 +102,9 @@ export interface FileRoutesById {
   '/kanji': typeof KanjiRoute
   '/login': typeof LoginRoute
   '/pace': typeof PaceRoute
+  '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/timeline': typeof TimelineRoute
   '/welcome': typeof WelcomeRoute
 }
@@ -98,7 +116,9 @@ export interface FileRouteTypes {
     | '/kanji'
     | '/login'
     | '/pace'
+    | '/privacy'
     | '/settings'
+    | '/terms'
     | '/timeline'
     | '/welcome'
   fileRoutesByTo: FileRoutesByTo
@@ -108,7 +128,9 @@ export interface FileRouteTypes {
     | '/kanji'
     | '/login'
     | '/pace'
+    | '/privacy'
     | '/settings'
+    | '/terms'
     | '/timeline'
     | '/welcome'
   id:
@@ -118,7 +140,9 @@ export interface FileRouteTypes {
     | '/kanji'
     | '/login'
     | '/pace'
+    | '/privacy'
     | '/settings'
+    | '/terms'
     | '/timeline'
     | '/welcome'
   fileRoutesById: FileRoutesById
@@ -129,7 +153,9 @@ export interface RootRouteChildren {
   KanjiRoute: typeof KanjiRoute
   LoginRoute: typeof LoginRoute
   PaceRoute: typeof PaceRoute
+  PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
+  TermsRoute: typeof TermsRoute
   TimelineRoute: typeof TimelineRoute
   WelcomeRoute: typeof WelcomeRoute
 }
@@ -171,11 +197,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/timeline': {
@@ -201,7 +241,9 @@ const rootRouteChildren: RootRouteChildren = {
   KanjiRoute: KanjiRoute,
   LoginRoute: LoginRoute,
   PaceRoute: PaceRoute,
+  PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
+  TermsRoute: TermsRoute,
   TimelineRoute: TimelineRoute,
   WelcomeRoute: WelcomeRoute,
 }

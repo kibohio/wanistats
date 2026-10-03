@@ -20,6 +20,8 @@ test('logged out, every tab shows sample data and the footer', async ({ page }) 
     ['/kanji', /^Kanji$/],
     ['/items', /^Items$/],
     ['/settings', /^Settings$/],
+    ['/privacy', /^Privacy$/],
+    ['/terms', /^Terms$/],
   ];
   for (const [path, heading] of tabs) {
     await page.goto(path);

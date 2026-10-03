@@ -9,13 +9,13 @@ import { RefreshData } from '../../components/RefreshData';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { Sheet } from '../../components/Sheet';
-import { COMPANY, JITEN_URL, SOURCE_URL } from '../../config';
+import { JITEN_URL } from '../../config';
 import { useHistoryRange, useLastSyncAt, useMaskedToken, useUser } from '../../db/hooks';
 import { usePref, type Prefs } from '../../db/prefs';
 import { liveDb, useAppMode } from '../../db/useAppMode';
 import { formatLocalDate, formatSyncTime } from '../../format';
 import { useInstalledPacks, useManifest } from '../../packs/hooks';
-import { deletePack, formatBytes, hasUpdate, sizeOnDevice } from '../../packs/packs';
+import { deletePack, formatBytes, hasUpdate, packsDb, sizeOnDevice } from '../../packs/packs';
 import { deleteHistory, exportHistory, importHistory } from '../../sync/session';
 import { clearCachedData } from '../../sync/sync';
 import { useSync, waitForSync } from '../../sync/useSync';
@@ -241,6 +241,7 @@ function PacksSection() {
   const manifest = useManifest();
   const installed = useInstalledPacks();
   const [sheet, setSheet] = useState<string[] | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   // Serialising a pack is not free; only redo it when the installed rows change.
   const sizes = useMemo(
     () => new Map((installed ?? []).map((r) => [r.id, sizeOnDevice(r)])),
@@ -269,8 +270,8 @@ function PacksSection() {
   return (
     <Section id="data-packs" title="Data packs">
       <p className={styles.muted}>
-        Coverage data is an optional download that stays on this device. Nothing downloads until
-        you press Download.
+        Coverage data is an optional download that stays on this device. Nothing downloads until you
+        press Download.
       </p>
       {manifest.isError && (
         <p role="alert" className={styles.error}>
@@ -315,6 +316,29 @@ function PacksSection() {
         )}
       </ul>
       <Rows rows={[['Storage used', formatBytes(total)]]} />
+      {installed && installed.length > 0 && (
+        <div className={styles.actions}>
+          <Button onClick={() => setConfirmDelete(true)}>Delete all data packs</Button>
+        </div>
+      )}
+      <Sheet
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title="Delete all data packs"
+      >
+        <div className={styles.sheet}>
+          <p>
+            Delete all downloaded coverage data from this browser? You can download it again later.
+          </p>
+          <Button
+            variant="primary"
+            onClick={() => void packsDb.packs.clear().then(() => setConfirmDelete(false))}
+          >
+            Delete all data packs
+          </Button>
+          <Button onClick={() => setConfirmDelete(false)}>Cancel</Button>
+        </div>
+      </Sheet>
       <DownloadSheet open={sheet !== null} onClose={() => setSheet(null)} preselect={sheet ?? []} />
     </Section>
   );
@@ -490,41 +514,44 @@ function AppSection() {
   );
 }
 
+const CC_BY_SA = 'https://creativecommons.org/licenses/by-sa/4.0/';
+
 function AboutSection() {
   return (
     <Section id="about" title="About">
       <p>
-        WaniStats shows when you level up, how heavy your reviews are and when you finish, from
-        your WaniKani data.
-      </p>
-      <p>
-        Everything runs in this browser. The token, synced data, history and preferences are
-        stored here, and the token is only ever sent to api.wanikani.com. There is no WaniStats
-        account, server or analytics.
-      </p>
-      <p>
-        History is the daily snapshot WaniStats saves on this device, because WaniKani&apos;s API
-        doesn&apos;t keep a day-by-day record. Export or delete it under History. Logging out
-        deletes it along with the synced data.
+        WaniStats is free and has no ads. It reads your WaniKani data through the WaniKani API using
+        a token you provide. Your browser fetches the data directly from WaniKani and stores it only
+        on this device. WaniKani content, including subjects, meanings, readings and radical images,
+        belongs to Tofugu, LLC.
       </p>
       <ul className={styles.list}>
         <li>
-          Word and kanji frequency from <a href={JITEN_URL}>Jiten</a>, CC BY-SA 4.0
+          Frequency data from <a href={JITEN_URL}>Jiten (jiten.moe)</a>,{' '}
+          <a href={CC_BY_SA}>CC BY-SA 4.0</a>.
         </li>
-        <li>Kanji grades and stroke counts from KANJIDIC2 by the EDRDG, CC BY-SA 4.0</li>
         <li>
-          JLPT levels from unofficial lists by Jonathan Waller, CC BY, via{' '}
-          <a href="https://github.com/davidluzgouveia/kanji-data">davidluzgouveia/kanji-data</a>,
-          MIT
+          Kanji data from{' '}
+          <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a>, Electronic
+          Dictionary Research and Development Group,{' '}
+          <a href="https://www.edrdg.org/edrdg/licence.html">CC BY-SA 4.0</a>.
+        </li>
+        <li>
+          JLPT levels from{' '}
+          <a href="https://www.tanos.co.uk/jlpt/">Jonathan Waller&apos;s JLPT lists</a>,{' '}
+          <a href="https://www.tanos.co.uk/jlpt/sharing/">CC BY</a>, via{' '}
+          <a href="https://github.com/davidluzgouveia/kanji-data">davidluzgouveia/kanji-data</a>,{' '}
+          <a href="https://github.com/davidluzgouveia/kanji-data/blob/master/LICENSE">MIT</a>.
         </li>
       </ul>
       <p>
         Data packs are shared under CC BY-SA 4.0.{' '}
         <a href="/data/LICENSE-DATA.md">Data licences and sources</a>
       </p>
-      <p>Built and maintained by {COMPANY}</p>
-      <a href={SOURCE_URL}>Source on GitHub</a>
-      <p className={styles.muted}>Not affiliated with WaniKani or Tofugu.</p>
+      <div className={styles.actions}>
+        <Link to="/privacy">Privacy</Link>
+        <Link to="/terms">Terms</Link>
+      </div>
     </Section>
   );
 }
