@@ -7,5 +7,6 @@ export const WK_REVISION = '20170710';
 export const WK_TOKEN_URL = 'https://www.wanikani.com/settings/personal_access_tokens';
 export const JITEN_URL = 'https://jiten.moe';
 export const PACKS_MANIFEST = '/data/packs/manifest.json';
-export const PRIVACY_CONTACT = 'REPLACE_ME@wanistats.com';
+export const PRIVACY_CONTACT = 'privacy@wanistats.com';
+export const TERMS_CONTACT = 'hello@wanistats.com';
 export const HOST_PRIVACY_URL = 'https://www.cloudflare.com/privacypolicy/';
