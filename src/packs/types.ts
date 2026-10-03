@@ -1,23 +1,6 @@
 // Pack shapes as written by scripts/data/refresh.mjs. Parallel arrays, one index per record.
 
-export interface KanjiPack {
-  chars: string[];
-  /** Jiten rank, delta-encoded (first value absolute). 0 = unranked. */
-  rank: number[];
-  /** KANJIDIC2 grade: 1-6 Kyōiku, 8 rest of Jōyō, 9-10 Jinmeiyō, 0 none. */
-  grade: number[];
-  strokes: number[];
-  /** Unofficial JLPT level, 5..1 = N5..N1, 0 none. */
-  jlpt: number[];
-}
-
-export interface WordsPack {
-  words: string[];
-  /** Main kana reading; '' when the word is kana-only (reading equals spelling). */
-  readings: string[];
-  /** Jiten rank, delta-encoded (first value absolute). */
-  rank: number[];
-}
+export type { KanjiPack, WordsPack } from '../domain/coverage';
 
 export interface PackSource {
   name: string;
