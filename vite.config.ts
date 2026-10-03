@@ -61,5 +61,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    // Day and hour binning uses local time; pin it so tests are deterministic.
+    env: { TZ: 'UTC' },
   },
 });
