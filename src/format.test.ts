@@ -4,6 +4,7 @@ import {
   formatHours,
   formatMinutes,
   formatTime,
+  formatMonthRange,
   formatWindow,
   plural,
 } from './format';
@@ -66,4 +67,11 @@ test('plural', () => {
   expect(plural(0, 'day')).toBe('0 days');
   expect(plural(1200, 'review')).toBe('1,200 reviews');
   expect(plural(2, 'kanji', 'kanji')).toBe('2 kanji');
+});
+
+test('a finish range shows months, or full dates when both fall in one month', () => {
+  const [a, b] = formatMonthRange(at(2027, 7, 7), at(2028, 2, 20), now);
+  expect(a).toMatch(/^\D*Jul\D*2027$/);
+  expect(b).toMatch(/^\D*Feb\D*2028$/);
+  expect(formatMonthRange(at(2027, 7, 7), at(2027, 7, 20), now)[1]).toMatch(/20/);
 });

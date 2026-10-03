@@ -16,7 +16,6 @@ import { useAppMode } from '../../db/useAppMode';
 import { accuracy } from '../../domain/accuracy';
 import { minLevelTimes } from '../../domain/fastest';
 import { leeches } from '../../domain/leeches';
-import { lessonWindow } from '../../domain/lessonWindow';
 import { earliestLevelUp } from '../../domain/levelUp';
 import { levelDurations } from '../../domain/levels';
 import { allBurnedThrough, allGuruThrough, paceStats, projectFinish } from '../../domain/pace';
@@ -49,9 +48,6 @@ export function useToday() {
   const [goalLevel] = usePref('goalLevel');
   const [band] = usePref('band');
   const [lessonsPerDay] = usePref('lessonsPerDay');
-  const [wakeMin] = usePref('wakeMin');
-  const [sleepMin] = usePref('sleepMin');
-  const [lessonMin] = usePref('lessonMin');
   const [levelOverrides] = usePref('levelOverrides');
   const clock = useClock();
 
@@ -123,11 +119,8 @@ export function useToday() {
       accuracy: acc,
       itemAccuracy,
       lessonsPerDay,
-      wakeMin,
-      sleepMin,
       steady: itemAccuracy === null ? null : steadyStateReviewsPerDay(lessonsPerDay, itemAccuracy),
       clock,
-      lessonWindow: lessonWindow(system.data, { wakeMin, sleepMin, lessonMin }),
       levelStartAt: current?.startAt ?? null,
       levelDay: current ? Math.floor(current.durationMs / 86_400_000) + 1 : null,
       pace,
@@ -158,9 +151,6 @@ export function useToday() {
     goalLevel,
     band,
     lessonsPerDay,
-    wakeMin,
-    sleepMin,
-    lessonMin,
     levelOverrides,
     clock,
   ]);

@@ -78,6 +78,14 @@ export function formatDateRange(from: number, to: number, now = Date.now()): [st
   return [fmt.format(from), fmt.format(to)];
 }
 
+const monthYear = new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' });
+
+/** "Jul 2027" and "Feb 2028"; full dates when both fall in the same month. */
+export function formatMonthRange(from: number, to: number, now = Date.now()): [string, string] {
+  const range: [string, string] = [monthYear.format(from), monthYear.format(to)];
+  return range[0] === range[1] ? formatDateRange(from, to, now) : range;
+}
+
 /** "1 item", "2 items". */
 export const plural = (n: number, one: string, many = `${one}s`) =>
   `${n.toLocaleString()} ${n === 1 ? one : many}`;

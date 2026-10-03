@@ -44,8 +44,8 @@ export function CoverageCard({ d }: { d: TodayData }) {
               title={`${g.label} kanji`}
               explain={
                 <p>
-                  {g.known} of {g.total} {g.label} kanji have passed Guru. JLPT lists are
-                  unofficial; kanji outside WaniKani count as not known.
+                  {g.known} of {g.total} {g.label} kanji have reached Guru. JLPT lists are
+                  unofficial, and kanji WaniKani doesn&apos;t teach count as unknown.
                 </p>
               }
             >
@@ -61,7 +61,7 @@ export function CoverageCard({ d }: { d: TodayData }) {
               title="Jōyō kanji"
               explain={
                 <p>
-                  {int(c.joyo.known)} of the {int(c.joyo.total)} Jōyō kanji have passed Guru.
+                  {int(c.joyo.known)} of the {int(c.joyo.total)} Jōyō kanji have reached Guru.
                 </p>
               }
             >
@@ -72,9 +72,9 @@ export function CoverageCard({ d }: { d: TodayData }) {
               title="Weighted coverage"
               explain={
                 <p>
-                  Each kanji counts by how often it appears in Jiten&apos;s corpus. Jiten publishes
-                  ranks, not counts, so the weight is 1 ÷ rank (Zipf&apos;s law) and the figure is
-                  an estimate. Known means passed Guru at least once.
+                  Common kanji count for more. Jiten only publishes frequency ranks, so each kanji
+                  is weighted 1 ÷ rank (Zipf&apos;s law), which makes this an estimate. Known means
+                  it has reached Guru at least once.
                 </p>
               }
             >
@@ -143,9 +143,9 @@ export function LeechesCard({ d }: { d: TodayData }) {
                   title={`Leech: ${ch}`}
                   explain={
                     <p>
-                      {plural(l.incorrect, 'wrong answer')} in total. Leech score = wrong answers ÷
-                      shortest current streak<sup>1.5</sup> = {l.score.toFixed(1)}. Items scoring 1
-                      or more, not burned and learned over a week ago are leeches.
+                      {plural(l.incorrect, 'wrong answer')} so far. Leech score = wrong answers ÷
+                      current streak<sup>1.5</sup> = {l.score.toFixed(1)}. Anything scoring 1 or
+                      more is a leech, unless it&apos;s burned or under a week old.
                       {l.recentMisses !== null &&
                         ` Missed ${plural(l.recentMisses, 'time')} in the last 14 days.`}
                     </p>
@@ -173,11 +173,11 @@ const ROWS: ['radical' | 'kanji' | 'vocabulary' | 'kana_vocabulary', string][] =
 export function AccuracyCard({ d }: { d: TodayData }) {
   const recent = d.accuracy.recent30;
   const a = recent ?? d.accuracy.lifetime;
-  const span = recent ? 'the last 30 days of snapshots' : 'all reviews so far';
+  const span = recent ? 'the last 30 days' : 'all reviews so far';
   const explainQ = (f: AccuracyFigures) => (
     <p>
-      Correct answers ÷ all answers, meaning and reading scored apart, over {span}: {int(f.answers)}{' '}
-      answers.
+      Right answers out of all answers in {span}, with meaning and reading counted separately.{' '}
+      {plural(f.answers, 'answer')} in total.
     </p>
   );
   return (
@@ -188,15 +188,15 @@ export function AccuracyCard({ d }: { d: TodayData }) {
       <div className={styles.pair}>
         <Explain title="Question accuracy" explain={explainQ(a)}>
           <span className={styles.accFigure}>{pct(a.question)}</span>
-          <span className={styles.pairLabel}>Questions, meaning and reading scored apart</span>
+          <span className={styles.pairLabel}>Questions right</span>
         </Explain>
         <Explain
           title="Item accuracy"
           explain={
             <p>
-              Per item, meaning rate × reading rate, weighted by its reviews, over {span}. WaniKani
-              keeps totals, not single reviews, so this is an estimate of items with both parts
-              right.
+              How often both the meaning and the reading of an item are right, over {span}. WaniKani
+              only keeps totals, so this multiplies each item&apos;s meaning and reading rates and
+              weights them by reviews.
             </p>
           }
         >
