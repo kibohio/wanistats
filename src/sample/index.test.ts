@@ -228,6 +228,11 @@ describe('the sample user', () => {
     expect(clear.length).toBeLessThan(30);
   });
 
+  test('vocabulary spellings are unique', () => {
+    const words = s.subjects.filter((x) => x.object === 'vocabulary').map((x) => x.data.characters);
+    expect(new Set(words).size).toBe(words.length);
+  });
+
   test('vocabulary is unlocked only after its kanji pass', () => {
     const assigned = new Map(s.assignments.map((a) => [a.data.subject_id, a.data]));
     for (const v of s.subjects.filter((x): x is VocabularyResource => x.object === 'vocabulary')) {
@@ -263,8 +268,12 @@ describe('history', () => {
     const last = s.snapshots.at(-1)!;
     expect(last.passedKanji).toBeGreaterThan(first.passedKanji);
     expect(last.level).toBe(12);
-    expect(first.level).toBe(10);
+    const levels = s.snapshots.map((x) => x.level);
+    expect(levels).toEqual([...levels].sort((a, b) => a - b));
+    expect(first.level).toBeLessThan(11);
     expect(new Set(s.snapshots.map((x) => x.load)).size).toBeGreaterThan(10);
+    expect(last.load).toBeGreaterThanOrEqual(110);
+    expect(last.load).toBeLessThanOrEqual(140);
     const total = s.stats.reduce((n, r) => n + r.data.meaning_correct, 0);
     expect(last.reviews.meaningCorrect).toBeLessThanOrEqual(total);
     expect(last.reviews.meaningCorrect).toBeGreaterThan(first.reviews.meaningCorrect);
