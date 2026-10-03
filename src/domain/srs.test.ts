@@ -14,14 +14,24 @@ function system(intervals: number[], passing: number): SpacedRepetitionSystem {
     burning_stage_position: 9,
     stages: [
       { interval: null, interval_unit: null, position: 0 },
-      ...intervals.map((s, i) => ({ interval: s, interval_unit: 'seconds' as const, position: i + 1 })),
+      ...intervals.map((s, i) => ({
+        interval: s,
+        interval_unit: 'seconds' as const,
+        position: i + 1,
+      })),
       { interval: null, interval_unit: null, position: 9 },
     ],
   };
 }
 // WaniKani's two systems as returned by /spaced_repetition_systems (seconds).
-const normal = system([4, 8, 23, 47, 167, 335, 719, 2879].map((h) => h * H), 5);
-const accelerated = system([2, 4, 8, 23, 167, 335, 719, 2879].map((h) => h * H), 5);
+const normal = system(
+  [4, 8, 23, 47, 167, 335, 719, 2879].map((h) => h * H),
+  5,
+);
+const accelerated = system(
+  [2, 4, 8, 23, 167, 335, 719, 2879].map((h) => h * H),
+  5,
+);
 
 describe('intervalFor', () => {
   it('returns hours for a stage and 0 for lesson or burned', () => {
