@@ -313,14 +313,34 @@
   gap: 10px;
   min-height: 44px;
   font-size: 14px;
+}
+
+.toggle label {
   cursor: pointer;
 }
 
-.toggle input {
+.toggle input[type='checkbox'] {
   width: 22px;
   height: 22px;
   margin: 0;
   accent-color: var(--primary-fill);
+  cursor: pointer;
+}
+
+.perDay {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+/* Narrower than the Settings stepper so the sentence fits a phone row. */
+.perDay button {
+  width: 34px;
+}
+
+.perDay input {
+  width: 44px;
 }
 
 /* Phone card around the chart */

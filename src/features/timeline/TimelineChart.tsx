@@ -1,6 +1,7 @@
 import { stageName } from '../../domain/items';
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { SegmentedControl } from '../../components/SegmentedControl';
+import { Stepper } from '../../components/Stepper';
 import { Tile } from '../../components/Tile';
 import { usePref } from '../../db/prefs';
 import { fmtHour } from '../../domain/lessonWindow';
@@ -316,12 +317,32 @@ export function LessonsToggle({
   checked: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const [perDay] = usePref('lessonsPerDay');
+  const id = useId();
+  const [perDay, setPerDay] = usePref('lessonsPerDay');
   return (
-    <label className={styles.toggle}>
-      <span>Add {perDay} lessons a day</span>
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-    </label>
+    <div className={styles.toggle}>
+      <span className={styles.perDay}>
+        <label htmlFor={id}>Add</label>
+        <label htmlFor={`${id}n`} className="visually-hidden">
+          Lessons a day
+        </label>
+        <Stepper
+          id={`${id}n`}
+          label="Lessons a day"
+          value={perDay}
+          min={0}
+          max={100}
+          onChange={(v) => void setPerDay(v)}
+        />
+        <label htmlFor={id}>lessons a day</label>
+      </span>
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+    </div>
   );
 }
 
