@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Card } from '../../components/Card';
 import { Chip } from '../../components/Chip';
 import { SegmentedControl } from '../../components/SegmentedControl';
+import { Tooltip } from '../../components/Tooltip';
 import { useAssignments, useSubjects } from '../../db/hooks';
 import { usePref } from '../../db/prefs';
 import { useAppMode } from '../../db/useAppMode';
@@ -114,33 +115,35 @@ export function ByLevelMode() {
               <ul className={styles.levelBars} aria-label={`Kanji per WaniKani level by ${BY[view]}`}>
                 {levels.map((l) => (
                   <li key={l.level} className={styles.levelCol}>
-                    <button
-                      type="button"
-                      className={styles.levelPlot}
-                      aria-label={describe(l)}
-                      aria-pressed={l.level === picked}
-                      onClick={() => setPicked(l.level === picked ? null : l.level)}
-                    >
-                      {(show === 'known' ? l.knownCounts : l.counts).map(
-                        (n, i) =>
-                          n > 0 && (
-                            <span
-                              key={i}
-                              className={styles.segment}
-                              style={{
-                                height: (n / max) * PLOT_PX,
-                                background: shade(i, categories.length),
-                              }}
-                            />
-                          ),
-                      )}
-                      {show === 'known' && l.total > l.known && (
-                        <span
-                          className={`${styles.segment} ${styles.notKnown}`}
-                          style={{ height: ((l.total - l.known) / max) * PLOT_PX }}
-                        />
-                      )}
-                    </button>
+                    <Tooltip content={describe(l)}>
+                      <button
+                        type="button"
+                        className={styles.levelPlot}
+                        aria-label={describe(l)}
+                        aria-pressed={l.level === picked}
+                        onClick={() => setPicked(l.level === picked ? null : l.level)}
+                      >
+                        {(show === 'known' ? l.knownCounts : l.counts).map(
+                          (n, i) =>
+                            n > 0 && (
+                              <span
+                                key={i}
+                                className={styles.segment}
+                                style={{
+                                  height: (n / max) * PLOT_PX,
+                                  background: shade(i, categories.length),
+                                }}
+                              />
+                            ),
+                        )}
+                        {show === 'known' && l.total > l.known && (
+                          <span
+                            className={`${styles.segment} ${styles.notKnown}`}
+                            style={{ height: ((l.total - l.known) / max) * PLOT_PX }}
+                          />
+                        )}
+                      </button>
+                    </Tooltip>
                     <span className={styles.levelNum} aria-hidden="true">
                       {l.level}
                     </span>
