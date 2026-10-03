@@ -248,7 +248,7 @@
 
 .wrong,
 .wrongHigh {
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }

@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useClock } from '../../hooks/useClock';
 import { ItemGlyph, nextReviewText } from '../../components/ItemSheet';
 import { stageGroup, stageName, type Item } from '../../domain/items';
 import styles from './Items.module.css';
@@ -172,6 +173,7 @@ function ItemRow({
   now: number;
   onOpen: (item: Item) => void;
 }) {
+  const clock = useClock();
   const alike = item.leech && byId.get(item.lookAlikeIds[0] ?? -1)?.characters;
   const misses = item.leech?.recentMisses;
   return (
@@ -198,7 +200,7 @@ function ItemRow({
         <span className={item.leech ? styles.wrongHigh : styles.wrong}>{item.incorrect} wrong</span>
         <span className={styles.age}>
           {showNext || item.daysIn === null
-            ? nextReviewText(item, now)
+            ? nextReviewText(item, now, clock)
             : `${item.daysIn} ${item.daysIn === 1 ? 'day' : 'days'} in`}
         </span>
       </span>

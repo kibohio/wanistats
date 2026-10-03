@@ -38,7 +38,9 @@ function Phone({ d }: { d: TodayData }) {
   return (
     <>
       <ScreenHeader
-        aside={!d.sample && lastSync != null ? `Synced ${formatSyncTime(lastSync)}` : undefined}
+        aside={
+          !d.sample && lastSync != null ? `Synced ${formatSyncTime(lastSync, d.clock)}` : undefined
+        }
       >
         <LevelLead d={d} />
       </ScreenHeader>

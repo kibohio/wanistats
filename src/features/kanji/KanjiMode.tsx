@@ -22,6 +22,7 @@ import styles from './Kanji.module.css';
 import { KanjiGrid, type GridHandle } from './KanjiGrid';
 import { CoverageBars, Estimated, Explained, num, pctText } from './parts';
 import { gradeLabel, knownRange, stageName } from './stage';
+import { plural } from '../../format';
 
 const LISTS = [
   { value: 'jlpt', label: 'JLPT' },
@@ -162,14 +163,14 @@ export function KanjiMode() {
             <Explained
               how={
                 <p>
-                  Kanji passed in the latest daily snapshot minus the snapshot from {growth.days}{' '}
-                  days before it.
+                  Kanji passed in the latest daily snapshot minus the snapshot from{' '}
+                  {plural(growth.days, 'day')} before it.
                 </p>
               }
             >
               {growth.kanji >= 0 ? '+' : ''}
               {num(growth.kanji)} kanji known{knownStage > 5 && ' at Guru'} in the last{' '}
-              {growth.days} days.
+              {growth.days === 1 ? 'day' : `${growth.days} days`}.
             </Explained>
           )}
           <ul className={styles.legend} aria-label="Legend">

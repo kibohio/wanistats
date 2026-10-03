@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
+import type { Clock } from '../format';
 import type { WaniStatsDb } from './schema';
 import { useDb } from './useAppMode';
 
@@ -14,6 +15,7 @@ export interface Prefs {
   lessonMin: number;
   lessonsPerDay: number;
   theme: 'system' | 'light' | 'dark';
+  clock: Clock;
   timelineSplit: 'stage' | 'type';
   /** Pack ids after `words-`, e.g. 'global', 'anime'. */
   wordMedia: string[];
@@ -32,6 +34,7 @@ export const PREF_DEFAULTS: Prefs = {
   lessonMin: 9 * 60,
   lessonsPerDay: 15,
   theme: 'system',
+  clock: 'system',
   timelineSplit: 'stage',
   wordMedia: ['global'],
   levelOverrides: {},

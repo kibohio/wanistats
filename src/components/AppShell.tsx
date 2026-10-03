@@ -3,6 +3,7 @@ import { useHistoryRange, useLastSyncAt, useUser } from '../db/hooks';
 import { useAppMode, useSampleSeed } from '../db/useAppMode';
 import { formatSyncTime } from '../format';
 import { usePeriodicSync } from '../hooks/useInstall';
+import { useApplyClock, useClock } from '../hooks/useClock';
 import { useApplyTheme } from '../hooks/useTheme';
 import { useSyncTriggers } from '../sync/useSync';
 import styles from './AppShell.module.css';
@@ -16,6 +17,7 @@ export function AppShell() {
   useSyncTriggers();
   useSampleSeed();
   useApplyTheme();
+  useApplyClock();
   usePeriodicSync();
   return (
     <div className={styles.shell}>
@@ -79,6 +81,7 @@ function LiveStatus() {
   const user = useUser();
   const lastSync = useLastSyncAt();
   const history = useHistoryRange();
+  const clock = useClock();
   return (
     <>
       <span className={styles.who}>
@@ -86,7 +89,9 @@ function LiveStatus() {
         {user && <span className={styles.level}>Level {user.level}</span>}
       </span>
       <RefreshData compact />
-      {lastSync != null && <span className={styles.line}>Synced {formatSyncTime(lastSync)}</span>}
+      {lastSync != null && (
+        <span className={styles.line}>Synced {formatSyncTime(lastSync, clock)}</span>
+      )}
       <Link to="/settings" hash="history" className={`${styles.line} ${styles.statusLink}`}>
         {historyDaysCopy(history?.days ?? 0)}
       </Link>
