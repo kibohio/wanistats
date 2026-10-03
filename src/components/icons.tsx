@@ -54,6 +54,7 @@ export const PersonIcon = icon(
     <path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5" />
   </>,
 );
+export const ChevronDownIcon = icon(<path d="M6 9l6 6 6-6" />);
 export const CloseIcon = icon(<path d="M6 6l12 12M18 6L6 18" />);
 export const InfoIcon = icon(
   <>
