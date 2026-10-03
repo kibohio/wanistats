@@ -1,13 +1,257 @@
-import { Card } from '../../components/Card';
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { buttonClass } from '../../components/Button';
+import { Chip } from '../../components/Chip';
+import { ExternalIcon } from '../../components/icons';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import {
+  useAssignments,
+  useReviewStatistics,
+  useSnapshotDeltas,
+  useSnapshots,
+  useSubjects,
+} from '../../db/hooks';
+import { accuracy, type AccuracyReport } from '../../domain/accuracy';
+import {
+  buildItems,
+  filterItems,
+  PRESETS,
+  presetCounts,
+  type Item,
+  type Preset,
+} from '../../domain/items';
+import { leeches } from '../../domain/leeches';
+import { useNow } from '../../hooks/useNow';
+import { AccuracySummary } from './AccuracySummary';
+import { ItemList, type GroupBy, type SortBy } from './ItemList';
+import { ItemSheet } from './ItemSheet';
+import styles from './Items.module.css';
+
+const EXTRA_STUDY_URL = 'https://www.wanikani.com/subjects/extra_study?queue_type=recent_mistakes';
+
+const PRESET_LABEL: Record<Preset, string> = {
+  leeches: 'Leeches',
+  apprentice: 'Apprentice',
+  next24h: 'Next 24h',
+  guru: 'Guru',
+  burned: 'Burned',
+};
 
 export function ItemsScreen() {
+  const subjects = useSubjects();
+  const assignments = useAssignments();
+  const stats = useReviewStatistics();
+  const snapshots = useSnapshots();
+  const deltas = useSnapshotDeltas();
+  const now = useNow();
+
+  const data = useMemo(() => {
+    if (!subjects || !assignments || !stats || !snapshots || !deltas) return undefined;
+    const leechReport = leeches({ subjects, assignments, stats, snapshots, deltas, now });
+    const items = buildItems({ subjects, assignments, stats, leeches: leechReport.leeches, now });
+    return {
+      items,
+      started: items.filter((i) => i.daysIn !== null).length,
+      accuracy: accuracy(stats, snapshots, deltas, now),
+      recentLeeches: leechReport.recentAvailable,
+    };
+  }, [subjects, assignments, stats, snapshots, deltas, now]);
+
   return (
     <>
-      <ScreenHeader title="Items" />
-      <Card title="Items">
-        <p>Search, presets and leeches appear here.</p>
-      </Card>
+      <ScreenHeader title="Items" aside={data && `${data.started.toLocaleString()} started`} />
+      {!data ? (
+        <p className={styles.empty}>Loading items</p>
+      ) : data.items.length === 0 ? (
+        <p className={styles.empty}>Items appear here after the first sync.</p>
+      ) : (
+        <ItemsView {...data} now={now} />
+      )}
     </>
+  );
+}
+
+interface ViewProps {
+  items: Item[];
+  accuracy: AccuracyReport;
+  /** 14 days of snapshots exist, so leeches split into recently struggling and the rest. */
+  recentLeeches: boolean;
+  now: number;
+}
+
+export function ItemsView({ items, accuracy, recentLeeches, now }: ViewProps) {
+  const [query, setQuery] = useState('');
+  const [preset, setPreset] = useState<Preset | null>('leeches');
+  const [group, setGroup] = useState<Exclude<GroupBy, 'section'>>('none');
+  const [sort, setSort] = useState<SortBy>('leechScore');
+  const [selected, setSelected] = useState<Item | null>(null);
+  const [visible, setVisible] = useState<Item[]>([]);
+  const [copied, setCopied] = useState<{ text: string; list: Item[] }>();
+  const [toKana, setToKana] = useState<(s: string) => string>();
+
+  // Romaji search needs wanakana; fetch it only once someone types latin letters.
+  const wantsKana = /[a-z]/i.test(query);
+  useEffect(() => {
+    if (wantsKana && !toKana)
+      void import('wanakana').then((w) => setToKana(() => (s: string) => w.toHiragana(s)));
+  }, [wantsKana, toKana]);
+
+  const deferredQuery = useDeferredValue(query);
+  const counts = useMemo(() => presetCounts(items, now), [items, now]);
+  const shown = useMemo(
+    () => filterItems(items, preset, deferredQuery, now, toKana),
+    [items, preset, deferredQuery, now, toKana],
+  );
+  const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
+  const groupBy: GroupBy =
+    group === 'none' && preset === 'leeches' && recentLeeches ? 'section' : group;
+
+  const copy = useCallback(async () => {
+    const chars = visible.flatMap((i) => i.characters ?? []);
+    try {
+      await navigator.clipboard.writeText(chars.join('\n'));
+      setCopied({
+        text: `Copied ${chars.length} ${chars.length === 1 ? 'item' : 'items'}`,
+        list: visible,
+      });
+    } catch {
+      setCopied({ text: "Couldn't copy. The browser blocked clipboard access.", list: visible });
+    }
+  }, [visible]);
+
+  return (
+    <>
+      <div className={styles.controls}>
+        <div className={styles.search}>
+          <label htmlFor="items-q" className="visually-hidden">
+            Search items
+          </label>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="6.5" />
+            <path d="M20 20l-4-4" />
+          </svg>
+          <input
+            id="items-q"
+            type="search"
+            placeholder="Kanji, kana, or meaning"
+            autoComplete="off"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        <div role="group" aria-label="Views" className={styles.presets}>
+          {PRESETS.map((p) => (
+            <Chip key={p} pressed={preset === p} onClick={() => setPreset(preset === p ? null : p)}>
+              {PRESET_LABEL[p]} {counts[p].toLocaleString()}
+            </Chip>
+          ))}
+        </div>
+        <div className={styles.selects}>
+          <label htmlFor="items-group">Group</label>
+          <select
+            id="items-group"
+            value={group}
+            onChange={(e) => setGroup(e.target.value as typeof group)}
+          >
+            <option value="none">None</option>
+            <option value="level">Level</option>
+            <option value="type">Type</option>
+            <option value="stage">SRS stage</option>
+          </select>
+          <label htmlFor="items-sort">Sort</label>
+          <select id="items-sort" value={sort} onChange={(e) => setSort(e.target.value as SortBy)}>
+            <option value="leechScore">Leech score</option>
+            <option value="level">Level</option>
+            <option value="accuracy">Accuracy</option>
+            <option value="next">Next review</option>
+          </select>
+        </div>
+      </div>
+
+      <AccuracySummary report={accuracy} />
+
+      {preset === 'leeches' && <LeechExplainer recent={recentLeeches} />}
+
+      {shown.length === 0 ? (
+        <p className={styles.empty}>
+          {preset === 'leeches' && !query ? 'No leeches right now.' : 'No items match.'}
+        </p>
+      ) : (
+        <ItemList
+          items={shown}
+          byId={byId}
+          groupBy={groupBy}
+          sortBy={sort}
+          showNext={preset === 'next24h' || sort === 'next'}
+          now={now}
+          onOpen={setSelected}
+          onOrder={setVisible}
+        />
+      )}
+
+      <div className={styles.actions}>
+        <a
+          href={EXTRA_STUDY_URL}
+          target="_blank"
+          rel="noreferrer"
+          className={`${buttonClass('primary')} ${styles.drill}`}
+        >
+          Drill in Extra Study <ExternalIcon />
+        </a>
+        <button
+          type="button"
+          className={buttonClass('secondary')}
+          onClick={copy}
+          disabled={shown.length === 0}
+        >
+          Copy list
+        </button>
+      </div>
+      <p role="status" className={styles.note}>
+        {copied?.list === visible ? copied.text : ''}
+      </p>
+
+      <ItemSheet
+        item={selected}
+        byId={byId}
+        now={now}
+        onClose={() => setSelected(null)}
+        onOpen={setSelected}
+      />
+    </>
+  );
+}
+
+function LeechExplainer({ recent }: { recent: boolean }) {
+  return (
+    <div className={styles.explainer}>
+      <p>
+        Ranked by wrong answers against the current streak. Items from the last 7 days of lessons
+        are left out, since early misses are normal.
+      </p>
+      <details>
+        <summary>How the score works</summary>
+        <p>
+          The score is an item's wrong answers, meaning and reading together, divided by its current
+          streak raised to the power of 1.5. The streak is the shorter of the meaning and reading
+          streaks, and counts as at least 1. An item is a leech at a score of 1 or more. Burned
+          items are left out.
+        </p>
+        {!recent && (
+          <p>
+            After 14 days of snapshots, items missed in the last two weeks move to the top under
+            Recently struggling.
+          </p>
+        )}
+      </details>
+    </div>
   );
 }
