@@ -74,11 +74,7 @@ export function WordsMode() {
                 <span className={styles.listMeta}>
                   {size}, {formatBytes(p.bytes)} download
                 </span>
-                <Button
-                  small
-                  aria-label={`Download the ${name} list`}
-                  onClick={() => setSheet(id)}
-                >
+                <Button small aria-label={`Download the ${name} list`} onClick={() => setSheet(id)}>
                   Download
                 </Button>
               </div>
@@ -148,9 +144,7 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
         </p>
       )}
       {installed && <PackUpdateLine packId={packId} />}
-      <h2 className={styles.heading}>
-        Most common words in {where}
-      </h2>
+      <h2 className={styles.heading}>Most common words in {where}</h2>
       <CoverageBars
         label={`Coverage of the most common words in ${where}`}
         bars={coverage.top.map((t) => ({
