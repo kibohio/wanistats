@@ -29,8 +29,8 @@
 }
 
 .inline {
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
   text-decoration: underline dotted var(--ink-3);
   text-underline-offset: 3px;
 }
@@ -38,7 +38,7 @@
 .asideFigure {
   min-height: 32px;
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--text-caption);
   font-weight: 700;
 }
 
@@ -47,8 +47,8 @@
   flex-direction: column;
   gap: 12px;
   padding-bottom: 4px;
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
 }
 
 .facts {
@@ -97,19 +97,20 @@
   border-radius: 8px;
   background: var(--control);
   color: var(--ink);
-  font-size: 15px;
+  font-size: var(--text-title);
   font-weight: 700;
 }
 
 .note {
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
   color: var(--ink-3);
 }
 
 .lead {
-  font-size: 24px;
+  font-size: var(--text-figure);
   font-weight: 700;
+  line-height: var(--leading-tight);
 }
 
 .finishBlock {
@@ -120,14 +121,15 @@
 }
 
 .finish {
-  font-size: 34px;
+  font-size: var(--text-figure);
   font-weight: 700;
   letter-spacing: -0.01em;
-  line-height: 1.1;
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
 }
 
 .sub {
-  font-size: 14px;
+  font-size: var(--text-body);
   color: var(--ink-3);
 }
 
@@ -136,8 +138,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
   color: var(--attention-text);
 }
 
@@ -152,12 +154,12 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 500;
 }
 
 .sliderHead output {
-  font-size: 18px;
+  font-size: var(--text-heading);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -172,7 +174,7 @@
 .ticks {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -183,7 +185,7 @@
   margin: 0;
   padding-top: 6px;
   border-top: 1px solid var(--line-soft);
-  font-size: 13px;
+  font-size: var(--text-body);
 }
 
 .rows dd .figure {
@@ -204,7 +206,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -215,7 +217,7 @@
 }
 
 .dateControls .select {
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 500;
 }
 
@@ -252,7 +254,7 @@
 }
 
 .top {
-  font-size: 10px;
+  font-size: var(--text-caption);
   line-height: 1;
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
@@ -316,7 +318,7 @@ button.bar {
 
 .lvl {
   padding-top: 4px;
-  font-size: 11px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -326,7 +328,7 @@ button.bar {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 14px;
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -356,8 +358,8 @@ button.bar {
 }
 
 .body {
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
 }
 
 .tableWrap {
@@ -381,5 +383,5 @@ button.bar {
 .table thead th {
   border-top: none;
   color: var(--ink-3);
-  font-size: 12px;
+  font-size: var(--text-caption);
 }

@@ -3,7 +3,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
   background: var(--surface);
-  font-size: 13px;
+  font-size: var(--text-body);
   color: var(--ink-2);
 }
 

@@ -20,7 +20,7 @@
   border: 1px solid var(--line-strong);
   border-radius: 50%;
   background: var(--surface);
-  font-size: 15px;
+  font-size: var(--text-title);
   font-weight: 700;
 }
 
@@ -32,6 +32,6 @@
 }
 
 .note {
-  font-size: 14px;
-  color: var(--ink-3);
+  font-size: var(--text-body);
+  color: var(--ink-2);
 }

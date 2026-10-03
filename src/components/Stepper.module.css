@@ -13,14 +13,13 @@
   border: none;
   background: var(--control);
   color: var(--ink);
-  font-size: 18px;
+  font-size: var(--text-heading);
   cursor: pointer;
 }
 
 .stepper button:disabled {
   color: var(--ink-3);
   cursor: default;
-  opacity: 0.5;
 }
 
 .stepper button:focus-visible,
@@ -36,7 +35,7 @@
   border: none;
   border-inline: 1px solid var(--line-strong);
   background: transparent;
-  font-size: 14px;
+  font-size: var(--text-body);
   font-variant-numeric: tabular-nums;
   text-align: center;
   appearance: textfield;

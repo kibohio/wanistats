@@ -18,18 +18,13 @@
 }
 
 .title {
-  font-size: 14px;
+  font-size: var(--text-title);
   font-weight: 500;
-  color: var(--ink-3);
+  color: var(--ink-2);
+  line-height: var(--leading-caption);
 }
 
 .aside {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
-}
-
-@media (min-width: 1024px) {
-  .title {
-    font-size: 15px;
-  }
 }

@@ -1,5 +1,5 @@
 import { Link, Outlet } from '@tanstack/react-router';
-import { useHistoryRange, useLastSyncAt } from '../db/hooks';
+import { useHistoryRange, useLastSyncAt, useUser } from '../db/hooks';
 import { useAppMode, useSampleSeed } from '../db/useAppMode';
 import { formatSyncTime } from '../format';
 import { usePeriodicSync } from '../hooks/useInstall';
@@ -7,9 +7,7 @@ import { useApplyClock, useClock } from '../hooks/useClock';
 import { useApplyTheme } from '../hooks/useTheme';
 import { useSyncTriggers } from '../sync/useSync';
 import styles from './AppShell.module.css';
-import { Button } from './Button';
 import { Footer } from './Footer';
-import { RefreshIcon } from './icons';
 import { SETTINGS, TABS } from './nav';
 import { historyDaysCopy, ProfileButton } from './ProfileMenu';
 import { RefreshData } from './RefreshData';
@@ -63,21 +61,16 @@ function Sidebar() {
             </Link>
           ))}
         </nav>
-        <div className={styles.status}>
+        <div className={styles.account}>
+          <ProfileButton />
           {sample ? (
-            <>
-              <Button small disabled>
-                <RefreshIcon size={16} strokeWidth={2} />
-                Refresh data
-              </Button>
-              <span>You&apos;re viewing sample data</span>
-            </>
+            <span className={styles.who}>
+              <strong>Sample data</strong>
+              <span className={styles.level}>Not logged in</span>
+            </span>
           ) : (
             <LiveStatus />
           )}
-          <div className={styles.profileRow}>
-            <ProfileButton />
-          </div>
         </div>
       </div>
     </aside>
@@ -85,14 +78,21 @@ function Sidebar() {
 }
 
 function LiveStatus() {
+  const user = useUser();
   const lastSync = useLastSyncAt();
   const history = useHistoryRange();
   const clock = useClock();
   return (
     <>
-      <RefreshData small />
-      {lastSync != null && <span>Synced {formatSyncTime(lastSync, clock)}</span>}
-      <Link to="/settings" hash="history" className={styles.statusLink}>
+      <span className={styles.who}>
+        <strong>{user?.username}</strong>
+        {user && <span className={styles.level}>Level {user.level}</span>}
+      </span>
+      <RefreshData compact />
+      {lastSync != null && (
+        <span className={styles.line}>Synced {formatSyncTime(lastSync, clock)}</span>
+      )}
+      <Link to="/settings" hash="history" className={`${styles.line} ${styles.statusLink}`}>
         {historyDaysCopy(history?.days ?? 0)}
       </Link>
     </>

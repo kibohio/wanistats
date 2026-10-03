@@ -29,7 +29,7 @@
 }
 
 .count {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -45,14 +45,14 @@
 }
 
 .heading {
-  font-size: 24px;
+  font-size: var(--text-heading);
   font-weight: 700;
-  line-height: 1.25;
+  line-height: var(--leading-caption);
   color: var(--ink);
 }
 
 .small {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -75,7 +75,7 @@
 }
 
 .glance dt {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -86,14 +86,14 @@
 }
 
 .value {
-  font-size: 20px;
+  font-size: var(--text-heading);
   font-weight: 700;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
 .note {
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 
 .paper {
@@ -125,7 +125,7 @@
   border: 1px solid var(--unstarted-border);
   border-radius: 2px;
   background: var(--surface);
-  font-size: 10px;
+  font-size: var(--text-caption);
   font-weight: 700;
   color: var(--primary);
 }
@@ -172,7 +172,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px 16px;
-  font-size: 13px;
+  font-size: var(--text-caption);
 }
 
 .markerDay {

@@ -3,6 +3,6 @@
 }
 
 .updated {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }

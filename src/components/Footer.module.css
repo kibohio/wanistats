@@ -5,8 +5,9 @@
   margin-top: 12px;
   padding: 16px 1px 0;
   border-top: 1px solid var(--line-soft);
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
+  line-height: var(--leading-caption);
 }
 
 .links {
@@ -17,10 +18,4 @@
 
 .footer a {
   color: inherit;
-}
-
-@media (min-width: 1024px) {
-  .footer {
-    font-size: 13px;
-  }
 }

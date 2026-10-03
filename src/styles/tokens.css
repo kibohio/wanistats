@@ -7,7 +7,7 @@
   --sidebar: light-dark(#f4f5f2, #16191c);
   --ink: light-dark(#1c1d1f, #ecedee);
   --ink-2: light-dark(#3e4148, #c3c6cc);
-  --ink-3: light-dark(#5b5e66, #9a9ea6);
+  --ink-3: light-dark(#50535b, #a4a8b0);
   --line: light-dark(#e3e6ea, #2a2e34);
   --line-soft: light-dark(#eef0f2, #22262b);
   --line-strong: light-dark(#c9d3dd, #3d434b);
@@ -27,7 +27,7 @@
   --srs-a4: light-dark(#b4d3de, #a2c4d2);
   --srs-guru: light-dark(#8cbbcb, #7fb0c1);
   --srs-guru-2: light-dark(#79adbf, #6da2b5);
-  --srs-master: light-dark(#3f7ea6, #3c7aa2);
+  --srs-master: #3c7aa2;
   --srs-enlightened: light-dark(#1f3b6e, #2b4c86);
   --srs-burned: #e8b22e;
   --srs-burned-marker: #d9a21b;
@@ -38,6 +38,21 @@
   --font-ui:
     'Zen Kaku Gothic New', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', system-ui, sans-serif;
   --font-kanji: 'Shippori Mincho B1', 'Hiragino Mincho ProN', serif;
+
+  /* Type scale. One size per role: captions, body, card titles, headings, the one key figure per
+     card, screen titles and the level numeral. Kanji glyphs size with their tiles instead. */
+  --text-caption: 12px;
+  --text-body: 14px;
+  --text-title: 15px;
+  --text-heading: 18px;
+  --text-h1: 26px;
+  --text-figure: 30px;
+  --text-numeral: 46px;
+  /* Text fields stay at 16 px so iOS Safari does not zoom in on focus. */
+  --text-input: 16px;
+  --leading-caption: 1.35;
+  --leading-body: 1.5;
+  --leading-tight: 1.1;
 
   --radius-cell: 5px;
   --radius-control: 10px;
@@ -61,5 +76,6 @@
   :root {
     --card-pad: 20px;
     --gap: 20px;
+    --text-numeral: 56px;
   }
 }

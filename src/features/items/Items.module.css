@@ -31,7 +31,7 @@
   border-radius: var(--radius-control);
   background: var(--surface);
   color: var(--ink);
-  font-size: 15px;
+  font-size: var(--text-input);
 }
 
 .presets {
@@ -50,7 +50,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -65,7 +65,7 @@
   border-radius: 8px;
   background: var(--control);
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--text-body);
   font-weight: 700;
 }
 
@@ -99,20 +99,20 @@
 }
 
 .figureValue {
-  font-size: 20px;
+  font-size: var(--text-heading);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .figureLabel {
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
   color: var(--ink-2);
 }
 
 .note {
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
   color: var(--ink-3);
 }
 
@@ -124,8 +124,8 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
   color: var(--ink-2);
 }
 
@@ -144,7 +144,7 @@
 
 .empty {
   padding: 16px 0;
-  font-size: 14px;
+  font-size: var(--text-body);
   color: var(--ink-3);
 }
 
@@ -177,7 +177,7 @@
   gap: 6px;
   padding: 10px 14px 8px;
   background: var(--ground);
-  font-size: 13px;
+  font-size: var(--text-body);
   font-weight: 700;
   color: var(--ink-2);
 }
@@ -213,13 +213,13 @@
 }
 
 .meaning {
-  font-size: 15px;
+  font-size: var(--text-body);
   font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .sub {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-2);
 }
 
@@ -227,13 +227,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--attention-text);
 }
 
 .alikeChar {
   font-family: var(--font-kanji);
-  font-size: 15px;
+  font-size: var(--text-title);
   font-weight: 700;
   color: var(--ink);
 }
@@ -248,17 +248,18 @@
 
 .wrong,
 .wrongHigh {
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .wrongHigh {
   color: var(--attention-text);
+  font-size: var(--text-body);
 }
 
 .age {
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -278,8 +279,8 @@
   flex-direction: column;
   gap: 14px;
   padding-bottom: 8px;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
 }
 
 .tableWrap {
@@ -289,7 +290,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--text-body);
   font-variant-numeric: tabular-nums;
 }
 

@@ -93,7 +93,7 @@ button.tile {
 
 .slack {
   border: 1.5px dashed var(--ink-3);
-  opacity: 0.75;
+  color: var(--ink-3);
 }
 
 .outside {

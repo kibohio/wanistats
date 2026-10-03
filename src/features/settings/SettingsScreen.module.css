@@ -41,7 +41,7 @@
 }
 
 .muted {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
@@ -59,7 +59,7 @@
 }
 
 .error {
-  font-size: 14px;
+  font-size: var(--text-body);
   color: var(--attention-text);
 }
 
@@ -88,7 +88,7 @@
 }
 
 .packName {
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 500;
 }
 
@@ -99,7 +99,7 @@
   padding: 8px 0;
   border: none;
   border-bottom: 1px solid var(--line-soft);
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 
 .media legend {

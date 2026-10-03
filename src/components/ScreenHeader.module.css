@@ -17,12 +17,13 @@
 }
 
 .title {
-  font-size: 26px;
+  font-size: var(--text-h1);
   font-weight: 700;
+  line-height: var(--leading-tight);
 }
 
 .aside {
-  font-size: 13px;
+  font-size: var(--text-caption);
   color: var(--ink-3);
 }
 
