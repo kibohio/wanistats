@@ -73,11 +73,8 @@ export function TermsPage() {
         trademark of Tofugu, LLC. WaniKani content belongs to Tofugu, LLC.
       </p>
       <p>
-        Reference data is licensed CC BY-SA 4.0 as credited in{' '}
-        <Link to="/settings" hash="about">
-          Settings, About
-        </Link>
-        . The source code is licensed under the{' '}
+        Reference data is licensed CC BY-SA 4.0 as credited in <Link to="/about">About</Link>. The
+        source code is licensed under the{' '}
         <a href={`${SOURCE_URL}/blob/main/LICENSE`}>MIT licence</a>, as stated in the repository.
       </p>
       <p>Kiboh Inc. may change or discontinue the site at any time.</p>

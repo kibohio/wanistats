@@ -28,6 +28,7 @@ test('logged out, every tab shows sample data and the footer', async ({ page }) 
     ['/kanji', /^Kanji$/],
     ['/items', /^Items$/],
     ['/settings', /^Settings$/],
+    ['/about', /^About$/],
     ['/privacy', /^Privacy$/],
     ['/terms', /^Terms$/],
   ];
