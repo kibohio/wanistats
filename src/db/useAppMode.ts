@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { openDb, type WaniStatsDb } from './schema';
 
@@ -15,4 +16,19 @@ export function useAppMode(): AppMode {
 /** The database screens read from: `wanistats` when logged in, `wanistats-sample` otherwise. */
 export function useDb(): WaniStatsDb {
   return useAppMode() === 'live' ? liveDb : sampleDb;
+}
+
+let seeded = false;
+
+/**
+ * Regenerates sample data once per page load while logged out. Sample timestamps are relative
+ * to now, so a fresh seed keeps the forecast live.
+ */
+export function useSampleSeed(): void {
+  const tokens = useLiveQuery(() => liveDb.auth.count(), []);
+  useEffect(() => {
+    if (tokens !== 0 || seeded) return;
+    seeded = true;
+    void import('../sample').then((m) => m.seedSampleDb(sampleDb, Date.now()));
+  }, [tokens]);
 }
