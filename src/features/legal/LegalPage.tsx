@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { Card } from '../../components/Card';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { HOST_PRIVACY_URL, PRIVACY_CONTACT } from '../../config';
+import { HOST_PRIVACY_URL, PRIVACY_CONTACT, SOURCE_URL } from '../../config';
 import styles from './LegalPage.module.css';
 
 function LegalPage({ title, children }: { title: string; children: ReactNode }) {
@@ -56,6 +56,36 @@ export function PrivacyPage() {
         WaniKani&apos;s own handling of your data is covered by{' '}
         <a href="https://www.wanikani.com/privacy">WaniKani&apos;s privacy policy</a>.
       </p>
+    </LegalPage>
+  );
+}
+
+export function TermsPage() {
+  return (
+    <LegalPage title="Terms">
+      <p>WaniStats is a free, independent tool provided as is, without warranty of any kind.</p>
+      <p>
+        Projections, forecasts, coverage figures and estimates are calculations, not guarantees.
+        WaniKani&apos;s data and rules can change.
+      </p>
+      <p>
+        You need your own WaniKani account and API token. Your use of WaniKani is governed by{' '}
+        <a href="https://www.wanikani.com/terms">WaniKani&apos;s terms</a>.
+      </p>
+      <p>
+        WaniStats is not affiliated with or endorsed by WaniKani or Tofugu, LLC. WaniKani is a
+        trademark of Tofugu, LLC. WaniKani content belongs to Tofugu, LLC.
+      </p>
+      <p>
+        Reference data is licensed CC BY-SA 4.0 as credited in{' '}
+        <Link to="/settings" hash="about">
+          Settings, About
+        </Link>
+        . The source code is licensed under the{' '}
+        <a href={`${SOURCE_URL}/blob/main/LICENSE`}>MIT licence</a>, as stated in the repository.
+      </p>
+      <p>Kiboh Inc. may change or discontinue the site at any time.</p>
+      <p>For questions, email {contact}.</p>
     </LegalPage>
   );
 }

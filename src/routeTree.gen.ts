@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PaceRouteImport } from './routes/pace'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 
@@ -54,6 +55,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/pace': typeof PaceRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/timeline': typeof TimelineRoute
   '/welcome': typeof WelcomeRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/pace': typeof PaceRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/timeline': typeof TimelineRoute
   '/welcome': typeof WelcomeRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/pace': typeof PaceRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/timeline': typeof TimelineRoute
   '/welcome': typeof WelcomeRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/pace'
     | '/privacy'
     | '/settings'
+    | '/terms'
     | '/timeline'
     | '/welcome'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/pace'
     | '/privacy'
     | '/settings'
+    | '/terms'
     | '/timeline'
     | '/welcome'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/pace'
     | '/privacy'
     | '/settings'
+    | '/terms'
     | '/timeline'
     | '/welcome'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   PaceRoute: typeof PaceRoute
   PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
+  TermsRoute: typeof TermsRoute
   TimelineRoute: typeof TimelineRoute
   WelcomeRoute: typeof WelcomeRoute
 }
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/timeline': {
       id: '/timeline'
       path: '/timeline'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaceRoute: PaceRoute,
   PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
+  TermsRoute: TermsRoute,
   TimelineRoute: TimelineRoute,
   WelcomeRoute: WelcomeRoute,
 }
