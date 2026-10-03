@@ -3,7 +3,9 @@ import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { Stepper } from '../../components/Stepper';
 import { ItemSheet } from '../../components/ItemSheet';
+import { SubjectTip } from '../../components/ItemTip';
 import { Tile } from '../../components/Tile';
+import { Tooltip } from '../../components/Tooltip';
 import { usePref } from '../../db/prefs';
 import { formatTime, plural, type Clock } from '../../format';
 import { useClock } from '../../hooks/useClock';
@@ -143,48 +145,57 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
                 const title = binTitle(bin, i, granularity, today, clock);
                 const x = extras(bin);
                 return (
-                  <button
+                  <Tooltip
                     key={bin.start}
-                    ref={(el) => {
-                      refs.current[i] = el;
-                    }}
-                    type="button"
-                    tabIndex={i === sel ? 0 : -1}
-                    aria-pressed={i === sel}
-                    aria-label={[title, plural(bin.total + bin.estimate, 'review'), ...x].join(
-                      ', ',
-                    )}
-                    className={styles.bar}
-                    onClick={() => setPicked(i)}
-                    onKeyDown={onKey}
+                    content={
+                      <>
+                        <strong>{title}</strong>
+                        {[plural(bin.total + bin.estimate, 'review'), ...x].join(', ')}
+                      </>
+                    }
                   >
-                    {granularity === 'hour' &&
-                      n > 24 &&
-                      i > 0 &&
-                      new Date(bin.start).getHours() === 0 && (
-                        <span aria-hidden="true" className={styles.dayLine} />
+                    <button
+                      ref={(el) => {
+                        refs.current[i] = el;
+                      }}
+                      type="button"
+                      tabIndex={i === sel ? 0 : -1}
+                      aria-pressed={i === sel}
+                      aria-label={[title, plural(bin.total + bin.estimate, 'review'), ...x].join(
+                        ', ',
                       )}
-                    {marks && bin.critical > 0 && (
-                      <span aria-hidden="true" className={styles.critMark} />
-                    )}
-                    {marks && bin.burns > 0 && (
-                      <span aria-hidden="true" className={styles.burnMark} />
-                    )}
-                    {bin.estimate > 0 && (
-                      <span className={styles.estimate} style={{ height: pct(bin.estimate) }} />
-                    )}
-                    {[...keys]
-                      .reverse()
-                      .map((k) =>
-                        bin.counts[k] ? (
-                          <span
-                            key={k}
-                            className={styles.seg}
-                            style={{ height: pct(bin.counts[k]), background: KEY_COLOR[k] }}
-                          />
-                        ) : null,
+                      className={styles.bar}
+                      onClick={() => setPicked(i)}
+                      onKeyDown={onKey}
+                    >
+                      {granularity === 'hour' &&
+                        n > 24 &&
+                        i > 0 &&
+                        new Date(bin.start).getHours() === 0 && (
+                          <span aria-hidden="true" className={styles.dayLine} />
+                        )}
+                      {marks && bin.critical > 0 && (
+                        <span aria-hidden="true" className={styles.critMark} />
                       )}
-                  </button>
+                      {marks && bin.burns > 0 && (
+                        <span aria-hidden="true" className={styles.burnMark} />
+                      )}
+                      {bin.estimate > 0 && (
+                        <span className={styles.estimate} style={{ height: pct(bin.estimate) }} />
+                      )}
+                      {[...keys]
+                        .reverse()
+                        .map((k) =>
+                          bin.counts[k] ? (
+                            <span
+                              key={k}
+                              className={styles.seg}
+                              style={{ height: pct(bin.counts[k]), background: KEY_COLOR[k] }}
+                            />
+                          ) : null,
+                        )}
+                    </button>
+                  </Tooltip>
                 );
               })}
             </div>
@@ -291,14 +302,24 @@ function SelectionItems({ ids, data }: { ids: number[]; data: TimelineData }) {
       <ul className={styles.items} aria-label={`${plural(items.length, 'item')} in this slot`}>
         {items.map((it) => (
           <li key={it.id}>
-            <Tile
-              char={it.char!}
-              srsStage={it.stage}
-              size={30}
-              mark={it.critical ? 'critical' : undefined}
-              aria-label={`${it.char}, ${stageName(it.stage ?? null)}${it.critical ? ', level-critical' : ''}`}
-              onClick={() => setOpen(it.id)}
-            />
+            <Tooltip
+              content={
+                <SubjectTip
+                  id={it.id}
+                  char={it.char!}
+                  note={it.critical ? 'Level-critical' : undefined}
+                />
+              }
+            >
+              <Tile
+                char={it.char!}
+                srsStage={it.stage}
+                size={30}
+                mark={it.critical ? 'critical' : undefined}
+                aria-label={`${it.char}, ${stageName(it.stage ?? null)}${it.critical ? ', level-critical' : ''}`}
+                onClick={() => setOpen(it.id)}
+              />
+            </Tooltip>
           </li>
         ))}
       </ul>

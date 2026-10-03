@@ -15,7 +15,9 @@ import { useNow } from '../hooks/useNow';
 import { ExternalIcon } from './icons';
 import styles from './ItemSheet.module.css';
 import { Sheet } from './Sheet';
+import { ItemTip } from './ItemTip';
 import { Tile } from './Tile';
+import { Tooltip } from './Tooltip';
 
 const TYPE_NAME = {
   radical: 'Radical',
@@ -135,17 +137,18 @@ function OpenSheet({
               {l.items.map((x) => (
                 <li key={x.id}>
                   {/* The stage goes in the name and tooltip; the tile colour shows it. */}
-                  <button
-                    type="button"
-                    className={styles.relatedButton}
-                    aria-label={`${x.characters ? `${x.characters}, ` : ''}${x.meaning}${x.reading ? `, ${x.reading}` : ''}, ${stageName(x.stage)}`}
-                    title={stageName(x.stage)}
-                    onClick={() => go([...trail, x.id])}
-                  >
-                    <ItemGlyph item={x} />
-                    <span className={styles.caption}>{x.meaning}</span>
-                    {x.reading && <span className={styles.caption}>{x.reading}</span>}
-                  </button>
+                  <Tooltip content={<ItemTip item={x} />}>
+                    <button
+                      type="button"
+                      className={styles.relatedButton}
+                      aria-label={`${x.characters ? `${x.characters}, ` : ''}${x.meaning}${x.reading ? `, ${x.reading}` : ''}, ${stageName(x.stage)}`}
+                      onClick={() => go([...trail, x.id])}
+                    >
+                      <ItemGlyph item={x} />
+                      <span className={styles.caption}>{x.meaning}</span>
+                      {x.reading && <span className={styles.caption}>{x.reading}</span>}
+                    </button>
+                  </Tooltip>
                 </li>
               ))}
             </ul>

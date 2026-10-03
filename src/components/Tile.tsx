@@ -11,7 +11,7 @@ interface Props {
   mark?: 'critical' | 'slack' | 'outside';
   /** Required when the tile is a button; stage names must be in it (never colour alone). */
   'aria-label'?: string;
-  title?: string;
+  'aria-describedby'?: string;
   onClick?: () => void;
   className?: string;
 }

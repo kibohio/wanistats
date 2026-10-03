@@ -2,7 +2,9 @@ import { Link } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { Card } from '../../components/Card';
 import { ItemSheet } from '../../components/ItemSheet';
+import { SubjectTip } from '../../components/ItemTip';
 import { Tile } from '../../components/Tile';
+import { Tooltip } from '../../components/Tooltip';
 import type { AccuracyFigures } from '../../domain/accuracy';
 import { coverageSummary } from '../../domain/today';
 import { PackEmptyState } from '../packs/PackPrompts';
@@ -121,14 +123,16 @@ export function LeechesCard({ d }: { d: TodayData }) {
             const like = l.lookAlikeIds[0];
             return (
               <li key={l.subjectId}>
-                <Tile
-                  char={ch}
-                  srsStage={stage}
-                  size={40}
-                  className={ch.length > 1 ? styles.wide : ''}
-                  aria-label={`${ch}, ${stageName(stage)}`}
-                  onClick={() => setOpen(l.subjectId)}
-                />
+                <Tooltip content={<SubjectTip id={l.subjectId} char={ch} />}>
+                  <Tile
+                    char={ch}
+                    srsStage={stage}
+                    size={40}
+                    className={ch.length > 1 ? styles.wide : ''}
+                    aria-label={`${ch}, ${stageName(stage)}`}
+                    onClick={() => setOpen(l.subjectId)}
+                  />
+                </Tooltip>
                 <span className={styles.leechText}>
                   <span className={styles.leechMeaning}>
                     {s?.data.meanings.find((m) => m.primary)?.meaning}

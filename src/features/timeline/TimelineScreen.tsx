@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Card } from '../../components/Card';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
+import { Tooltip } from '../../components/Tooltip';
 import {
   useAssignments,
   useReviewStatistics,
@@ -202,10 +203,12 @@ function InFlightCard() {
           <li key={key}>
             <span className={styles.flightBar} style={{ background: `var(--srs-${token})` }} />
             <span className={styles.flightN}>{stages[key].toLocaleString()}</span>
-            <abbr title={stageName(i + 1)}>
-              <span aria-hidden="true">{short}</span>
-              <span className="visually-hidden">{stageName(i + 1)}</span>
-            </abbr>
+            <Tooltip content={stageName(i + 1)}>
+              <abbr>
+                <span aria-hidden="true">{short}</span>
+                <span className="visually-hidden">{stageName(i + 1)}</span>
+              </abbr>
+            </Tooltip>
           </li>
         ))}
       </ul>
