@@ -1,13 +1,11 @@
-import { Card } from '../../components/Card';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { KanjiMode } from './KanjiMode';
 
 export function KanjiScreen() {
   return (
     <>
-      <ScreenHeader title="Kanji" />
-      <Card title="Coverage">
-        <p>Kanji and word coverage appear here.</p>
-      </Card>
+      <ScreenHeader title="Kanji" aside="Known means Guru or higher" />
+      <KanjiMode />
     </>
   );
 }
