@@ -294,7 +294,6 @@ function SelectionItems({ ids, data }: { ids: number[]; data: TimelineData }) {
               srsStage={it.stage}
               size={30}
               mark={it.critical ? 'critical' : undefined}
-              className={it.char!.length > 1 ? styles.longTile : undefined}
             />
             <span className="visually-hidden">
               , {stageName(it.stage ?? null)}

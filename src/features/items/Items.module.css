@@ -205,8 +205,10 @@
 }
 
 .glyph {
-  width: 44px;
+  min-width: 44px;
   height: 44px;
+  /* The font steps below fit up to three characters in the square; longer words grow. */
+  padding-inline: 0 !important;
   font-size: 22px;
 }
 
@@ -219,7 +221,7 @@
 }
 
 .large {
-  width: 72px;
+  min-width: 72px;
   height: 72px;
   font-size: 40px;
 }
@@ -229,6 +231,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  aspect-ratio: 1;
   border-radius: var(--radius-cell);
   background: var(--srs-a1);
 }
