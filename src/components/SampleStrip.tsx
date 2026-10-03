@@ -6,7 +6,8 @@ import styles from './SampleStrip.module.css';
 export function SampleStrip() {
   if (useAppMode() !== 'sample') return null;
   return (
-    <div className={styles.strip}>
+    // Read by hash scrolling, which has to clear it.
+    <div className={styles.strip} data-sticky-top>
       <span>Sample data. None of this is yours yet.</span>
       <Link to="/login" className={buttonClass('primary', true)}>
         Log in with WaniKani

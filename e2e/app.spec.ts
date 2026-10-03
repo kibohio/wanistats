@@ -201,3 +201,11 @@ test('waking hours and lesson time move in half hours', async ({ page }) => {
   await expect(page.getByRole('status', { name: 'Lesson time' })).toHaveText(/^9:30\sAM$/i);
   await expect(wake).toHaveAttribute('aria-valuetext', /^6:30\sAM$/i);
 });
+
+test('settings links land on their section once it has loaded', async ({ page }) => {
+  await loginToToday(page);
+  await page.goto('/settings#history');
+  const top = () => page.locator('#history').evaluate((el) => el.getBoundingClientRect().top);
+  await expect.poll(top).toBeGreaterThanOrEqual(0);
+  await expect.poll(top).toBeLessThan(40);
+});

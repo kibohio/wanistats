@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { User } from '../../api/types';
 import { Button, buttonClass } from '../../components/Button';
 import { Card } from '../../components/Card';
@@ -74,12 +74,44 @@ function Rows({ rows }: { rows: [string, ReactNode][] }) {
   );
 }
 
+/**
+ * Keeps a /settings#section link on its section while cards above it load and change height,
+ * until the user scrolls or a few seconds pass. Clears the sticky sample strip.
+ */
+function useHashScroll(box: RefObject<HTMLElement | null>) {
+  const hash = useLocation({ select: (l) => l.hash.replace(/^#/, '') });
+  useEffect(() => {
+    const el = box.current;
+    if (!hash || !el) return;
+    const align = () => {
+      const target = document.getElementById(hash);
+      if (!target) return;
+      const strip = document.querySelector<HTMLElement>('[data-sticky-top]');
+      const top = target.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top - (strip?.offsetHeight ?? 0) - 16, behavior: 'instant' });
+    };
+    const ro = new ResizeObserver(align);
+    ro.observe(el);
+    const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+    const stop = () => {
+      ro.disconnect();
+      clearTimeout(timer);
+      events.forEach((e) => removeEventListener(e, stop));
+    };
+    const timer = setTimeout(stop, 3000);
+    events.forEach((e) => addEventListener(e, stop, { passive: true }));
+    return stop;
+  }, [hash, box]);
+}
+
 export function SettingsScreen() {
   const live = useAppMode() === 'live';
+  const sections = useRef<HTMLDivElement>(null);
+  useHashScroll(sections);
   return (
     <>
       <ScreenHeader title="Settings" />
-      <div className={styles.sections}>
+      <div ref={sections} className={styles.sections}>
         <Section id="account" title="Account">
           {live ? (
             <LiveAccount />
