@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
+import { Stepper } from '../../components/Stepper';
 import { usePref } from '../../db/prefs';
 import { projectFinish, requiredDaysPerLevel, type PaceStats } from '../../domain/pace';
 import { Facts, Figure } from './Figure';
@@ -70,19 +71,15 @@ export function Projection(p: Props) {
 
   const goalSelect = (
     <span className={styles.goal}>
-      <label htmlFor={goalId}>Goal</label>
-      <select
+      <label htmlFor={goalId}>Goal level</label>
+      <Stepper
         id={goalId}
-        className={styles.select}
+        label="Goal level"
         value={goal}
-        onChange={(e) => void setGoal(Number(e.target.value))}
-      >
-        {Array.from({ length: MAX_LEVEL - minGoal + 1 }, (_, i) => minGoal + i).map((l) => (
-          <option key={l} value={l}>
-            Level {l}
-          </option>
-        ))}
-      </select>
+        min={minGoal}
+        max={MAX_LEVEL}
+        onChange={(v) => void setGoal(v)}
+      />
     </span>
   );
 
