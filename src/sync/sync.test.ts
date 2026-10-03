@@ -2,7 +2,7 @@ import Dexie from 'dexie';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { WK_API } from '../config';
 import { openDb, type WaniStatsDb } from '../db/schema';
-import { clearCachedData, nextHourlyRun, syncAll, type SyncProgress } from './sync';
+import { backgroundSync, clearCachedData, nextHourlyRun, syncAll, type SyncProgress } from './sync';
 
 let db: WaniStatsDb;
 const fetchMock = vi.fn<typeof fetch>();
@@ -115,6 +115,27 @@ test('clearing cached data keeps the token, history, prefs and meta', async () =
   expect(await db.prefs.count()).toBe(1);
   expect(await db.meta.get('onboardingSeen')).toEqual({ key: 'onboardingSeen', value: true });
   expect(await db.snapshots.count()).toBe(1);
+});
+
+test('background sync fetches only assignments and review statistics, then snapshots', async () => {
+  await backgroundSync(db);
+  expect(fetchMock).not.toHaveBeenCalled(); // no user yet: never synced in the page
+
+  await syncAll(db);
+  await db.snapshots.clear();
+  fetchMock.mockClear();
+  await backgroundSync(db);
+  expect(fetchMock.mock.calls.map(([u]) => new URL(String(u)).pathname)).toEqual([
+    '/v2/assignments',
+    '/v2/review_statistics',
+  ]);
+  expect(String(fetchMock.mock.calls[0]![0])).toContain('updated_after=');
+  expect(await db.snapshots.count()).toBe(1);
+
+  fetchMock.mockClear();
+  await db.meta.put({ key: 'tokenRejected', value: true });
+  await backgroundSync(db);
+  expect(fetchMock).not.toHaveBeenCalled();
 });
 
 test('hourly sync runs one minute past the next hour', () => {
