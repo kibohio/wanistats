@@ -1,1 +1,86 @@
-{ "packs": [] }
+{
+  "packs": [
+    {
+      "id": "kanji",
+      "label": "Kanji frequency and lists",
+      "description": "Kanji ranks, Jōyō grades, stroke counts and JLPT levels.",
+      "version": "20261003",
+      "file": "kanji.20261003.json.gz",
+      "bytes": 33976,
+      "uncompressedBytes": 124084,
+      "sha256": "96fa37b5344338e412cf19222af4c86f8b658109a51ed8f7659255d207fbb728",
+      "records": 8405,
+      "sources": [
+        {
+          "name": "Jiten",
+          "revision": "Jiten (Kanji) 26-08-09",
+          "sha256": "bdb0eaef29e5b7bdf52efaa91376dba8935b860a57a56d7ae2203138de918c78"
+        },
+        {
+          "name": "KANJIDIC2",
+          "revision": "2026-275",
+          "sha256": "5b2b3bec9685cdba5f872201cb0aaaf0205f0b8aa08a81f0f9c0242cdb5ec561"
+        },
+        {
+          "name": "kanji-data",
+          "revision": "7ada8ddbfe7359286f4db4e766d1242b9e6f7969",
+          "sha256": "561b72ea9df703c58fae0c68585812e172aaa7611d2fcee6719d55fd2dfd4fa4"
+        }
+      ]
+    },
+    {
+      "id": "words-global",
+      "label": "Common words, all media",
+      "description": "The 20,000 most frequent words across all media in Jiten.",
+      "version": "20261003",
+      "file": "words-global.20261003.json.gz",
+      "bytes": 164837,
+      "uncompressedBytes": 531559,
+      "sha256": "9456943f582a06989fafffb29e666d4e6863ee7c9c61abd878a6229bd1a438a1",
+      "records": 20000,
+      "sources": [
+        {
+          "name": "Jiten",
+          "revision": "Jiten 26-10-02",
+          "sha256": "a69c80f7d9cf0f3c3b6027ebd86216b8a6b73564ef1f484a173b6b7621bc517f"
+        }
+      ]
+    },
+    {
+      "id": "words-anime",
+      "label": "Common words, anime",
+      "description": "The 20,000 most frequent words in anime.",
+      "version": "20261003",
+      "file": "words-anime.20261003.json.gz",
+      "bytes": 161594,
+      "uncompressedBytes": 516697,
+      "sha256": "719a98d232e39c574cad36066d019e5fa5b0da3f3715ee4bd33ea5b7102b2162",
+      "records": 20000,
+      "sources": [
+        {
+          "name": "Jiten",
+          "revision": "Jiten (Anime) 26-10-02",
+          "sha256": "f8caf9e739a4f3fb5a7dd5b29ac76bf96630096a69f6d5aaed3493fa5e24cafe"
+        }
+      ]
+    },
+    {
+      "id": "words-novel",
+      "label": "Common words, novels",
+      "description": "The 20,000 most frequent words in novels.",
+      "version": "20261003",
+      "file": "words-novel.20261003.json.gz",
+      "bytes": 170223,
+      "uncompressedBytes": 544702,
+      "sha256": "c6f6f7f8804a5360ecbb77d14f87d7bda4e823eb882f22670c1f8ccd8801e8a8",
+      "records": 20000,
+      "sources": [
+        {
+          "name": "Jiten",
+          "revision": "Jiten (Novel) 26-10-02",
+          "sha256": "9b4b26ab1772b61fecb69e13c495e90a81ec4f007d91d31caa03bb8f02c3d1e6"
+        }
+      ]
+    }
+  ]
+}
