@@ -53,7 +53,7 @@ test('follows next_url, passes updated_after and reports each page', async () =>
     .mockResolvedValueOnce(json(page([1, 2], next), { headers: { ETag: 'W/"abc"' } }))
     .mockResolvedValueOnce(json(page([3], null)));
   const seen: number[][] = [];
-  const res = await fetchCollection('t', 'assignments', {
+  const res = await fetchCollection<{ id: number }>('t', 'assignments', {
     updatedAfter: '2026-09-01T00:00:00.000Z',
     onPage: (items, loaded, total) => {
       seen.push([...items.map((i) => i.id), loaded, total]);
