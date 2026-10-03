@@ -1,14 +1,20 @@
 import { Link, Outlet } from '@tanstack/react-router';
+import { useHistoryRange, useLastSyncAt } from '../db/hooks';
 import { useAppMode } from '../db/useAppMode';
+import { formatSyncTime } from '../format';
+import { useSyncTriggers } from '../sync/useSync';
 import styles from './AppShell.module.css';
 import { Button } from './Button';
 import { Footer } from './Footer';
 import { RefreshIcon } from './icons';
 import { SETTINGS, TABS } from './nav';
-import { ProfileButton } from './ProfileMenu';
+import { historyDaysCopy, ProfileButton } from './ProfileMenu';
+import { RefreshData } from './RefreshData';
 import { UpdateToast } from './UpdateToast';
 
 export function AppShell() {
+  useSyncTriggers();
+  // TODO(integrate): in sample mode, seed once: void import('../sample').then((m) => m.seedSampleDb(sampleDb, Date.now()));
   return (
     <div className={styles.shell}>
       <Sidebar />
@@ -51,16 +57,35 @@ function Sidebar() {
         ))}
       </nav>
       <div className={styles.status}>
-        {/* ponytail: sample-mode placeholder; sync time and history days arrive with sync */}
-        <Button small disabled={sample}>
-          <RefreshIcon size={16} strokeWidth={2} />
-          Refresh data
-        </Button>
-        {sample && <span>You&apos;re viewing sample data</span>}
+        {sample ? (
+          <>
+            <Button small disabled>
+              <RefreshIcon size={16} strokeWidth={2} />
+              Refresh data
+            </Button>
+            <span>You&apos;re viewing sample data</span>
+          </>
+        ) : (
+          <LiveStatus />
+        )}
         <div className={styles.profileRow}>
           <ProfileButton />
         </div>
       </div>
     </aside>
+  );
+}
+
+function LiveStatus() {
+  const lastSync = useLastSyncAt();
+  const history = useHistoryRange();
+  return (
+    <>
+      <RefreshData small />
+      {lastSync != null && <span>Synced {formatSyncTime(lastSync)}</span>}
+      <Link to="/settings" hash="history" className={styles.statusLink}>
+        {historyDaysCopy(history?.days ?? 0)}
+      </Link>
+    </>
   );
 }
