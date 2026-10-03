@@ -46,6 +46,7 @@ function item(
         }
       : null,
     lookAlikeIds: [],
+    relatedIds: [],
     documentUrl: '',
   };
 }
