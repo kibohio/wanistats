@@ -1,0 +1,105 @@
+.card {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  color: var(--ink-2);
+}
+
+.heading {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.external {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+}
+
+.error {
+  font-size: 14px;
+  color: var(--attention-text);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-3);
+}
+
+.steps li[data-state='current'] {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.steps li[data-state='done'] {
+  color: var(--ink-2);
+}
+
+/* Practice-paper square: blank, outlined while running, filled when done. */
+.mark {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--unstarted-border);
+  border-radius: 2px;
+}
+
+[data-state='current'] > .mark {
+  border-color: var(--primary);
+}
+
+[data-state='done'] > .mark {
+  border-color: var(--primary-fill);
+  background: var(--primary-fill);
+}
+
+.count {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}

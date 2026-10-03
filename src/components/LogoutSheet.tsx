@@ -1,0 +1,38 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { exportHistory, logout } from '../sync/session';
+import { Button } from './Button';
+import styles from './ProfileMenu.module.css';
+import { Sheet } from './Sheet';
+
+export function LogoutSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const confirm = async () => {
+    setBusy(true);
+    try {
+      await logout(queryClient);
+      onClose();
+      await navigate({ to: '/' });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Sheet open={open} onClose={onClose} title="Log out">
+      <div className={styles.menu}>
+        <p>
+          Log out and delete synced data and history from this browser? Export your history first if
+          you want to keep it.
+        </p>
+        <Button onClick={() => void exportHistory()}>Export history</Button>
+        <Button variant="primary" disabled={busy} onClick={() => void confirm()}>
+          Log out
+        </Button>
+        <Button onClick={onClose}>Cancel</Button>
+      </div>
+    </Sheet>
+  );
+}

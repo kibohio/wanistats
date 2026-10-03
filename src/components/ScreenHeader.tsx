@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { ProfileButton } from './ProfileMenu';
 import { SampleStrip } from './SampleStrip';
 import styles from './ScreenHeader.module.css';
+import { StatusBanners } from './StatusBanners';
 
 interface Props {
   /** Plain screen title. Use children instead for a custom lead (Today's level numeral). */
@@ -11,7 +12,7 @@ interface Props {
   children?: ReactNode;
 }
 
-/** Screen header with the profile button (phones) and the sample strip under it. */
+/** Screen header with the profile button (phones) and the sample strip or status banners under it. */
 export function ScreenHeader({ title, aside, children }: Props) {
   return (
     <>
@@ -23,6 +24,7 @@ export function ScreenHeader({ title, aside, children }: Props) {
         <ProfileButton className={styles.profile} />
       </header>
       <SampleStrip />
+      <StatusBanners />
     </>
   );
 }

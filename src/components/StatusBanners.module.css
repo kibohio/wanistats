@@ -1,0 +1,17 @@
+.banner {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.attention {
+  color: var(--attention-text);
+}
+
+.attention a {
+  color: inherit;
+  font-weight: 700;
+}

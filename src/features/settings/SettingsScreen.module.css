@@ -1,0 +1,52 @@
+.anchor {
+  scroll-margin-top: 16px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.rows > div:last-child {
+  border-bottom: none;
+}
+
+.rows dt {
+  color: var(--ink-3);
+}
+
+.rows dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.token {
+  font-family: ui-monospace, monospace;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.muted {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--ink-2);
+}
