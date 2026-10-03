@@ -6,3 +6,4 @@ test-results
 pnpm-lock.yaml
 src/routeTree.gen.ts
 public/icons
+src/packs/sampleCoverage.ts
