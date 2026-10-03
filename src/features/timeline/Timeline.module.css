@@ -217,7 +217,6 @@
 .chartWide .selection {
   flex: 1 1 240px;
   min-width: 0;
-  gap: 10px;
   padding: 16px;
   border: none;
   border-radius: 12px;
@@ -227,13 +226,15 @@
 .selText {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   font-size: var(--text-body);
   line-height: var(--leading-body);
   color: var(--ink-2);
 }
 
 .selLabel {
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
   color: var(--ink-3);
 }
 
@@ -250,6 +251,8 @@
 .chartWide .selHead {
   flex-direction: column;
   align-items: flex-start;
+  gap: 2px;
+  margin-bottom: 4px;
 }
 
 .chartWide .selTotal {
@@ -258,10 +261,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* One tight column beside the bars, two to four across when the panel wraps below them. */
 .selRows {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(136px, 168px));
+  gap: 2px 32px;
   margin: 0;
 }
 
@@ -285,20 +289,43 @@
 }
 
 .selExtras:empty {
-  min-height: 1.5em;
+  display: none;
 }
 
-/* Two and a half rows of 30px tiles: the cut-off row shows there is more to scroll. */
+/* Up to two and a half rows of 30px tiles: the cut-off row shows there is more to scroll. */
 .items {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
   gap: 4px;
-  height: 84px;
+  max-height: 84px;
   margin: 0;
   padding: 0;
   overflow-y: auto;
   list-style: none;
+}
+
+/* Beside the bars (the plot's 640px, the gap and the panel's 240px fit), the panel stretches to
+   the chart: the tiles fill what is left and the extras line keeps its place so the bars don't
+   change height between selections. */
+.chartWide {
+  container-type: inline-size;
+}
+
+@container (min-width: 900px) {
+  .selRows {
+    grid-template-columns: 1fr;
+  }
+
+  .selExtras:empty {
+    display: block;
+    min-height: 1.5em;
+  }
+
+  .items {
+    flex: 1 0 84px;
+    max-height: none;
+  }
 }
 
 .toggle {
