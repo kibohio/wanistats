@@ -65,3 +65,37 @@ function subscribeOnline(onChange: () => void) {
 export function useOnline(): boolean {
   return useSyncExternalStore(subscribeOnline, () => navigator.onLine);
 }
+
+// Whole-table reads for screens. Each re-runs only when its own table changes.
+export function useSubjects() {
+  const db = useDb();
+  return useLiveQuery(() => db.subjects.toArray(), [db]);
+}
+export function useAssignments() {
+  const db = useDb();
+  return useLiveQuery(() => db.assignments.toArray(), [db]);
+}
+export function useReviewStatistics() {
+  const db = useDb();
+  return useLiveQuery(() => db.reviewStatistics.toArray(), [db]);
+}
+export function useLevelProgressions() {
+  const db = useDb();
+  return useLiveQuery(() => db.levelProgressions.toArray(), [db]);
+}
+export function useResets() {
+  const db = useDb();
+  return useLiveQuery(() => db.resets.toArray(), [db]);
+}
+export function useSrsSystems() {
+  const db = useDb();
+  return useLiveQuery(() => db.srsSystems.toArray(), [db]);
+}
+export function useSnapshots() {
+  const db = useDb();
+  return useLiveQuery(() => db.snapshots.orderBy('date').toArray(), [db]);
+}
+export function useSnapshotDeltas() {
+  const db = useDb();
+  return useLiveQuery(() => db.snapshotDeltas.toArray(), [db]);
+}
