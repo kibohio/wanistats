@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Card } from '../../components/Card';
+import { ItemSheet } from '../../components/ItemSheet';
 import { Tile } from '../../components/Tile';
 import type { LevelUpKanji } from '../../domain/levelUp';
 import type { LevelUpGroup } from '../../domain/today';
@@ -237,6 +239,7 @@ function restsOn(d: TodayData): string | null {
 
 export function LevelUpCardDesktop({ d }: { d: TodayData }) {
   const { levelUp: p, radicals } = d;
+  const [open, setOpen] = useState<number | null>(null);
   const own = d.sample ? 'the' : 'your';
   const rests = restsOn(d);
   const slackLine =
@@ -269,20 +272,18 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
           const label = tileLabel(k, d.now);
           const name = `${char}, ${stageName(k.stage)}${!k.passed && k.stage ? `, next review ${label}` : ''}${slack ? ', not needed for level-up' : ''}`;
           return (
-            <div
-              key={k.subjectId}
-              className={styles.tileCell}
-              title={name}
-              role="img"
-              aria-label={name}
-            >
+            <div key={k.subjectId} className={styles.tileCell} title={name}>
               <Tile
                 char={char}
                 srsStage={k.stage ?? undefined}
                 size={46}
                 mark={k.critical ? 'critical' : slack ? 'slack' : undefined}
+                aria-label={name}
+                onClick={() => setOpen(k.subjectId)}
               />
-              <span className={slack ? styles.tileLabelFaded : styles.tileLabel}>{label}</span>
+              <span aria-hidden="true" className={slack ? styles.tileLabelFaded : styles.tileLabel}>
+                {label}
+              </span>
             </div>
           );
         })}
@@ -290,6 +291,7 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
       {p.status !== 'capped' && p.status !== 'ready' && (rests || slackLine) && (
         <p className={styles.para}>{[rests, slackLine].filter(Boolean).join(' ')}</p>
       )}
+      <ItemSheet subject={open} onClose={() => setOpen(null)} />
     </Card>
   );
 }

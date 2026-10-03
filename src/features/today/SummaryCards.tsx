@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card } from '../../components/Card';
+import { ItemSheet } from '../../components/ItemSheet';
 import { Tile } from '../../components/Tile';
 import type { AccuracyFigures } from '../../domain/accuracy';
 import { coverageSummary } from '../../domain/today';
@@ -91,6 +92,7 @@ export function CoverageCard({ d }: { d: TodayData }) {
 
 export function LeechesCard({ d }: { d: TodayData }) {
   const list = d.leeches.leeches;
+  const [open, setOpen] = useState<number | null>(null);
   const stageOf = new Map(d.assignments.map((a) => [a.data.subject_id, a.data.srs_stage]));
   const label = (id: number) => {
     const s = d.subjectById.get(id);
@@ -124,6 +126,8 @@ export function LeechesCard({ d }: { d: TodayData }) {
                   srsStage={stage}
                   size={40}
                   className={ch.length > 1 ? styles.wide : ''}
+                  aria-label={`${ch}, ${stageName(stage)}`}
+                  onClick={() => setOpen(l.subjectId)}
                 />
                 <span className={styles.leechText}>
                   <span className={styles.leechMeaning}>
@@ -154,6 +158,7 @@ export function LeechesCard({ d }: { d: TodayData }) {
           })}
         </ul>
       )}
+      <ItemSheet subject={open} onClose={() => setOpen(null)} />
     </Card>
   );
 }

@@ -2,6 +2,7 @@ import { stageName } from '../../domain/items';
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { Stepper } from '../../components/Stepper';
+import { ItemSheet } from '../../components/ItemSheet';
 import { Tile } from '../../components/Tile';
 import { usePref } from '../../db/prefs';
 import { fmtHour } from '../../domain/lessonWindow';
@@ -279,34 +280,30 @@ export function TimelineChart({ data, granularity, desktop = false }: ChartProps
 }
 
 function SelectionItems({ ids, data }: { ids: number[]; data: TimelineData }) {
+  const [open, setOpen] = useState<number | null>(null);
   const items = ids
     .map((id) => ({ id, ...data.items.get(id) }))
     .filter((it) => it.char !== undefined)
     .sort((a, b) => Number(b.critical) - Number(a.critical) || a.stage! - b.stage!);
   // Fixed height, scrolling inside, so long slots don't stretch the page or jump it.
   return (
-    <ul
-      // Focusable so keyboard users can scroll it.
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-      tabIndex={0}
-      className={styles.items}
-      aria-label={`${plural(items.length, 'item')} in this slot`}
-    >
-      {items.map((it) => (
-        <li key={it.id}>
-          <Tile
-            char={it.char!}
-            srsStage={it.stage}
-            size={30}
-            mark={it.critical ? 'critical' : undefined}
-          />
-          <span className="visually-hidden">
-            , {stageName(it.stage ?? null)}
-            {it.critical ? ', level-critical' : ''}
-          </span>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className={styles.items} aria-label={`${plural(items.length, 'item')} in this slot`}>
+        {items.map((it) => (
+          <li key={it.id}>
+            <Tile
+              char={it.char!}
+              srsStage={it.stage}
+              size={30}
+              mark={it.critical ? 'critical' : undefined}
+              aria-label={`${it.char}, ${stageName(it.stage ?? null)}${it.critical ? ', level-critical' : ''}`}
+              onClick={() => setOpen(it.id)}
+            />
+          </li>
+        ))}
+      </ul>
+      <ItemSheet subject={open} onClose={() => setOpen(null)} />
+    </>
   );
 }
 
