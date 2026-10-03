@@ -169,7 +169,12 @@ function buildSubjects(): SubjectResource[] {
       meaning_mnemonic: '',
       meanings: meanings
         .split('/')
-        .map((meaning, i) => ({ meaning, primary: i === 0, accepted_answer: true })),
+        // WaniKani capitalises meanings; match it so sheets and lists read the same.
+        .map((m, i) => ({
+          meaning: m.charAt(0).toUpperCase() + m.slice(1),
+          primary: i === 0,
+          accepted_answer: true,
+        })),
       slug,
       spaced_repetition_system_id: lvl <= 2 ? 2 : 1,
     };
@@ -563,7 +568,7 @@ export async function seedSampleDb(db: WaniStatsDb, now: number): Promise<void> 
   const synced = now - 4 * 60_000;
   await db.transaction('rw', db.tables, async () => {
     // Prefs survive a reseed so sample-mode settings last across reloads.
-    await Promise.all(db.tables.filter((t) => t !== db.prefs).map((t) => t.clear()));
+    await Promise.all(db.tables.filter((t) => t.name !== 'prefs').map((t) => t.clear()));
     await Promise.all([
       db.subjects.bulkPut(subjects),
       db.assignments.bulkPut(assignments),
