@@ -23,7 +23,7 @@ import { floorHour, HOUR_MS, intervalFor } from '../domain/srs';
 import { KANA_VOCAB, KANJI, RADICALS, SIMILAR, VOCAB } from './data';
 
 /** Stored in meta as `sampleVersion`; bump when the generated data changes. */
-export const SAMPLE_VERSION = 1;
+export const SAMPLE_VERSION = 2;
 
 const API = 'https://api.wanikani.com/v2';
 const DAY_MS = 24 * HOUR_MS;
@@ -314,7 +314,9 @@ export async function seedSampleDb(db: WaniStatsDb, now: number): Promise<void> 
     tracks.set(subject.id, track);
     if (track.unlockedAt === null) continue;
 
-    const current = level === CURRENT_LEVEL;
+    // Perfect answers keep the current level's earliest level-up shape fixed.
+    const current =
+      level === CURRENT_LEVEL && (subject.object === 'radical' || subject.object === 'kanji');
     const leech = LEECHES.has(chars!);
     const hasReading = subject.object === 'kanji' || subject.object === 'vocabulary';
     const pMeaning = current ? 1 : leech ? 0.7 : between(0.94, 0.995);
@@ -327,7 +329,7 @@ export async function seedSampleDb(db: WaniStatsDb, now: number): Promise<void> 
           ? LESSON_LATER.has(chars!)
             ? Infinity
             : between(10, 16)
-          : 4 + rand() ** 2 * 220;
+          : 4 + rand() ** 2 * 85;
     const startedAt = track.unlockedAt + lag * HOUR_MS;
     if (startedAt > now) continue;
 
@@ -560,7 +562,8 @@ export async function seedSampleDb(db: WaniStatsDb, now: number): Promise<void> 
 
   const synced = now - 4 * 60_000;
   await db.transaction('rw', db.tables, async () => {
-    await Promise.all(db.tables.map((t) => t.clear()));
+    // Prefs survive a reseed so sample-mode settings last across reloads.
+    await Promise.all(db.tables.filter((t) => t !== db.prefs).map((t) => t.clear()));
     await Promise.all([
       db.subjects.bulkPut(subjects),
       db.assignments.bulkPut(assignments),
