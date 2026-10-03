@@ -1,6 +1,7 @@
-import type { AssignmentResource } from '../api/types';
+import type { AssignmentResource, SpacedRepetitionSystem } from '../api/types';
 import type { Snapshot, StageCounts } from '../db/schema';
 import { shiftDate, windowStartKey } from './localDate';
+import { intervalFor } from './srs';
 
 export interface Band {
   min: number;
@@ -58,6 +59,36 @@ export function steadyStateReviewsPerDay(
   itemAccuracy: number,
 ): number | null {
   return itemAccuracy > 0 ? Math.round((lessonsPerDay * 8) / itemAccuracy) : null;
+}
+
+// Reviews wait for the next session after they come due; half a day is a typical gap.
+const REVIEW_LAG_HOURS = 12;
+
+/**
+ * Apprentice, Guru and load once lessons at this rate settle (Little's law: count = rate x
+ * days in the stage). Days in a stage are its intervals plus a session lag per review, divided
+ * by item accuracy as a rough allowance for wrong answers sending items back. Show as "about N".
+ */
+export function steadyStateLoad(
+  lessonsPerDay: number,
+  itemAccuracy: number,
+  system: SpacedRepetitionSystem,
+): { apprentice: number; guru: number; load: number } | null {
+  if (itemAccuracy <= 0) return null;
+  const pass = system.passing_stage_position;
+  const days = (from: number, to: number) => {
+    let hours = 0;
+    for (let stage = from; stage <= to; stage++)
+      hours += intervalFor(system, stage) + REVIEW_LAG_HOURS;
+    return hours / 24 / itemAccuracy;
+  };
+  const apprentice = lessonsPerDay * days(1, pass - 1);
+  const guru = lessonsPerDay * days(pass, pass + 1);
+  return {
+    apprentice: Math.round(apprentice),
+    guru: Math.round(guru),
+    load: Math.round(apprentice + guru / 10),
+  };
 }
 
 /** One snapshot's load, spanning any missed days before it (`from` to `to`, inclusive). */
