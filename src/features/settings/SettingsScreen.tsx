@@ -220,7 +220,7 @@ function HistorySection() {
     setMessage(
       e instanceof Error && e.name === 'Error'
         ? e.message
-        : 'Could not save the imported history. Try again.',
+        : "Couldn't save the imported history. Try again.",
     );
   const merge = async (file: HistoryFile) => {
     setPending(null);
@@ -245,9 +245,8 @@ function HistorySection() {
   return (
     <Section id="history" title="History">
       <p className={styles.muted}>
-        WaniKani keeps lifetime totals but not your day-by-day history, so WaniStats saves a
-        snapshot each day you open it. History lives only in this browser; export it to keep a
-        backup.
+        WaniKani only keeps lifetime totals, so WaniStats saves a snapshot each day you open it.
+        Snapshots live only in this browser. Export them to keep a backup.
       </p>
       <Rows
         rows={[
@@ -355,7 +354,7 @@ function PacksSection() {
       </p>
       {manifest.isError && (
         <p role="alert" className={styles.error}>
-          Could not load the list of data packs. Check your connection and try again.
+          Couldn&apos;t load the list of data packs. Check your connection and try again.
         </p>
       )}
       <ul className={styles.packs}>
@@ -483,7 +482,7 @@ function PreferencesSection() {
         <WakingHoursFields />
         <LessonTimeField />
         <StepperField
-          label="Lessons a day, for the timeline estimate"
+          label="Lessons a day"
           value={lessonsPerDay}
           min={0}
           max={200}

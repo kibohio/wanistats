@@ -6,7 +6,7 @@ import { Onboarding } from './WelcomeScreen';
 const glance = [
   { label: 'Next level-up', value: 'Tue 6 Oct, 16:00', note: '18 of 30 kanji at Guru' },
   { label: 'Workload', value: 'Load 128', note: 'Inside the 100 to 150 band' },
-  { label: 'Level 60', value: '7 Jul 2027', note: 'At 7.2 days a level' },
+  { label: 'Level 60', value: '7 Jul 2027', note: '7.2 days per level' },
 ];
 
 const current = () =>

@@ -107,8 +107,8 @@ function StepDaily() {
     <section className={styles.step}>
       <h2 className={styles.heading}>Open WaniStats once a day</h2>
       <p>
-        WaniKani&apos;s API keeps your lifetime totals but not your day-by-day history. Each day you
-        open WaniStats, it saves a snapshot on this device. Those snapshots become your recent
+        WaniKani keeps your lifetime totals, not your day-by-day history. So each day you open
+        WaniStats, it saves a snapshot on this device. Those snapshots turn into your recent
         accuracy, your workload trend and how fast you&apos;re learning new kanji.
       </p>
       <figure className={styles.paper}>
@@ -153,8 +153,8 @@ function StepInstall() {
       <h2 className={styles.heading}>Keep it one tap away</h2>
       <InstallControl />
       <p className={styles.small}>
-        On Android and desktop Chrome, an installed WaniStats can sometimes take the snapshot for
-        you in the background. Don&apos;t count on it; opening it daily is what works everywhere.
+        On Android and desktop Chrome, an installed WaniStats can sometimes take the snapshot in the
+        background. Don&apos;t count on it. Opening it once a day works everywhere.
       </p>
       <div>
         <GoalLevelField />
