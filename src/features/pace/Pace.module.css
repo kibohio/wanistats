@@ -1,0 +1,385 @@
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+  }
+}
+
+/* A figure that opens its explanation: looks like text, behaves like a button. */
+.figure {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.figure:hover {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.inline {
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: underline dotted var(--ink-3);
+  text-underline-offset: 3px;
+}
+
+.asideFigure {
+  min-height: 32px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.explain {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 4px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.facts > div,
+.rows > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.facts > div {
+  padding: 6px 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+.facts dt,
+.rows dt {
+  color: var(--ink-3);
+}
+
+.facts dd,
+.rows dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Projection */
+.goal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.select {
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--control);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.note {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.lead {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.finishBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-self: flex-start;
+}
+
+.finish {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.whatIf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--attention-text);
+}
+
+.slider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.sliderHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sliderHead output {
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.slider input {
+  width: 100%;
+  min-height: 32px;
+  margin: 0;
+  accent-color: var(--primary);
+}
+
+.ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding-top: 6px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 13px;
+}
+
+.rows dd .figure {
+  min-height: 36px;
+}
+
+.goalDate {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.dateRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.dateControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dateControls .select {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Time per level */
+.scroller {
+  overflow-x: auto;
+  margin: 0 calc(-1 * var(--card-pad));
+  padding: 0 var(--card-pad);
+}
+
+.bars {
+  display: flex;
+  min-width: 100%;
+  width: max-content;
+}
+
+.col {
+  flex: 1 0 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.plot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+  height: 150px;
+  padding: 4px 3px 0;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.top {
+  font-size: 10px;
+  line-height: 1;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  width: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 3px 3px 0 0;
+}
+
+button.bar {
+  cursor: pointer;
+}
+
+.counted {
+  background: var(--srs-master);
+}
+
+.left {
+  border: 1px dashed var(--ink-3);
+  border-bottom: none;
+  background: var(--control);
+}
+
+.current {
+  border: 1.5px solid var(--srs-master);
+  border-bottom: none;
+  background: transparent;
+}
+
+.estimated {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 3px,
+    light-dark(rgb(255 255 255 / 0.55), rgb(0 0 0 / 0.35)) 3px 5px
+  );
+}
+
+.left.estimated,
+.current.estimated {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 3px,
+    light-dark(rgb(63 126 166 / 0.3), rgb(127 176 193 / 0.3)) 3px 5px
+  );
+}
+
+.clipped {
+  border-top: 3px double var(--surface);
+}
+
+.reset {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-left: 1.5px dashed var(--attention);
+}
+
+.lvl {
+  padding-top: 4px;
+  font-size: 11px;
+  color: var(--ink-3);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.swatch.left {
+  border-bottom: 1px dashed var(--ink-3);
+}
+
+.swatch.current {
+  border-bottom: 1.5px solid var(--srs-master);
+}
+
+.resetSwatch {
+  height: 12px;
+  border-left: 1.5px dashed var(--attention);
+}
+
+.body {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: 6px 8px 6px 0;
+  border-top: 1px solid var(--line-soft);
+  text-align: left;
+  font-weight: 400;
+}
+
+.table thead th {
+  border-top: none;
+  color: var(--ink-3);
+  font-size: 12px;
+}
