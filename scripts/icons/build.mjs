@@ -1,0 +1,60 @@
+// Renders the app icons from one practice-paper square with 統, outlined from Shippori Mincho B1.
+// Outputs: public/icons/source.svg, icon-192.png, icon-512.png, icon-maskable-512.png,
+// apple-touch-icon.png (180) and public/favicon.svg.
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { Resvg } from '@resvg/resvg-js';
+import opentype from 'opentype.js';
+
+const require = createRequire(import.meta.url);
+const out = new URL('../../public/', import.meta.url);
+const fontFile =
+  require.resolve('@fontsource/shippori-mincho-b1/files/shippori-mincho-b1-japanese-700-normal.woff');
+const font = opentype.parse(readFileSync(fontFile).buffer);
+
+const INK = '#1C1D1F';
+const PRIMARY = '#1F3B6E';
+const GUIDE = '#C2CBD3';
+const PAPER = '#FFFFFF';
+
+/** The glyph as a path, centred in a box of side `size` at (x, y). */
+function glyph(x, y, size) {
+  const em = size * 0.78;
+  const probe = font.getPath('統', 0, 0, em).getBoundingBox();
+  const dx = x + (size - (probe.x2 - probe.x1)) / 2 - probe.x1;
+  const dy = y + (size - (probe.y2 - probe.y1)) / 2 - probe.y1;
+  return font.getPath('統', dx, dy, em).toPathData(2);
+}
+
+/** A practice square of side `s` at (x, y) on a canvas of `canvas`, optionally on a full-bleed ground. */
+function svg({ canvas, s, ground }) {
+  const x = (canvas - s) / 2;
+  const stroke = Math.max(1, s * 0.035);
+  const c = canvas / 2;
+  const inset = x + s * 0.06;
+  const end = x + s - s * 0.06;
+  const dash = `${(s * 0.04).toFixed(2)} ${(s * 0.03).toFixed(2)}`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas} ${canvas}" width="${canvas}" height="${canvas}">
+${ground ? `<rect width="${canvas}" height="${canvas}" fill="${ground}"/>` : ''}
+<rect x="${x + stroke / 2}" y="${x + stroke / 2}" width="${s - stroke}" height="${s - stroke}" fill="${PAPER}" stroke="${PRIMARY}" stroke-width="${stroke}"/>
+<path d="M${c} ${inset}V${end}M${inset} ${c}H${end}" stroke="${GUIDE}" stroke-width="${stroke * 0.5}" stroke-dasharray="${dash}"/>
+<path d="${glyph(x, x, s)}" fill="${INK}"/>
+</svg>
+`;
+}
+
+function png(name, svgText, size) {
+  const data = new Resvg(svgText, { fitTo: { mode: 'width', value: size } }).render().asPng();
+  writeFileSync(new URL(name, out), data);
+}
+
+const plain = svg({ canvas: 512, s: 480 });
+writeFileSync(new URL('icons/source.svg', out), plain);
+writeFileSync(new URL('favicon.svg', out), svg({ canvas: 64, s: 64 }));
+png('icons/icon-192.png', plain, 192);
+png('icons/icon-512.png', plain, 512);
+// Maskable: the square sits inside the 80% safe-zone circle on a full-bleed ground.
+png('icons/icon-maskable-512.png', svg({ canvas: 512, s: 280, ground: '#FAFAF7' }), 512);
+// iOS fills transparency with black and rounds the corners, so use a full-bleed ground.
+png('icons/apple-touch-icon.png', svg({ canvas: 180, s: 150, ground: '#FAFAF7' }), 180);
+console.log('Icons written to public/.');

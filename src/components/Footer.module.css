@@ -1,0 +1,20 @@
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 12px;
+  padding: 16px 1px 0;
+  border-top: 1px solid var(--line-soft);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.footer a {
+  color: inherit;
+}
+
+@media (min-width: 1024px) {
+  .footer {
+    font-size: 13px;
+  }
+}
