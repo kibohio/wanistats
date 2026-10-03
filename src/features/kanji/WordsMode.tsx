@@ -1,0 +1,206 @@
+import { useMemo, useState } from 'react';
+import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { Chip } from '../../components/Chip';
+import { SegmentedControl } from '../../components/SegmentedControl';
+import { useAssignments, useSnapshots, useSubjects } from '../../db/hooks';
+import { useAppMode } from '../../db/useAppMode';
+import { coverageGrowth, wordCoverage, type WordRow } from '../../domain/coverage';
+import { useNow } from '../../hooks/useNow';
+import { useInstalledPacks, useManifest, usePack } from '../../packs/hooks';
+import { SAMPLE_COVERAGE_LABEL, sampleWords } from '../../packs/sampleCoverage';
+import { DownloadSheet } from '../packs/DownloadSheet';
+import { PackEmptyState, PackUpdateLine } from '../packs/PackPrompts';
+import styles from './Kanji.module.css';
+import { CoverageBars, Estimated, Explained, num, pctText } from './parts';
+
+type WordsPackId = `words-${string}`;
+
+const SIZES = [1000, 5000, 10000];
+// The built-in sample list has 500 words.
+const SAMPLE_SIZES = [100, 250, 500];
+const PAGE = 20;
+
+const WHERE: Record<string, string> = {
+  'words-global': 'Japanese media',
+  'words-anime': 'anime',
+  'words-novel': 'novels',
+};
+
+export function WordsMode() {
+  const sampleMode = useAppMode() === 'sample';
+  const manifest = useManifest().data;
+  const installedRows = useInstalledPacks();
+  const [media, setMedia] = useState<WordsPackId>('words-global');
+  const [sheet, setSheet] = useState(false);
+
+  const wordPacks = manifest?.packs.filter((p) => p.id.startsWith('words-')) ?? [];
+  const installedIds = new Set(installedRows?.map((r) => r.id));
+  const options = wordPacks
+    .filter((p) => installedIds.has(p.id) || (p.id === 'words-global' && sampleMode))
+    .map((p) => ({ value: p.id as WordsPackId, label: shortLabel(p.label) }));
+  const missing = wordPacks.filter((p) => !installedIds.has(p.id)).map((p) => p.id);
+
+  return (
+    <>
+      {options.length > 1 && (
+        <SegmentedControl label="Media" options={options} value={media} onChange={setMedia} />
+      )}
+      {missing.length > 0 && options.length > 0 && (
+        <p className={styles.caption}>
+          <Button small onClick={() => setSheet(true)}>
+            Download more media lists
+          </Button>
+          <DownloadSheet open={sheet} onClose={() => setSheet(false)} preselect={missing} />
+        </p>
+      )}
+      <WordsView key={media} packId={media} sampleMode={sampleMode} />
+    </>
+  );
+}
+
+// "Common words, anime" -> "Anime"; the global list reads "Global".
+function shortLabel(label: string) {
+  const tail = label.split(', ').pop() ?? label;
+  return tail === 'all media' ? 'Global' : tail.charAt(0).toUpperCase() + tail.slice(1);
+}
+
+function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: boolean }) {
+  const subjects = useSubjects();
+  const assignments = useAssignments();
+  const snapshots = useSnapshots();
+  const now = useNow();
+  const installed = usePack(packId);
+  const isSample = installed === null && sampleMode && packId === 'words-global';
+  const pack = isSample ? sampleWords : installed;
+
+  const coverage = useMemo(() => {
+    if (!pack || !subjects || !assignments) return null;
+    const sizes = isSample ? SAMPLE_SIZES : SIZES;
+    return wordCoverage(subjects, assignments, pack, sizes);
+  }, [pack, subjects, assignments, isSample]);
+  const growth = useMemo(
+    () => (snapshots ? coverageGrowth(snapshots, now) : null),
+    [snapshots, now],
+  );
+
+  if (installed === undefined) return null;
+  if (!pack) {
+    return (
+      <PackEmptyState packId={packId}>
+        Word coverage needs a list of common words. The WK level view in Kanji works without a
+        download.
+      </PackEmptyState>
+    );
+  }
+  if (!coverage) return null;
+
+  const headline = coverage.top[1] ?? coverage.top[0];
+  const where = WHERE[packId] ?? 'this list';
+  return (
+    <>
+      {isSample && (
+        <p className={styles.caption}>
+          <Chip>{SAMPLE_COVERAGE_LABEL}</Chip>
+        </p>
+      )}
+      {installed && <PackUpdateLine packId={packId} />}
+      <CoverageBars
+        label="Coverage of the most common words"
+        bars={coverage.top.map((t) => ({
+          key: String(t.size),
+          label: `Top ${num(t.size)}`,
+          pct: t.pct,
+          known: t.known,
+          total: t.size,
+        }))}
+      />
+      {headline && (
+        <p className={styles.line}>
+          {isSample ? "The sample's" : 'Your'} Guru&apos;d WaniKani vocabulary covers{' '}
+          <strong>{pctText(headline.pct)}</strong> of the {num(headline.size)} most common words in{' '}
+          {where}.
+        </p>
+      )}
+      <Explained
+        how={
+          <p>
+            Jiten publishes frequency ranks, not counts, so each word is weighted by 1 / rank (a
+            Zipf fit). The figure is the weight of known words over the weight of every word in the
+            list. WaniKani words match by exact spelling, and kana-only words by reading.
+          </p>
+        }
+      >
+        Weighted by frequency, that is <strong>{pctText(coverage.weighted.pct)}</strong> of word
+        appearances. <Estimated />
+      </Explained>
+      <p className={styles.note}>
+        This counts only WaniKani vocabulary at Guru or higher, not words learned elsewhere.
+      </p>
+      {growth && growth.days > 0 && (
+        <p className={styles.line}>
+          {growth.vocab >= 0 ? '+' : ''}
+          {num(growth.vocab)} WaniKani words known in the last {growth.days} days.
+        </p>
+      )}
+      <WordList
+        title="Coming up in WaniKani"
+        empty="Every frequent WaniKani word in this list is known."
+        rows={coverage.comingUp}
+        showLevel
+      />
+      <WordList
+        title="Not in WaniKani"
+        empty="Every frequent word in this list is in WaniKani."
+        rows={coverage.notInWaniKani}
+      />
+    </>
+  );
+}
+
+function WordList({
+  title,
+  empty,
+  rows,
+  showLevel,
+}: {
+  title: string;
+  empty: string;
+  rows: WordRow[];
+  showLevel?: boolean;
+}) {
+  const [shown, setShown] = useState(PAGE);
+  return (
+    <Card title={title} aside={`${num(rows.length)} words, most frequent first`}>
+      {rows.length === 0 ? (
+        <p className={styles.note}>{empty}</p>
+      ) : (
+        <ol className={styles.words}>
+          {rows.slice(0, shown).map((w) => (
+            <li key={w.rank + w.word} className={styles.word}>
+              <span className={styles.rank} aria-label={`Rank ${w.rank}`}>
+                {num(w.rank)}
+              </span>
+              <span className={styles.wordText}>
+                <span lang="ja" className={styles.wordChars}>
+                  {w.word}
+                </span>
+                {w.reading && (
+                  <span lang="ja" className={styles.reading}>
+                    {w.reading}
+                  </span>
+                )}
+              </span>
+              {showLevel && w.level && <span className={styles.level}>Level {w.level}</span>}
+            </li>
+          ))}
+        </ol>
+      )}
+      {shown < rows.length && (
+        <Button small onClick={() => setShown(shown + PAGE)}>
+          Show {Math.min(PAGE, rows.length - shown)} more
+        </Button>
+      )}
+    </Card>
+  );
+}
