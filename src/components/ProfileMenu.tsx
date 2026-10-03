@@ -4,8 +4,8 @@ import { useHistoryRange, useLastSyncAt, useUser, type HistoryRange } from '../d
 import { useAppMode } from '../db/useAppMode';
 import { formatSyncTime, type Clock } from '../format';
 import { useClock } from '../hooks/useClock';
+import { AvatarPicker, UserAvatar } from './Avatar';
 import { Button, buttonClass } from './Button';
-import { PersonIcon } from './icons';
 import { LogoutSheet } from './LogoutSheet';
 import styles from './ProfileMenu.module.css';
 import { RefreshData } from './RefreshData';
@@ -35,9 +35,8 @@ export function historyReadout(h: HistoryRange, clock: Clock, now = Date.now()):
 
 /** Profile button plus its menu: the account sheet and the logout confirmation. */
 export function ProfileButton({ className }: { className?: string }) {
-  const [view, setView] = useState<'closed' | 'menu' | 'logout'>('closed');
+  const [view, setView] = useState<'closed' | 'menu' | 'avatar' | 'logout'>('closed');
   const mode = useAppMode();
-  const user = useUser();
   const close = () => setView('closed');
   return (
     <>
@@ -47,9 +46,7 @@ export function ProfileButton({ className }: { className?: string }) {
         className={`${styles.button} ${className ?? ''}`}
         onClick={() => setView('menu')}
       >
-        <span className={styles.circle}>
-          {mode === 'sample' ? <PersonIcon size={20} /> : user?.username.charAt(0).toUpperCase()}
-        </span>
+        <UserAvatar size={34} />
       </button>
       <Sheet open={view === 'menu'} onClose={close} title="Account">
         {mode === 'sample' ? (
@@ -63,26 +60,45 @@ export function ProfileButton({ className }: { className?: string }) {
             </Link>
           </div>
         ) : (
-          <LiveMenu onClose={close} onLogout={() => setView('logout')} />
+          <LiveMenu
+            onClose={close}
+            onAvatar={() => setView('avatar')}
+            onLogout={() => setView('logout')}
+          />
         )}
+      </Sheet>
+      <Sheet open={view === 'avatar'} onClose={close} title="Change avatar">
+        <AvatarPicker onPick={() => setView('menu')} />
       </Sheet>
       <LogoutSheet open={view === 'logout'} onClose={close} />
     </>
   );
 }
 
-function LiveMenu({ onClose, onLogout }: { onClose: () => void; onLogout: () => void }) {
+function LiveMenu({
+  onClose,
+  onAvatar,
+  onLogout,
+}: {
+  onClose: () => void;
+  onAvatar: () => void;
+  onLogout: () => void;
+}) {
   const user = useUser();
   const lastSync = useLastSyncAt();
   const history = useHistoryRange();
   const clock = useClock();
   return (
     <div className={styles.menu}>
-      {user && (
-        <p>
-          Signed in as <strong>{user.username}</strong>, Level {user.level}
-        </p>
-      )}
+      <div className={styles.who}>
+        <UserAvatar size={48} />
+        {user && (
+          <p>
+            Signed in as <strong>{user.username}</strong>, Level {user.level}
+          </p>
+        )}
+      </div>
+      <Button onClick={onAvatar}>Change avatar</Button>
       <RefreshData />
       {lastSync != null && (
         <p className={styles.note}>Last synced {formatSyncTime(lastSync, clock)}</p>

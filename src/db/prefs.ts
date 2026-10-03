@@ -23,6 +23,8 @@ export interface Prefs {
   levelOverrides: Record<number, boolean>;
   /** SRS stage that counts as known for kanji and word coverage: 5 Guru, 7 Master, 8 Enlightened, 9 Burned. */
   knownStage: 5 | 7 | 8 | 9;
+  /** Avatar id from src/components/Avatar.tsx; null shows the username's initial. */
+  avatar: string | null;
 }
 
 export const PREF_DEFAULTS: Prefs = {
@@ -39,6 +41,7 @@ export const PREF_DEFAULTS: Prefs = {
   wordMedia: ['global'],
   levelOverrides: {},
   knownStage: 5,
+  avatar: null,
 };
 
 /** Times were whole hours before they were minutes; read the old key until the new one is set. */

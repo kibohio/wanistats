@@ -209,3 +209,22 @@ test('settings links land on their section once it has loaded', async ({ page })
   await expect.poll(top).toBeGreaterThanOrEqual(0);
   await expect.poll(top).toBeLessThan(40);
 });
+
+test('a picked avatar replaces the initial and is stored for the account', async ({ page }) => {
+  await loginToToday(page);
+  const profile = page.getByRole('button', { name: 'Account and settings' });
+  await expect(profile).toHaveText('T');
+  const menu = await openAccountMenu(page);
+  await menu.getByRole('button', { name: 'Change avatar' }).click();
+  await page
+    .getByRole('dialog', { name: 'Change avatar' })
+    .getByRole('button', { name: 'Crab' })
+    .click();
+  await expect(page.getByRole('dialog', { name: 'Account' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(profile).toHaveText('');
+  expect(await readTable(page, 'prefs')).toContainEqual({ key: 'avatar', value: 'kani' });
+
+  await page.goto('/settings');
+  await expect(page.getByRole('button', { name: 'Crab' })).toHaveAttribute('aria-pressed', 'true');
+});
