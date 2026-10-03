@@ -169,7 +169,12 @@ function buildSubjects(): SubjectResource[] {
       meaning_mnemonic: '',
       meanings: meanings
         .split('/')
-        .map((meaning, i) => ({ meaning, primary: i === 0, accepted_answer: true })),
+        // WaniKani capitalises meanings; match it so sheets and lists read the same.
+        .map((m, i) => ({
+          meaning: m.charAt(0).toUpperCase() + m.slice(1),
+          primary: i === 0,
+          accepted_answer: true,
+        })),
       slug,
       spaced_repetition_system_id: lvl <= 2 ? 2 : 1,
     };
