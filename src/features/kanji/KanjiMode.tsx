@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { KanjiResource } from '../../api/types';
+import { useMemo, useRef, useState } from 'react';
+import type { KanjiResource, SubjectType } from '../../api/types';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { Chip } from '../../components/Chip';
-import { ExternalIcon, CloseIcon } from '../../components/icons';
+import { ItemSheet } from '../../components/ItemSheet';
 import { useAssignments, useSnapshots, useSubjects } from '../../db/hooks';
 import { usePref } from '../../db/prefs';
 import { useAppMode } from '../../db/useAppMode';
@@ -81,7 +81,7 @@ export function KanjiMode() {
     [snapshots, now],
   );
 
-  // Lookups for the peek sheet and cell labels.
+  // Lookups for cell labels and the item sheet's list facts.
   const subjectById = useMemo(
     () =>
       new Map(subjects?.filter((s) => s.object === 'kanji').map((s) => [s.id, s as KanjiResource])),
@@ -89,6 +89,17 @@ export function KanjiMode() {
   );
   const packIndex = useMemo(() => new Map(pack?.chars.map((c, i) => [c, i])), [pack]);
   const ranks = useMemo(() => (pack ? decodeRanks(pack.rank) : []), [pack]);
+
+  const listFacts = (char: string, type: SubjectType): [string, string][] => {
+    const i = type === 'kanji' ? packIndex.get(char) : undefined;
+    if (!pack || i === undefined) return [];
+    const facts: [string, string | undefined][] = [
+      ['Rank', ranks[i] ? num(ranks[i]) : undefined],
+      ['JLPT', pack.jlpt[i] ? `N${pack.jlpt[i]}` : undefined],
+      ['Grade', gradeLabel(pack.grade[i]!)],
+    ];
+    return facts.filter((f): f is [string, string] => !!f[1]);
+  };
 
   const packLoading = view !== 'level' && installed === undefined;
   const needsPack = view !== 'level' && !pack && !packLoading;
@@ -182,16 +193,11 @@ export function KanjiMode() {
         </>
       )}
 
-      {selected && (
-        <Peek
-          cell={selected}
-          subject={selected.subjectId ? subjectById.get(selected.subjectId) : undefined}
-          packAt={packIndex.get(selected.char)}
-          pack={pack}
-          rank={ranks[packIndex.get(selected.char) ?? -1] ?? 0}
-          onClose={() => setSelected(null)}
-        />
-      )}
+      <ItemSheet
+        subject={selected && (selected.subjectId ?? selected.char)}
+        onClose={() => setSelected(null)}
+        extraFacts={listFacts}
+      />
     </>
   );
 }
@@ -199,78 +205,4 @@ export function KanjiMode() {
 function primaryMeaning(s: KanjiResource | undefined) {
   const m = s?.data.meanings.find((x) => x.primary)?.meaning;
   return m && m.charAt(0).toUpperCase() + m.slice(1);
-}
-
-function Peek({
-  cell,
-  subject,
-  pack,
-  packAt,
-  rank,
-  onClose,
-}: {
-  cell: KanjiCell;
-  subject: KanjiResource | undefined;
-  pack: typeof sampleKanji | undefined;
-  packAt: number | undefined;
-  rank: number;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-  const readings = (type: 'onyomi' | 'kunyomi') =>
-    subject?.data.readings
-      .filter((r) => r.type === type && r.accepted_answer)
-      .map((r) => r.reading)
-      .join(', ');
-  const jlpt = pack && packAt !== undefined ? pack.jlpt[packAt] : 0;
-  const grade = pack && packAt !== undefined ? pack.grade[packAt] : 0;
-  const facts: [string, string | undefined][] = [
-    ['On', readings('onyomi')],
-    ['Kun', readings('kunyomi')],
-    ['Stage', cell.inWaniKani ? stageName(cell.stage) : 'Not in WaniKani'],
-    ['Level', cell.level ? String(cell.level) : undefined],
-    ['Rank', rank ? num(rank) : undefined],
-    ['JLPT', jlpt ? `N${jlpt}` : undefined],
-    ['Grade', gradeLabel(grade)],
-  ];
-  return (
-    <section className={styles.peek} aria-label="Selected kanji" aria-live="polite">
-      <div className={styles.peekTop}>
-        <span className={styles.peekTile} data-stage={cell.inWaniKani ? cell.stage : 'none'}>
-          {cell.char}
-        </span>
-        <div className={styles.peekText}>
-          <span className={styles.peekMeaning}>{primaryMeaning(subject) ?? cell.char}</span>
-          <dl className={styles.facts}>
-            {facts
-              .filter(([, v]) => v)
-              .map(([k, v]) => (
-                <div key={k}>
-                  <dt>{k}</dt>
-                  <dd>{v}</dd>
-                </div>
-              ))}
-          </dl>
-        </div>
-        <button type="button" className={styles.peekClose} aria-label="Close" onClick={onClose}>
-          <CloseIcon />
-        </button>
-      </div>
-      {cell.inWaniKani && (
-        <a
-          className={styles.wkLink}
-          href={`https://www.wanikani.com/kanji/${encodeURIComponent(cell.char)}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Open in WaniKani
-          <ExternalIcon size={14} />
-        </a>
-      )}
-    </section>
-  );
 }
