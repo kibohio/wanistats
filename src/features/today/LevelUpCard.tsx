@@ -190,7 +190,7 @@ export function LevelUpCard({ d }: { d: TodayData }) {
       title="Next level-up"
       aside={
         <CountExplain d={d}>
-          {p.passed} of {p.needed} kanji at Guru
+          {p.passed} of {p.total} kanji at Guru
         </CountExplain>
       }
     >
@@ -255,7 +255,7 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
               ? 'Radicals done. '
               : `${radicals.passed} of ${radicals.total} radicals at Guru. `)}
           <CountExplain d={d}>
-            {p.passed} of {p.needed} kanji at Guru
+            {p.passed} of {p.total} kanji at Guru
             {p.slack > 0 && p.k > 0 && `, ${p.slack} to spare`}.
           </CountExplain>
         </span>
