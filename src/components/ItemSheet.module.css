@@ -1,0 +1,121 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.body:focus {
+  outline: none;
+}
+
+.body > dl,
+.related {
+  align-self: stretch;
+}
+
+.back {
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--primary);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.glyph {
+  min-width: 44px;
+  height: 44px;
+  /* The font steps below fit up to three characters in the square; longer words grow. */
+  padding-inline: 0 !important;
+  font-size: 22px;
+}
+
+.len2 {
+  font-size: 17px;
+}
+
+.len3 {
+  font-size: 14px;
+}
+
+.large {
+  min-width: 72px;
+  height: 72px;
+  font-size: 40px;
+}
+
+.imageTile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  aspect-ratio: 1;
+  border-radius: var(--radius-cell);
+  background: var(--srs-a1);
+}
+
+.imageTile img {
+  width: 60%;
+  height: 60%;
+}
+
+.facts {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 7.5em minmax(0, 1fr);
+  gap: 12px;
+}
+
+.fact dt {
+  color: var(--ink-3);
+}
+
+.fact dd {
+  margin: 0;
+}
+
+.relatedHead {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.related ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.relatedButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.external {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-weight: 700;
+}

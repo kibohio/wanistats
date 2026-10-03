@@ -131,6 +131,20 @@ describe('buildItems', () => {
     expect(list.find((i) => i.id === 5)!.imageUrl).toBeNull();
   });
 
+  it('links radicals to kanji, kanji to radicals and words to kanji, skipping hidden ones', () => {
+    const { subjects, assignments, stats } = setup();
+    const [end, , anime, , imageOnly] = subjects;
+    if (end?.object === 'kanji') end.data.component_subject_ids = [5];
+    if (anime?.object === 'vocabulary') anime.data.component_subject_ids = [1, 4];
+    if (imageOnly?.object === 'radical') imageOnly.data.amalgamation_subject_ids = [1, 6];
+    const list = buildItems({ subjects, assignments, stats, leeches: [], now });
+    const related = (id: number) => list.find((i) => i.id === id)!.relatedIds;
+    expect(related(1)).toEqual([5]);
+    expect(related(3)).toEqual([1]);
+    expect(related(5)).toEqual([1, 6]);
+    expect(related(2)).toEqual([]);
+  });
+
   it('marks locked items and items without statistics', () => {
     const locked = items().find((i) => i.id === 6)!;
     expect(locked).toMatchObject({ stage: null, accuracy: null, daysIn: null, incorrect: 0 });

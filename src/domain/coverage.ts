@@ -45,15 +45,26 @@ export interface Estimate {
 
 const pct = (part: number, whole: number) => (whole ? (100 * part) / whole : 0);
 
+/** SRS stage that counts as known: 5 Guru (default), 7 Master, 8 Enlightened, 9 Burned. */
+export type KnownStage = 5 | 7 | 8 | 9;
+export const GURU: KnownStage = 5;
+
 interface Progress {
   stage: number;
   known: boolean;
 }
-function progressBySubject(assignments: AssignmentResource[]): Map<number, Progress> {
+// Guru means passed at least once, as WaniKani counts it; higher thresholds use the current stage.
+function progressBySubject(
+  assignments: AssignmentResource[],
+  minStage: KnownStage,
+): Map<number, Progress> {
   return new Map(
     assignments.map((a) => [
       a.data.subject_id,
-      { stage: a.data.srs_stage, known: a.data.passed_at !== null },
+      {
+        stage: a.data.srs_stage,
+        known: minStage === GURU ? a.data.passed_at !== null : a.data.srs_stage >= minStage,
+      },
     ]),
   );
 }
@@ -66,7 +77,7 @@ export interface KanjiCell {
   level: number | null;
   /** Assignment SRS stage; 0 when not started or not in WaniKani. */
   stage: number;
-  /** Passed (Guru at least once). */
+  /** At the known stage (for Guru: passed at least once). */
   known: boolean;
   inWaniKani: boolean;
   /** Jiten rank; 0 when unranked or no pack. */
@@ -128,8 +139,9 @@ export function kanjiGroups(
   subjects: SubjectResource[],
   assignments: AssignmentResource[],
   pack?: KanjiPack,
+  minStage = GURU,
 ): KanjiGroup[] {
-  const progress = progressBySubject(assignments);
+  const progress = progressBySubject(assignments, minStage);
   const ranks = pack ? decodeRanks(pack.rank) : [];
   const rankOf = new Map(pack?.chars.map((c, i) => [c, ranks[i]]));
   const kanji = subjects.filter(
@@ -190,8 +202,9 @@ export function weightedKanjiCoverage(
   subjects: SubjectResource[],
   assignments: AssignmentResource[],
   pack: KanjiPack,
+  minStage = GURU,
 ): Estimate {
-  const progress = progressBySubject(assignments);
+  const progress = progressBySubject(assignments, minStage);
   const known = new Set(
     subjects
       .filter((s) => s.object === 'kanji' && !s.data.hidden_at && progress.get(s.id)?.known)
@@ -219,10 +232,10 @@ export interface WordRow {
 }
 
 export interface WordCoverage {
-  /** Share of the N most frequent words the user has passed in WaniKani. */
+  /** Share of the N most frequent words the user knows in WaniKani. */
   top: { size: number; known: number; pct: number }[];
   weighted: Estimate;
-  /** Frequent words in WaniKani the user has not passed yet, in rank order. */
+  /** Frequent words in WaniKani the user does not know yet, in rank order. */
   comingUp: WordRow[];
   /** Frequent words WaniKani does not teach, in rank order. */
   notInWaniKani: WordRow[];
@@ -233,8 +246,9 @@ export function wordCoverage(
   assignments: AssignmentResource[],
   pack: WordsPack,
   sizes = [1000, 5000, 10000],
+  minStage = GURU,
 ): WordCoverage {
-  const progress = progressBySubject(assignments);
+  const progress = progressBySubject(assignments, minStage);
   const levelOf = new Map(subjects.map((s) => [s.id, s.data.level]));
   const matches = matchWords(subjects, pack);
   const ranks = decodeRanks(pack.rank);

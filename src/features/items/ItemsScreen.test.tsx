@@ -46,12 +46,13 @@ function item(
         }
       : null,
     lookAlikeIds: [],
+    relatedIds: [],
     documentUrl: '',
   };
 }
 
 const items = [
-  item(1, '末', 'End', 'まつ', 2, true),
+  { ...item(1, '末', 'End', 'まつ', 2, true), relatedIds: [3] },
   item(2, '未', 'Not yet', 'み', 3),
   item(3, '氷', 'Ice', 'ひょう', 5),
   item(4, '永', 'Eternity', 'えい', 9),
@@ -112,4 +113,20 @@ test('presets show counts and filter; search narrows by meaning, kana and romaji
 
   await user.click(preset(/^Burned/));
   expect(screen.getByText('No items match.')).toBeInTheDocument();
+});
+
+test('the item sheet moves to related items and back', async () => {
+  const user = userEvent.setup();
+  render(<ItemsView items={items} accuracy={report} recentLeeches={false} now={now} />);
+
+  await user.click(within(screen.getByRole('list', { name: 'Items' })).getByText('End'));
+  const sheet = screen.getByRole('dialog', { name: 'End' });
+  expect(within(sheet).getByText('9.0, from 9 wrong answers')).toBeInTheDocument();
+
+  await user.click(within(sheet).getByRole('button', { name: /Ice, ひょう, Guru 1/ }));
+  expect(screen.getByRole('dialog', { name: 'Ice' })).toContainElement(
+    document.activeElement as HTMLElement,
+  );
+  await user.click(screen.getByRole('button', { name: 'Back to End' }));
+  expect(screen.getByRole('dialog', { name: 'End' })).toBeInTheDocument();
 });

@@ -2,6 +2,7 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'rea
 import { buttonClass } from '../../components/Button';
 import { Chip } from '../../components/Chip';
 import { ExternalIcon } from '../../components/icons';
+import { ItemSheet } from '../../components/ItemSheet';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import {
   useAssignments,
@@ -23,7 +24,6 @@ import { leeches } from '../../domain/leeches';
 import { useNow } from '../../hooks/useNow';
 import { AccuracySummary } from './AccuracySummary';
 import { ItemList, type GroupBy, type SortBy } from './ItemList';
-import { ItemSheet } from './ItemSheet';
 import styles from './Items.module.css';
 
 const EXTRA_STUDY_URL = 'https://www.wanikani.com/subjects/extra_study?queue_type=recent_mistakes';
@@ -83,7 +83,7 @@ export function ItemsView({ items, accuracy, recentLeeches, now }: ViewProps) {
   const [preset, setPreset] = useState<Preset | null>('leeches');
   const [group, setGroup] = useState<Exclude<GroupBy, 'section'>>('none');
   const [sort, setSort] = useState<SortBy>('leechScore');
-  const [selected, setSelected] = useState<Item | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
   const [visible, setVisible] = useState<Item[]>([]);
   const [copied, setCopied] = useState<{ text: string; list: Item[] }>();
   const [toKana, setToKana] = useState<(s: string) => string>();
@@ -192,7 +192,7 @@ export function ItemsView({ items, accuracy, recentLeeches, now }: ViewProps) {
           sortBy={sort}
           showNext={preset === 'next24h' || sort === 'next'}
           now={now}
-          onOpen={setSelected}
+          onOpen={(i) => setSelected(i.id)}
           onOrder={setVisible}
         />
       )}
@@ -219,13 +219,7 @@ export function ItemsView({ items, accuracy, recentLeeches, now }: ViewProps) {
         {copied?.list === visible ? copied.text : ''}
       </p>
 
-      <ItemSheet
-        item={selected}
-        byId={byId}
-        now={now}
-        onClose={() => setSelected(null)}
-        onOpen={setSelected}
-      />
+      <ItemSheet subject={selected} byId={byId} onClose={() => setSelected(null)} />
     </>
   );
 }

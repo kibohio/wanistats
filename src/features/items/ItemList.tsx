@@ -9,9 +9,8 @@ import {
 } from '@tanstack/react-table';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Tile } from '../../components/Tile';
+import { ItemGlyph, nextReviewText } from '../../components/ItemSheet';
 import { stageGroup, stageName, type Item } from '../../domain/items';
-import { formatSyncTime } from '../../format';
 import styles from './Items.module.css';
 
 export type GroupBy = 'none' | 'level' | 'type' | 'stage' | 'section';
@@ -158,29 +157,6 @@ export function ItemList({ items, byId, groupBy, sortBy, showNext, now, onOpen, 
       })}
     </ul>
   );
-}
-
-export function ItemGlyph({ item, size }: { item: Item; size?: 'large' }) {
-  const len = item.characters?.length ?? 1;
-  const cls = [styles.glyph, size === 'large' ? styles.large : styles[`len${Math.min(len, 3)}`]];
-  if (item.characters === null && item.imageUrl)
-    return (
-      <span className={`${styles.imageTile} ${cls.join(' ')}`}>
-        <img src={item.imageUrl} alt="" />
-      </span>
-    );
-  return (
-    <Tile
-      char={item.characters ?? item.meaning}
-      srsStage={item.stage ?? undefined}
-      className={cls.join(' ')}
-    />
-  );
-}
-
-export function nextReviewText(item: Item, now: number): string {
-  if (item.availableAt === null) return item.stage === 9 ? 'Burned' : 'Not started';
-  return item.availableAt <= now ? 'Available now' : formatSyncTime(item.availableAt, now);
 }
 
 function ItemRow({

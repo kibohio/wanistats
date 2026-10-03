@@ -141,6 +141,20 @@ describe('kanji', () => {
     expect(w.estimated).toBe(true);
     expect(w.pct).toBeCloseTo((100 * (1 / 3 + 1 / 600)) / all, 10);
   });
+
+  test('a higher known stage counts the current stage, not passed_at', () => {
+    // 日 passed Guru once but has dropped back to Apprentice 4.
+    const dropped = [asg(10, 9, true), asg(11, 4, false), asg(12, 4, true)];
+    expect(summary(kanjiGroups('level', subjects, dropped))[1]).toEqual(['Level 2', '日', 1, 1]);
+    expect(summary(kanjiGroups('level', subjects, dropped, undefined, 7))).toEqual([
+      ['Level 1', '一人', 1, 2],
+      ['Level 2', '日', 0, 1],
+      ['Level 3', '曜', 0, 1],
+    ]);
+    const w = weightedKanjiCoverage(subjects, [asg(10, 9, true), asg(12, 8, true)], pack, 9);
+    const all = 1 + 1 / 2 + 1 / 3 + 1 / 600 + 1 / 2500;
+    expect(w.pct).toBeCloseTo((100 * (1 / 600)) / all, 10);
+  });
 });
 
 describe('words', () => {
@@ -174,6 +188,12 @@ describe('words', () => {
     expect(c.weighted.pct).toBeCloseTo((100 * (1 / 2 + 1 / 4)) / all, 10);
     expect(c.comingUp).toEqual([{ word: '生', reading: 'なま', rank: 3, subjectId: 21, level: 5 }]);
     expect(c.notInWaniKani.map((w) => w.word)).toEqual(['こと', '人', '猫']);
+  });
+
+  test('at Burned only stage 9 words count; the rest are coming up', () => {
+    const c = wordCoverage(subjects, assignments, pack, [6], 9);
+    expect(c.top).toEqual([{ size: 6, known: 1, pct: 100 / 6 }]);
+    expect(c.comingUp.map((w) => w.word)).toEqual(['事', '生']);
   });
 });
 

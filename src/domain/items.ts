@@ -52,6 +52,8 @@ export interface Item {
   leech: Leech | null;
   /** Visually similar kanji, in the leech report's order when the item is a leech. */
   lookAlikeIds: number[];
+  /** Radicals of a kanji, kanji of a word, or kanji that use a radical. */
+  relatedIds: number[];
   documentUrl: string;
 }
 
@@ -136,6 +138,12 @@ export function buildItems(input: {
         (subject.object === 'kanji'
           ? subject.data.visually_similar_subject_ids.filter((id) => visible.has(id))
           : []),
+      relatedIds: (subject.object === 'radical'
+        ? subject.data.amalgamation_subject_ids
+        : 'component_subject_ids' in data
+          ? data.component_subject_ids
+          : []
+      ).filter((id) => visible.has(id)),
       documentUrl: data.document_url,
     });
   }
