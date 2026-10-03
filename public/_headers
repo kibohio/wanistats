@@ -1,0 +1,27 @@
+# Cloudflare Pages. Keep in step with netlify.toml.
+
+/*
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://api.wanikani.com; img-src 'self' data: https://files.wanikani.com; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  Permissions-Policy: accelerometer=(), autoplay=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), hid=(), magnetometer=(), microphone=(), midi=(), payment=(), serial=(), usb=(), xr-spatial-tracking=()
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/sw.js
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Cache-Control: no-cache
+
+# Opaque binary: the app decompresses packs itself and needs the exact Content-Length.
+/data/packs/*.gz
+  Content-Type: application/gzip
+  Cache-Control: public, max-age=31536000, immutable
