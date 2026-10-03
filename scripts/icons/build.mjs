@@ -60,8 +60,8 @@ png('icons/apple-touch-icon.png', svg({ canvas: 180, s: 150, ground: '#FAFAF7' }
 
 // Avatars: glyphs on a 100-unit square, whole units (under half a pixel at the sizes shown).
 const AVATARS = {
-  wani: '鰐',
-  kani: '蟹',
+  hana: '花',
+  ki: '木',
   kame: '亀',
   neko: '猫',
   inu: '犬',

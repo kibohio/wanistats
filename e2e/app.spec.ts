@@ -224,13 +224,13 @@ test('a picked avatar replaces the initial and is stored for the account', async
   await menu.getByRole('button', { name: 'Change avatar' }).click();
   await page
     .getByRole('dialog', { name: 'Change avatar' })
-    .getByRole('button', { name: 'Crab' })
+    .getByRole('button', { name: 'Tree' })
     .click();
   await expect(page.getByRole('dialog', { name: 'Account' })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(profile).toHaveText('');
-  expect(await readTable(page, 'prefs')).toContainEqual({ key: 'avatar', value: 'kani' });
+  expect(await readTable(page, 'prefs')).toContainEqual({ key: 'avatar', value: 'ki' });
 
   await page.goto('/settings');
-  await expect(page.getByRole('button', { name: 'Crab' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Tree' })).toHaveAttribute('aria-pressed', 'true');
 });
