@@ -1,6 +1,8 @@
 import { stageName } from '../../domain/items';
-import { useMemo, useState } from 'react';
+import { Link } from '@tanstack/react-router';
+import { useId, useMemo, useState } from 'react';
 import { Card } from '../../components/Card';
+import { InfoIcon } from '../../components/icons';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import {
@@ -75,6 +77,7 @@ function labelAt(m: number) {
 }
 
 function LessonWindowCard() {
+  const id = useId();
   const system = useLessonSystem();
   const [wakeMin] = usePref('wakeMin');
   const [sleepMin] = usePref('sleepMin');
@@ -91,7 +94,32 @@ function LessonWindowCard() {
   const [big, ...rest] = (w.label ?? 'No window').split(' or ');
 
   return (
-    <Card title="When to do lessons" aside={`Your day ${fmtTime(wakeMin)} to ${fmtTime(sleepMin)}`}>
+    <section aria-labelledby={`${id}h`} className={styles.lessonCard}>
+      <div className={styles.cardHead}>
+        <div className={styles.cardTitle}>
+          <h2 id={`${id}h`}>When to do lessons</h2>
+          {/* Native popover: opens on click or tap, closes on Escape or a tap outside. */}
+          <button
+            type="button"
+            popoverTarget={`${id}i`}
+            aria-label="How this is worked out"
+            className={styles.infoButton}
+          >
+            <InfoIcon size={18} />
+          </button>
+          <div id={`${id}i`} popover="auto" className={styles.infoPopover}>
+            Based on your day, {fmtTime(wakeMin)} to {fmtTime(sleepMin)}. Change your waking hours
+            and lesson time in{' '}
+            <Link to="/settings" hash="preferences">
+              Settings
+            </Link>
+            .
+          </div>
+        </div>
+        <span className={styles.cardAside}>
+          Your day {fmtTime(wakeMin)} to {fmtTime(sleepMin)}
+        </span>
+      </div>
       <div className={styles.windowLead}>
         <span className={styles.windowBig}>{big}</span>
         {rest.length > 0 && <span className={styles.windowSmall}>or {rest.join(' or ')}</span>}
@@ -133,7 +161,7 @@ function LessonWindowCard() {
         {fmtTime(back2(lessonMin))}
         {w.lessonTimeFits ? '.' : ', outside the window.'}
       </p>
-    </Card>
+    </section>
   );
 }
 

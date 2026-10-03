@@ -55,6 +55,12 @@ export const PersonIcon = icon(
   </>,
 );
 export const CloseIcon = icon(<path d="M6 6l12 12M18 6L6 18" />);
+export const InfoIcon = icon(
+  <>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v5M12 8h.01" />
+  </>,
+);
 export const ExternalIcon = icon(
   <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />,
 );
