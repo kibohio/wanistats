@@ -359,8 +359,3 @@ button.barButton {
   margin-left: auto;
   font-variant-numeric: tabular-nums;
 }
-
-.pager [aria-disabled='true'] {
-  opacity: 0.45;
-  cursor: default;
-}
