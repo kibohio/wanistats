@@ -15,6 +15,13 @@
   color: var(--on-srs-light);
 }
 
+/* Multi-character words keep the square's height and grow sideways instead of overflowing. */
+.word {
+  aspect-ratio: auto;
+  padding: 0 0.3em;
+  white-space: nowrap;
+}
+
 button.tile {
   cursor: pointer;
 }

@@ -5,7 +5,7 @@ interface Props {
   char: string;
   /** WaniKani srs_stage 0-9; undefined for locked or not in WaniKani. 0 draws a blank square. */
   srsStage?: number;
-  /** Side in px. Without it the tile fills its grid cell. */
+  /** Side in px; words keep the height and grow wider. Without it the tile fills its grid cell. */
   size?: number;
   /** critical: level-critical; slack: can be missed; outside: in a list but not in WaniKani. */
   mark?: 'critical' | 'slack' | 'outside';
@@ -18,9 +18,14 @@ interface Props {
 
 export function Tile({ char, srsStage, size, mark, onClick, className, ...rest }: Props) {
   const stage = srsStage && srsStage >= 1 && srsStage <= 9 ? styles[`s${srsStage}`] : styles.blank;
-  const cls = [styles.tile, stage, mark && styles[mark], className].filter(Boolean).join(' ');
+  const word = [...char].length > 1;
+  const cls = [styles.tile, word && styles.word, stage, mark && styles[mark], className]
+    .filter(Boolean)
+    .join(' ');
   const style: CSSProperties | undefined = size
-    ? { width: size, height: size, fontSize: Math.round(size * 0.55) }
+    ? word
+      ? { minWidth: size, height: size, fontSize: Math.round(size * 0.5) }
+      : { width: size, height: size, fontSize: Math.round(size * 0.55) }
     : undefined;
   const inner = <span className={styles.char}>{char}</span>;
   return onClick ? (

@@ -13,8 +13,19 @@ export function formatSyncTime(ms: number, now = Date.now()): string {
   return today ? clock.format(ms) : `${dayMonth.format(ms)} ${clock.format(ms)}`;
 }
 
+/** "21 Sep 2026". */
+export const formatDate = (ms: number) => fullDate.format(ms);
+
 /** Local YYYY-MM-DD to "21 Sep 2026". */
 export function formatLocalDate(date: string): string {
   const [y, m, d] = date.split('-').map(Number);
-  return fullDate.format(new Date(y!, m! - 1, d));
+  return formatDate(new Date(y!, m! - 1, d).getTime());
+}
+
+/** Both ends as "7 Jul", or "7 Jul 2027" when either end falls outside the current year. */
+export function formatDateRange(from: number, to: number, now = Date.now()): [string, string] {
+  const year = new Date(now).getFullYear();
+  const inYear = new Date(from).getFullYear() === year && new Date(to).getFullYear() === year;
+  const fmt = inYear ? dayMonth : fullDate;
+  return [fmt.format(from), fmt.format(to)];
 }

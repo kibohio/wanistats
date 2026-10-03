@@ -9,11 +9,6 @@ const dayDateFmt = new Intl.DateTimeFormat(undefined, {
   day: 'numeric',
   month: 'short',
 });
-const longDateFmt = new Intl.DateTimeFormat(undefined, {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
 const fullDayFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'long',
   day: 'numeric',
@@ -25,8 +20,6 @@ export const clock = (ms: number) => clockFmt.format(ms);
 export const dayDate = (ms: number) => dayDateFmt.format(ms);
 /** "6 Oct" */
 export const dayMonth = (ms: number) => dayMonthFmt.format(ms);
-/** "7 Jul 2027" */
-export const longDate = (ms: number) => longDateFmt.format(ms);
 /** "Saturday 3 October" */
 export const fullDay = (ms: number) => fullDayFmt.format(ms);
 

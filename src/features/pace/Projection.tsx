@@ -4,7 +4,8 @@ import { Card } from '../../components/Card';
 import { usePref } from '../../db/prefs';
 import { projectFinish, requiredDaysPerLevel, type PaceStats } from '../../domain/pace';
 import { Facts, Figure } from './Figure';
-import { DAY_MS, fmtDate, fmtDateTime, fmtDays, fmtShort, fmtSpan, plural } from './format';
+import { formatDate, formatDateRange } from '../../format';
+import { DAY_MS, fmtDateTime, fmtDays, fmtSpan, plural } from './format';
 import styles from './Pace.module.css';
 
 const MAX_LEVEL = 60;
@@ -120,7 +121,7 @@ export function Projection(p: Props) {
             </>
           }
         >
-          <span className={styles.finish}>{fmtDate(finish.finishAt)}</span>
+          <span className={styles.finish}>{formatDate(finish.finishAt)}</span>
           <span className={styles.sub}>
             {plural(Math.max(0, Math.round((finish.finishAt - p.now) / DAY_MS)), 'day')} from today
           </span>
@@ -152,19 +153,19 @@ export function Projection(p: Props) {
                     ['Levels after that', String(finish.levelsLeft)],
                     [
                       'At 25th percentile',
-                      `${fmtDays(stats.p25Days!)} days, ${fmtDate(finish.lowAt)}`,
+                      `${fmtDays(stats.p25Days!)} days, ${formatDate(finish.lowAt)}`,
                     ],
                     [
                       'At 75th percentile',
-                      `${fmtDays(stats.p75Days!)} days, ${fmtDate(finish.highAt)}`,
+                      `${fmtDays(stats.p75Days!)} days, ${formatDate(finish.highAt)}`,
                     ],
                   ]}
                 />
               </>
             }
           >
-            Likely between {fmtShort(finish.lowAt)} and {fmtShort(finish.highAt)}, from the middle
-            half of {owner} levels.
+            Likely between {formatDateRange(finish.lowAt, finish.highAt).join(' and ')}, from the
+            middle half of {owner} levels.
           </Figure>
         )}
 
@@ -214,7 +215,7 @@ export function Projection(p: Props) {
             <dd>
               <Figure
                 title="Fastest the SRS allows"
-                label={`Fastest the SRS allows, ${fmtDate(finish.fastestAt)}`}
+                label={`Fastest the SRS allows, ${formatDate(finish.fastestAt)}`}
                 explain={
                   <>
                     <p>
@@ -234,7 +235,7 @@ export function Projection(p: Props) {
                   </>
                 }
               >
-                {fmtDate(finish.fastestAt)}
+                {formatDate(finish.fastestAt)}
               </Figure>
             </dd>
           </div>
@@ -301,7 +302,7 @@ export function Projection(p: Props) {
           {goalAt !== null &&
             (required === null ? (
               <p className={styles.note}>
-                Pick a date after {fmtDate(lu)}, the earliest next level-up.
+                Pick a date after {formatDate(lu)}, the earliest next level-up.
               </p>
             ) : (
               <Figure
@@ -316,7 +317,7 @@ export function Projection(p: Props) {
                     <Facts
                       rows={[
                         levelUpRow,
-                        ['Finish by', fmtDate(goalAt)],
+                        ['Finish by', formatDate(goalAt)],
                         ['Time between', `${fmtDays((goalAt - lu) / DAY_MS)} days`],
                         ['Levels', `${finish.levelsLeft}, ${between}`],
                       ]}
@@ -324,7 +325,7 @@ export function Projection(p: Props) {
                   </>
                 }
               >
-                To finish by {fmtDate(goalAt)}, you need about {fmtDays(required)} days a level.
+                To finish by {formatDate(goalAt)}, you need about {fmtDays(required)} days a level.
               </Figure>
             ))}
         </div>

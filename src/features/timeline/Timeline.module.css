@@ -293,14 +293,6 @@
   list-style: none;
 }
 
-.longTile {
-  width: auto !important;
-  min-width: 30px;
-  padding: 0 5px;
-  white-space: nowrap;
-  font-size: 15px !important;
-}
-
 .more {
   font-size: 12px;
   color: var(--ink-3);
@@ -452,11 +444,6 @@
 .stripLabels span {
   position: absolute;
   white-space: nowrap;
-  transform: translateX(-50%);
-}
-
-.stripLabels span:first-child {
-  transform: none;
 }
 
 .stripLabels .lessonLabel {

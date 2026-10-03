@@ -45,35 +45,37 @@ function Sidebar() {
   const sample = useAppMode() === 'sample';
   return (
     <aside className={styles.sidebar}>
-      <Link to="/" className={styles.logo}>
-        <span className={styles.mark} aria-hidden="true">
-          <span>統</span>
-          <span>計</span>
-        </span>
-        WaniStats
-      </Link>
-      <nav aria-label="Sections" className={styles.nav}>
-        {[...TABS, SETTINGS].map(({ to, label, Icon }) => (
-          <Link key={to} to={to} activeOptions={{ exact: true }} className={styles.navLink}>
-            <Icon size={20} />
-            {label}
-          </Link>
-        ))}
-      </nav>
-      <div className={styles.status}>
-        {sample ? (
-          <>
-            <Button small disabled>
-              <RefreshIcon size={16} strokeWidth={2} />
-              Refresh data
-            </Button>
-            <span>You&apos;re viewing sample data</span>
-          </>
-        ) : (
-          <LiveStatus />
-        )}
-        <div className={styles.profileRow}>
-          <ProfileButton />
+      <div className={styles.sidebarInner}>
+        <Link to="/" className={styles.logo}>
+          <span className={styles.mark} aria-hidden="true">
+            <span>統</span>
+            <span>計</span>
+          </span>
+          WaniStats
+        </Link>
+        <nav aria-label="Sections" className={styles.nav}>
+          {[...TABS, SETTINGS].map(({ to, label, Icon }) => (
+            <Link key={to} to={to} activeOptions={{ exact: true }} className={styles.navLink}>
+              <Icon size={20} />
+              {label}
+            </Link>
+          ))}
+        </nav>
+        <div className={styles.status}>
+          {sample ? (
+            <>
+              <Button small disabled>
+                <RefreshIcon size={16} strokeWidth={2} />
+                Refresh data
+              </Button>
+              <span>You&apos;re viewing sample data</span>
+            </>
+          ) : (
+            <LiveStatus />
+          )}
+          <div className={styles.profileRow}>
+            <ProfileButton />
+          </div>
         </div>
       </div>
     </aside>

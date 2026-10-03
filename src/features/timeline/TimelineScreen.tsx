@@ -68,6 +68,12 @@ function PhoneTimeline() {
 /** Left offset on the 24-hour strip. */
 const pos = (h: number) => `${(((h % 24) + 24) % 24) * (100 / 24)}%`;
 const at = (h: number) => fmtHour(h % 24);
+/** Centred on its hour, sliding inward within 2.4 hours of either end so it stays on the strip. */
+function labelAt(h: number) {
+  const f = (((h % 24) + 24) % 24) / 24;
+  const shift = f < 0.5 ? Math.min(f * 500, 50) : Math.max(100 - (1 - f) * 500, 50);
+  return { left: pos(h), transform: `translateX(-${shift}%)` };
+}
 
 function LessonWindowCard() {
   const system = useLessonSystem();
@@ -106,12 +112,12 @@ function LessonWindowCard() {
         <span className={styles.stripMark} style={{ left: pos(lessonHour + a1 + a2) }} />
       </div>
       <div aria-hidden="true" className={styles.stripLabels}>
-        <span style={{ left: 0 }}>00</span>
-        <span className={styles.lessonLabel} style={{ left: pos(lessonHour) }}>
+        <span style={labelAt(0)}>{fmtHour(0)}</span>
+        <span className={styles.lessonLabel} style={labelAt(lessonHour)}>
           Lessons {fmtHour(lessonHour)}
         </span>
-        <span style={{ left: pos(lessonHour + a1) }}>{at(lessonHour + a1)}</span>
-        <span style={{ left: pos(lessonHour + a1 + a2) }}>{at(lessonHour + a1 + a2)}</span>
+        <span style={labelAt(lessonHour + a1)}>{at(lessonHour + a1)}</span>
+        <span style={labelAt(lessonHour + a1 + a2)}>{at(lessonHour + a1 + a2)}</span>
       </div>
       <p className={styles.note}>
         Apprentice 1 comes back {a1} hours after a lesson and Apprentice 2 {a2} hours after that.{' '}
