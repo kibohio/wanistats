@@ -27,8 +27,9 @@ function groupStage(g: LevelUpGroup) {
   return stageName(g.stage);
 }
 
+// Passed tiles carry no caption: the tile colour shows it and the accessible name says it.
 function tileLabel(k: LevelUpKanji, d: TodayData) {
-  if (k.passed) return stageName(k.stage).replace(/ \d$/, '');
+  if (k.passed) return null;
   if (k.locked) return 'Locked';
   if (!k.stage) return 'Lesson';
   return shortWhen(k.nextReviewAt ?? d.now, d.now, d.clock, true);
@@ -277,7 +278,9 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
           const slack = !k.passed && !k.critical;
           const char = charOf(d, k.subjectId);
           const label = tileLabel(k, d);
-          const name = `${char}, ${stageName(k.stage)}${!k.passed && k.stage ? `, next review ${label}` : ''}${slack ? ', not needed for level-up' : ''}`;
+          const name = k.passed
+            ? `${char}, ${stageName(k.stage).replace(/ \d$/, '')}, passed`
+            : `${char}, ${stageName(k.stage)}${k.stage ? `, next review ${label}` : ''}${slack ? ', not needed for level-up' : ''}`;
           return (
             <div key={k.subjectId} className={styles.tileCell} title={name}>
               <Tile
@@ -288,9 +291,11 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
                 aria-label={name}
                 onClick={() => setOpen(k.subjectId)}
               />
-              <span aria-hidden="true" className={slack ? styles.tileLabelFaded : styles.tileLabel}>
-                {label}
-              </span>
+              {label && (
+                <span aria-hidden="true" className={slack ? styles.tileLabelFaded : styles.tileLabel}>
+                  {label}
+                </span>
+              )}
             </div>
           );
         })}
