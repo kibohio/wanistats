@@ -134,16 +134,17 @@ function OpenSheet({
             <ul>
               {l.items.map((x) => (
                 <li key={x.id}>
+                  {/* The stage goes in the name and tooltip; the tile colour shows it. */}
                   <button
                     type="button"
                     className={styles.relatedButton}
+                    aria-label={`${x.characters ? `${x.characters}, ` : ''}${x.meaning}${x.reading ? `, ${x.reading}` : ''}, ${stageName(x.stage)}`}
+                    title={stageName(x.stage)}
                     onClick={() => go([...trail, x.id])}
                   >
                     <ItemGlyph item={x} />
-                    <span>
-                      {x.meaning}
-                      {x.reading && `, ${x.reading}`}, {stageName(x.stage)}
-                    </span>
+                    <span className={styles.caption}>{x.meaning}</span>
+                    {x.reading && <span className={styles.caption}>{x.reading}</span>}
                   </button>
                 </li>
               ))}
