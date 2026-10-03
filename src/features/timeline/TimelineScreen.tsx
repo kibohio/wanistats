@@ -1,8 +1,7 @@
 import { stageName } from '../../domain/items';
 import { Link } from '@tanstack/react-router';
-import { useId, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Card } from '../../components/Card';
-import { InfoIcon } from '../../components/icons';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import {
@@ -79,7 +78,6 @@ function labelAt(m: number) {
 }
 
 function LessonWindowCard() {
-  const id = useId();
   const system = useLessonSystem();
   const [wakeMin] = usePref('wakeMin');
   const [sleepMin] = usePref('sleepMin');
@@ -100,32 +98,27 @@ function LessonWindowCard() {
   const [big, ...rest] = parts.length ? parts : ['No window'];
 
   return (
-    <section aria-labelledby={`${id}h`} className={styles.lessonCard}>
-      <div className={styles.cardHead}>
-        <div className={styles.cardTitle}>
-          <h2 id={`${id}h`}>When to do lessons</h2>
-          {/* Native popover: opens on click or tap, closes on Escape or a tap outside. */}
-          <button
-            type="button"
-            popoverTarget={`${id}i`}
-            aria-label="How this is worked out"
-            className={styles.infoButton}
-          >
-            <InfoIcon size={18} />
-          </button>
-          <div id={`${id}i`} popover="auto" className={styles.infoPopover}>
-            Based on your day, {fmtTime(wakeMin)} to {fmtTime(sleepMin)}. Change your waking hours
-            and lesson time in{' '}
+    <Card
+      title="When to do lessons"
+      aside={`Your day ${fmtTime(wakeMin)} to ${fmtTime(sleepMin)}`}
+      info={
+        <>
+          <p>
+            New lessons come back for review {formatHours(a1)} later, then again {formatHours(a2)}{' '}
+            after that. Start lessons in the window and both reviews land while you&apos;re awake.
+            {w.evening &&
+              ` Lessons at ${fmtTime(w.evening.from)} come back at ${fmtTime(back1(w.evening.from))} and ${fmtTime(back2(w.evening.from))}.`}
+          </p>
+          <p>
+            Change your day and lesson time in{' '}
             <Link to="/settings" hash="preferences">
               Settings
             </Link>
             .
-          </div>
-        </div>
-        <span className={styles.cardAside}>
-          Your day {fmtTime(wakeMin)} to {fmtTime(sleepMin)}
-        </span>
-      </div>
+          </p>
+        </>
+      }
+    >
       <div className={styles.windowLead}>
         <span className={styles.windowBig}>{big}</span>
         {rest.length > 0 && <span className={styles.windowSmall}>or {rest.join(' or ')}</span>}
@@ -152,23 +145,14 @@ function LessonWindowCard() {
         <span style={labelAt(back2(lessonMin))}>{short(back2(lessonMin))}</span>
       </div>
       <p className={styles.note}>
-        Apprentice 1 comes back {formatHours(a1)} after a lesson and Apprentice 2 {formatHours(a2)}{' '}
-        after that.{' '}
-        {parts.length ? (
-          <>
-            Lessons in the window keep both inside your day.
-            {w.evening &&
-              ` At ${fmtTime(w.evening.from)} they land at ${fmtTime(back1(w.evening.from))} and ${fmtTime(back2(w.evening.from))}.`}
-          </>
-        ) : (
+        {!parts.length &&
           w.closest &&
-          `No lesson time keeps both inside your day. The closest is ${fmtTime(w.closest.min)}, with reviews ${formatHours(w.closest.hoursOutside)} outside it.`
-        )}{' '}
+          `No lesson time keeps both reviews inside your day. ${fmtTime(w.closest.min)} comes closest, ${formatHours(w.closest.hoursOutside)} off. `}
         Lessons at {fmtTime(lessonMin)} come back at {fmtTime(back1(lessonMin))} and{' '}
         {fmtTime(back2(lessonMin))}
-        {w.lessonTimeFits ? '.' : ', outside the window.'}
+        {w.lessonTimeFits ? ", both while you're awake." : '. At least one lands while you sleep.'}
       </p>
-    </section>
+    </Card>
   );
 }
 
@@ -200,7 +184,19 @@ function InFlightCard() {
   const steady = itemAccuracy ? steadyStateReviewsPerDay(lessonsPerDay, itemAccuracy) : null;
 
   return (
-    <Card title="In flight">
+    <Card
+      title="In flight"
+      info={
+        steady !== null &&
+        itemAccuracy && (
+          <p>
+            With {plural(lessonsPerDay, 'new lesson')} a day you&apos;ll average about{' '}
+            {steady.toLocaleString()} reviews a day once items start burning ({lessonsPerDay}{' '}
+            lessons × 8 reviews each, adjusted for {Math.round(itemAccuracy * 100)}% accuracy).
+          </p>
+        )
+      }
+    >
       <ul className={styles.flight}>
         {FLIGHT.map(([key, short, token], i) => (
           <li key={key}>
@@ -213,13 +209,8 @@ function InFlightCard() {
           </li>
         ))}
       </ul>
-      {steady !== null && itemAccuracy && (
-        <p className={styles.note}>
-          At {plural(lessonsPerDay, 'lesson')} a day, reviews settle at about{' '}
-          {steady.toLocaleString()} a day once burns start: {plural(lessonsPerDay, 'lesson')} times
-          8 reviews each to burn, divided by an estimated item accuracy of{' '}
-          {Math.round(itemAccuracy * 100)}%.
-        </p>
+      {steady !== null && (
+        <p className={styles.note}>About {steady.toLocaleString()} reviews a day long term.</p>
       )}
     </Card>
   );

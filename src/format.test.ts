@@ -49,10 +49,8 @@ test('short times drop whole-hour minutes on a 12-hour clock only', () => {
 
 test('lesson window ranges', () => {
   const w = [{ from: 420, to: 660 }, null, { from: 1170, to: 1170 }];
-  expect(formatWindow(w, '24h')).toEqual(['07:00 to 11:00', '19:30 sharp']);
-  expect(formatWindow(w, '12h').join(' or ')).toMatch(
-    /^7:00\s?AM to 11:00\s?AM or 7:30\s?PM sharp$/i,
-  );
+  expect(formatWindow(w, '24h')).toEqual(['07:00 to 11:00', '19:30']);
+  expect(formatWindow(w, '12h').join(' or ')).toMatch(/^7:00\s?AM to 11:00\s?AM or 7:30\s?PM$/i);
 });
 
 test('hour spans read as words', () => {

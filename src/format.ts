@@ -33,7 +33,7 @@ export function formatMinutes(min: number, clock: Clock, short = false): string 
   return formatTime(new Date(2000, 0, 1, Math.floor(m / 60), m % 60).getTime(), clock, short);
 }
 
-/** A lesson window's ranges: "07:00 to 11:00", "19:30 sharp". */
+/** A lesson window's ranges: "07:00 to 11:00", or "19:30" when only that one time works. */
 export function formatWindow(
   ranges: ({ from: number; to: number } | null)[],
   clock: Clock,
@@ -42,7 +42,7 @@ export function formatWindow(
     .filter((r) => r !== null)
     .map((r) =>
       r.from === r.to
-        ? `${formatMinutes(r.from, clock)} sharp`
+        ? formatMinutes(r.from, clock)
         : `${formatMinutes(r.from, clock)} to ${formatMinutes(r.to, clock)}`,
     );
 }
