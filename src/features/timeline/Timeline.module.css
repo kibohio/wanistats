@@ -457,7 +457,7 @@
 
 .stripLabels {
   position: relative;
-  height: 14px;
+  height: 34px;
   margin-top: -6px;
   font-size: var(--text-caption);
   color: var(--ink-3);
@@ -469,7 +469,9 @@
   white-space: nowrap;
 }
 
+/* Its own row: four hours after the lesson is only about 50px away on a phone. */
 .stripLabels .lessonLabel {
+  top: 17px;
   color: var(--ink);
   font-weight: 700;
 }
