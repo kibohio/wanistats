@@ -42,7 +42,11 @@ function stat(
     },
   };
 }
-function asg(subjectId: number, type: SubjectType, a: Partial<AssignmentResource['data']> = {}): AssignmentResource {
+function asg(
+  subjectId: number,
+  type: SubjectType,
+  a: Partial<AssignmentResource['data']> = {},
+): AssignmentResource {
   return {
     id: 1000 + subjectId,
     object: 'assignment',
@@ -73,19 +77,35 @@ function kanji(id: number, similar: number[] = [], hidden = false): SubjectResou
     data: { visually_similar_subject_ids: similar, hidden_at: hidden ? '2026-01-01' : null },
   } as unknown as KanjiResource;
 }
-const bad = { meaning_incorrect: 5, reading_incorrect: 3, meaning_current_streak: 1, reading_current_streak: 1 };
+const bad = {
+  meaning_incorrect: 5,
+  reading_incorrect: 3,
+  meaning_current_streak: 1,
+  reading_current_streak: 1,
+};
 
 describe('leechScore', () => {
   it('divides misses by the weaker streak to the power 1.5', () => {
-    const s = stat(1, 'kanji', { meaning_incorrect: 5, reading_incorrect: 3, meaning_current_streak: 4, reading_current_streak: 2 });
+    const s = stat(1, 'kanji', {
+      meaning_incorrect: 5,
+      reading_incorrect: 3,
+      meaning_current_streak: 4,
+      reading_current_streak: 2,
+    });
     expect(leechScore(s.data)).toBeCloseTo(8 / 2 ** 1.5);
   });
   it('uses only the meaning streak for radicals', () => {
-    const s = stat(1, 'radical', { meaning_incorrect: 3, meaning_current_streak: 4, reading_current_streak: 0 });
+    const s = stat(1, 'radical', {
+      meaning_incorrect: 3,
+      meaning_current_streak: 4,
+      reading_current_streak: 0,
+    });
     expect(leechScore(s.data)).toBeCloseTo(3 / 8);
   });
   it('treats a zero streak as one', () => {
-    expect(leechScore(stat(1, 'kanji', { meaning_incorrect: 2, meaning_current_streak: 0 }).data)).toBe(2);
+    expect(
+      leechScore(stat(1, 'kanji', { meaning_incorrect: 2, meaning_current_streak: 0 }).data),
+    ).toBe(2);
   });
 });
 
@@ -103,7 +123,11 @@ describe('leeches', () => {
       ],
       stats: [
         stat(1, 'kanji', bad),
-        stat(2, 'kanji', { meaning_incorrect: 1, meaning_current_streak: 2, reading_current_streak: 2 }),
+        stat(2, 'kanji', {
+          meaning_incorrect: 1,
+          meaning_current_streak: 2,
+          reading_current_streak: 2,
+        }),
         stat(3, 'kanji', bad),
         stat(4, 'kanji', bad),
         stat(5, 'kanji', bad),
@@ -115,22 +139,38 @@ describe('leeches', () => {
     });
     expect(r.recentAvailable).toBe(false);
     expect(r.leeches.map((l) => l.subjectId)).toEqual([1]);
-    expect(r.leeches[0]).toMatchObject({ score: 8, incorrect: 8, recentMisses: null, recentlyStruggling: false });
+    expect(r.leeches[0]).toMatchObject({
+      score: 8,
+      incorrect: 8,
+      recentMisses: null,
+      recentlyStruggling: false,
+    });
   });
 
   it('counts misses in the last 14 days and sorts recently struggling first', () => {
     const snapshots = Array.from({ length: 14 }, (_, i) => ({ date: `2026-10-${18 + i}` }));
     const deltas: SnapshotDelta[] = [
-      { date: '2026-10-20', subjectId: 2, meaningCorrect: 0, meaningIncorrect: 1, readingCorrect: 0, readingIncorrect: 2 },
-      { date: '2026-10-17', subjectId: 1, meaningCorrect: 0, meaningIncorrect: 5, readingCorrect: 0, readingIncorrect: 0 },
+      {
+        date: '2026-10-20',
+        subjectId: 2,
+        meaningCorrect: 0,
+        meaningIncorrect: 1,
+        readingCorrect: 0,
+        readingIncorrect: 2,
+      },
+      {
+        date: '2026-10-17',
+        subjectId: 1,
+        meaningCorrect: 0,
+        meaningIncorrect: 5,
+        readingCorrect: 0,
+        readingIncorrect: 0,
+      },
     ];
     const r = leeches({
       subjects: [],
       assignments: [asg(1, 'kanji'), asg(2, 'vocabulary')],
-      stats: [
-        stat(1, 'kanji', { ...bad, meaning_incorrect: 20 }),
-        stat(2, 'vocabulary', bad),
-      ],
+      stats: [stat(1, 'kanji', { ...bad, meaning_incorrect: 20 }), stat(2, 'vocabulary', bad)],
       snapshots,
       deltas,
       now,

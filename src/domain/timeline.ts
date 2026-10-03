@@ -11,7 +11,12 @@ const STAGE_KEYS = ['apprentice', 'guru', 'master', 'enlightened'] as const;
 const TYPE_KEYS = ['radical', 'kanji', 'vocabulary'] as const;
 export type StackKey = (typeof STAGE_KEYS)[number] | (typeof TYPE_KEYS)[number];
 
-const RANGE_HOURS: Record<TimelineRange, number> = { '24h': 24, '7d': 168, '30d': 720, '120d': 2880 };
+const RANGE_HOURS: Record<TimelineRange, number> = {
+  '24h': 24,
+  '7d': 168,
+  '30d': 720,
+  '120d': 2880,
+};
 
 export interface TimelineBin {
   start: number;
@@ -87,7 +92,8 @@ export function timeline(
   const binAt = (t: number) => bins[Math.max(0, index(Math.max(t, now)))];
 
   for (const { data: a } of assignments) {
-    if (a.hidden || !a.started_at || !a.available_at || a.srs_stage < 1 || a.srs_stage > 8) continue;
+    if (a.hidden || !a.started_at || !a.available_at || a.srs_stage < 1 || a.srs_stage > 8)
+      continue;
     const bin = binAt(Date.parse(a.available_at));
     if (!bin) continue;
     const key: StackKey =

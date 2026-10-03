@@ -35,7 +35,12 @@ interface Row {
 const ratio = (a: number, b: number) => (b > 0 ? a / b : null);
 
 function figures(rows: Row[]): AccuracyFigures {
-  let mc = 0, mi = 0, rc = 0, ri = 0, itemSum = 0, weight = 0;
+  let mc = 0,
+    mi = 0,
+    rc = 0,
+    ri = 0,
+    itemSum = 0,
+    weight = 0;
   for (const { c } of rows) {
     mc += c.meaningCorrect;
     mi += c.meaningIncorrect;
@@ -104,5 +109,10 @@ export function accuracy(
     return breakdown(rows);
   };
 
-  return { lifetime: breakdown(lifetime), recentAvailable, recent7: recent(7), recent30: recent(30) };
+  return {
+    lifetime: breakdown(lifetime),
+    recentAvailable,
+    recent7: recent(7),
+    recent30: recent(30),
+  };
 }

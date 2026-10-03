@@ -61,7 +61,11 @@ export function lessonWindow(system: SpacedRepetitionSystem, prefs: DayPrefs): L
     return o < awake ? 'awake' : 'asleep';
   });
 
-  const label = [morning, evening].filter((r) => r !== null).map(fmtRange).join(' or ') || null;
+  const label =
+    [morning, evening]
+      .filter((r) => r !== null)
+      .map(fmtRange)
+      .join(' or ') || null;
 
   let closest: LessonWindow['closest'] = null;
   if (!label) {
@@ -71,7 +75,8 @@ export function lessonWindow(system: SpacedRepetitionSystem, prefs: DayPrefs): L
     };
     for (let o = 0; o <= awake; o++) {
       const miss = outside(o + a1) + outside(o + a1 + a2);
-      if (!closest || miss < closest.hoursOutside) closest = { hour: hourAt(o), hoursOutside: miss };
+      if (!closest || miss < closest.hoursOutside)
+        closest = { hour: hourAt(o), hoursOutside: miss };
     }
   }
 

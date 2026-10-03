@@ -76,7 +76,10 @@ export function leeches(input: {
     const misses = new Map<number, number>();
     for (const d of input.deltas) {
       if (d.date < start) continue;
-      misses.set(d.subjectId, (misses.get(d.subjectId) ?? 0) + d.meaningIncorrect + d.readingIncorrect);
+      misses.set(
+        d.subjectId,
+        (misses.get(d.subjectId) ?? 0) + d.meaningIncorrect + d.readingIncorrect,
+      );
     }
     for (const l of found) {
       l.recentMisses = misses.get(l.subjectId) ?? 0;

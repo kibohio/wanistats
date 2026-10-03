@@ -45,7 +45,15 @@ describe('stageCountsFromAssignments', () => {
       asg(3, { hidden: true }),
     ];
     expect(stageCountsFromAssignments(list)).toEqual({
-      a1: 2, a2: 1, a3: 1, a4: 1, g1: 2, g2: 1, m: 1, e: 1, b: 1,
+      a1: 2,
+      a2: 1,
+      a3: 1,
+      a4: 1,
+      g1: 2,
+      g2: 1,
+      m: 1,
+      e: 1,
+      b: 1,
     });
   });
 });
@@ -87,8 +95,20 @@ describe('loadTrend', () => {
   });
 
   it('keeps the last 30 days and shows a gap as one span, not zeros', () => {
-    const dates = ['2026-09-30', '2026-10-01', '2026-10-24', '2026-10-25', '2026-10-26', '2026-10-27', '2026-10-28', '2026-10-31'];
-    const t = loadTrend(dates.map((d, i) => snap(d, 100 + i)), now);
+    const dates = [
+      '2026-09-30',
+      '2026-10-01',
+      '2026-10-24',
+      '2026-10-25',
+      '2026-10-26',
+      '2026-10-27',
+      '2026-10-28',
+      '2026-10-31',
+    ];
+    const t = loadTrend(
+      dates.map((d, i) => snap(d, 100 + i)),
+      now,
+    );
     expect(t.available).toBe(true);
     // 2026-10-02 is the window start; the merged row is clamped to it.
     expect(t.points[0]).toEqual({ from: '2026-10-02', to: '2026-10-24', load: 102 });

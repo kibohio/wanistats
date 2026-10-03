@@ -100,12 +100,22 @@ describe('timeline', () => {
 
   it('adds estimated reviews from N lessons a day at the lesson hour, hour-truncated', () => {
     const lessons = { perDay: 10, lessonHour: 9, system: normal };
-    const h = timeline(assignments, now, { range: '24h', granularity: 'hour', stackBy: 'stage', lessons });
+    const h = timeline(assignments, now, {
+      range: '24h',
+      granularity: 'hour',
+      stackBy: 'stage',
+      lessons,
+    });
     // Today's 09:00 is past; tomorrow's lessons come back 4 hours later.
     expect(h.bins.map((b) => b.estimate).filter((n) => n > 0)).toEqual([10]);
     expect(h.bins[23].estimate).toBe(10);
 
-    const d = timeline(assignments, now, { range: '7d', granularity: 'day', stackBy: 'stage', lessons });
+    const d = timeline(assignments, now, {
+      range: '7d',
+      granularity: 'day',
+      stackBy: 'stage',
+      lessons,
+    });
     expect(d.bins.slice(0, 3).map((b) => b.estimate)).toEqual([0, 20, 30]);
     expect(d.bins[2].runningEstimate).toBe(50);
     expect(d.bins[0].total).toBe(2);

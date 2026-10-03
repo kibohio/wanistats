@@ -53,7 +53,10 @@ export function workload(assignments: AssignmentResource[], band: Band = DEFAULT
 }
 
 /** Reviews a day once lessons at this rate reach burn. Show as "about N". */
-export function steadyStateReviewsPerDay(lessonsPerDay: number, itemAccuracy: number): number | null {
+export function steadyStateReviewsPerDay(
+  lessonsPerDay: number,
+  itemAccuracy: number,
+): number | null {
   return itemAccuracy > 0 ? Math.round((lessonsPerDay * 8) / itemAccuracy) : null;
 }
 

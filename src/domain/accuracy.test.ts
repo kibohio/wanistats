@@ -32,7 +32,14 @@ function stat(
   };
 }
 function delta(date: string, subjectId: number, [mc, mi, rc, ri]: number[]): SnapshotDelta {
-  return { date, subjectId, meaningCorrect: mc, meaningIncorrect: mi, readingCorrect: rc, readingIncorrect: ri };
+  return {
+    date,
+    subjectId,
+    meaningCorrect: mc,
+    meaningIncorrect: mi,
+    readingCorrect: rc,
+    readingIncorrect: ri,
+  };
 }
 
 const stats = [
@@ -41,7 +48,15 @@ const stats = [
   stat(3, 'vocabulary', [100, 100, 100, 100], true),
 ];
 const now = Date.UTC(2026, 9, 31, 12);
-const week = ['2026-10-25', '2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30', '2026-10-31'];
+const week = [
+  '2026-10-25',
+  '2026-10-26',
+  '2026-10-27',
+  '2026-10-28',
+  '2026-10-29',
+  '2026-10-30',
+  '2026-10-31',
+];
 
 describe('lifetime accuracy', () => {
   const a = accuracy(stats, [], [], now);
@@ -66,7 +81,12 @@ describe('lifetime accuracy', () => {
   });
 
   it('has no recent figures before a week of snapshots', () => {
-    const b = accuracy(stats, week.slice(1).map((date) => ({ date })), [delta('2026-10-30', 1, [1, 0, 1, 0])], now);
+    const b = accuracy(
+      stats,
+      week.slice(1).map((date) => ({ date })),
+      [delta('2026-10-30', 1, [1, 0, 1, 0])],
+      now,
+    );
     expect(b.recentAvailable).toBe(false);
     expect(b.recent7).toBeNull();
     expect(b.recent30).toBeNull();
@@ -81,7 +101,12 @@ describe('recent accuracy', () => {
     delta('2025-09', 1, [0, 9, 0, 9]), // monthly roll-up
     delta('2026-10-30', 3, [0, 9, 0, 9]), // hidden subject
   ];
-  const a = accuracy(stats, week.map((date) => ({ date })), deltas, now);
+  const a = accuracy(
+    stats,
+    week.map((date) => ({ date })),
+    deltas,
+    now,
+  );
 
   it('windows deltas by snapshot date', () => {
     expect(a.recentAvailable).toBe(true);
