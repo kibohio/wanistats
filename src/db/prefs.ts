@@ -8,10 +8,10 @@ export interface Prefs {
   goalDate: string | null;
   /** Comfortable load band. */
   band: { min: number; max: number };
-  /** Whole local hours, 0 to 23. */
-  wakeHour: number;
-  sleepHour: number;
-  lessonHour: number;
+  /** Local minutes since midnight, in 30-minute steps. */
+  wakeMin: number;
+  sleepMin: number;
+  lessonMin: number;
   lessonsPerDay: number;
   theme: 'system' | 'light' | 'dark';
   timelineSplit: 'stage' | 'type';
@@ -25,9 +25,9 @@ export const PREF_DEFAULTS: Prefs = {
   goalLevel: 60,
   goalDate: null,
   band: { min: 100, max: 150 },
-  wakeHour: 7,
-  sleepHour: 23,
-  lessonHour: 9,
+  wakeMin: 7 * 60,
+  sleepMin: 23 * 60,
+  lessonMin: 9 * 60,
   lessonsPerDay: 15,
   theme: 'system',
   timelineSplit: 'stage',
@@ -35,9 +35,19 @@ export const PREF_DEFAULTS: Prefs = {
   levelOverrides: {},
 };
 
+/** Times were whole hours before they were minutes; read the old key until the new one is set. */
+const HOUR_KEYS: Partial<Record<keyof Prefs, string>> = {
+  wakeMin: 'wakeHour',
+  sleepMin: 'sleepHour',
+  lessonMin: 'lessonHour',
+};
+
 export async function getPref<K extends keyof Prefs>(db: WaniStatsDb, key: K): Promise<Prefs[K]> {
   const row = await db.prefs.get(key);
-  return row ? (row.value as Prefs[K]) : PREF_DEFAULTS[key];
+  if (row) return row.value as Prefs[K];
+  const hourKey = HOUR_KEYS[key];
+  const old = hourKey && (await db.prefs.get(hourKey));
+  return old && typeof old.value === 'number' ? ((old.value * 60) as Prefs[K]) : PREF_DEFAULTS[key];
 }
 
 export async function setPref<K extends keyof Prefs>(

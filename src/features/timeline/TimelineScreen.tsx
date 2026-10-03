@@ -12,7 +12,7 @@ import {
 import { usePref } from '../../db/prefs';
 import type { StageCounts } from '../../db/schema';
 import { accuracy } from '../../domain/accuracy';
-import { fmtHour, lessonWindow } from '../../domain/lessonWindow';
+import { fmtTime, lessonWindow } from '../../domain/lessonWindow';
 import { intervalFor } from '../../domain/srs';
 import type { TimelineRange } from '../../domain/timeline';
 import { steadyStateReviewsPerDay, workload } from '../../domain/workload';
@@ -65,59 +65,57 @@ function PhoneTimeline() {
   );
 }
 
-/** Left offset on the 24-hour strip. */
-const pos = (h: number) => `${(((h % 24) + 24) % 24) * (100 / 24)}%`;
-const at = (h: number) => fmtHour(h % 24);
-/** Centred on its hour, sliding inward within 2.4 hours of either end so it stays on the strip. */
-function labelAt(h: number) {
-  const f = (((h % 24) + 24) % 24) / 24;
+/** Left offset on the 24-hour strip, from minutes since midnight. */
+const pos = (m: number) => `${(((m % 1440) + 1440) % 1440) * (100 / 1440)}%`;
+/** Centred on its time, sliding inward within 2.4 hours of either end so it stays on the strip. */
+function labelAt(m: number) {
+  const f = (((m % 1440) + 1440) % 1440) / 1440;
   const shift = f < 0.5 ? Math.min(f * 500, 50) : Math.max(100 - (1 - f) * 500, 50);
-  return { left: pos(h), transform: `translateX(-${shift}%)` };
+  return { left: pos(m), transform: `translateX(-${shift}%)` };
 }
 
 function LessonWindowCard() {
   const system = useLessonSystem();
-  const [wakeHour] = usePref('wakeHour');
-  const [sleepHour] = usePref('sleepHour');
-  const [lessonHour] = usePref('lessonHour');
+  const [wakeMin] = usePref('wakeMin');
+  const [sleepMin] = usePref('sleepMin');
+  const [lessonMin] = usePref('lessonMin');
   const w = useMemo(
-    () => system && lessonWindow(system, { wakeHour, sleepHour, lessonHour }),
-    [system, wakeHour, sleepHour, lessonHour],
+    () => system && lessonWindow(system, { wakeMin, sleepMin, lessonMin }),
+    [system, wakeMin, sleepMin, lessonMin],
   );
   if (!system || !w) return null;
   const a1 = intervalFor(system, 1);
   const a2 = intervalFor(system, 2);
+  const back1 = (m: number) => m + a1 * 60;
+  const back2 = (m: number) => m + (a1 + a2) * 60;
   const [big, ...rest] = (w.label ?? 'No window').split(' or ');
 
   return (
-    <Card
-      title="When to do lessons"
-      aside={`Your day ${fmtHour(wakeHour)} to ${fmtHour(sleepHour)}`}
-    >
+    <Card title="When to do lessons" aside={`Your day ${fmtTime(wakeMin)} to ${fmtTime(sleepMin)}`}>
       <div className={styles.windowLead}>
         <span className={styles.windowBig}>{big}</span>
         {rest.length > 0 && <span className={styles.windowSmall}>or {rest.join(' or ')}</span>}
       </div>
       <div aria-hidden="true" className={styles.strip}>
         <div className={styles.stripTrack}>
-          {w.strip.map((kind, h) => (
-            <span key={h} className={styles[kind]} />
+          {w.strip.map((kind, s) => (
+            <span key={s} className={styles[kind]} />
           ))}
         </div>
         <span
           className={`${styles.stripMark} ${styles.stripLesson}`}
-          style={{ left: pos(lessonHour) }}
+          style={{ left: pos(lessonMin) }}
         />
-        <span className={styles.stripMark} style={{ left: pos(lessonHour + a1) }} />
-        <span className={styles.stripMark} style={{ left: pos(lessonHour + a1 + a2) }} />
+        <span className={styles.stripMark} style={{ left: pos(back1(lessonMin)) }} />
+        <span className={styles.stripMark} style={{ left: pos(back2(lessonMin)) }} />
       </div>
       <div aria-hidden="true" className={styles.stripLabels}>
-        <span style={labelAt(0)}>{fmtHour(0)}</span>
-        <span className={styles.lessonLabel} style={labelAt(lessonHour)}>
-          Lessons {fmtHour(lessonHour)}
+        <span style={labelAt(0)}>{fmtTime(0)}</span>
+        <span className={styles.lessonLabel} style={labelAt(lessonMin)}>
+          Lessons {fmtTime(lessonMin)}
         </span>
-        <span style={labelAt(lessonHour + a1)}>{at(lessonHour + a1)}</span>
-        <span style={labelAt(lessonHour + a1 + a2)}>{at(lessonHour + a1 + a2)}</span>
+        <span style={labelAt(back1(lessonMin))}>{fmtTime(back1(lessonMin))}</span>
+        <span style={labelAt(back2(lessonMin))}>{fmtTime(back2(lessonMin))}</span>
       </div>
       <p className={styles.note}>
         Apprentice 1 comes back {a1} hours after a lesson and Apprentice 2 {a2} hours after that.{' '}
@@ -125,14 +123,14 @@ function LessonWindowCard() {
           <>
             Lessons in the window keep both inside your day.
             {w.evening &&
-              ` At ${fmtHour(w.evening.from)} they land at ${at(w.evening.from + a1)} and ${at(w.evening.from + a1 + a2)}.`}
+              ` At ${fmtTime(w.evening.from)} they land at ${fmtTime(back1(w.evening.from))} and ${fmtTime(back2(w.evening.from))}.`}
           </>
         ) : (
           w.closest &&
-          `No lesson time keeps both inside your day. The closest is ${fmtHour(w.closest.hour)}, with reviews ${w.closest.hoursOutside} hours outside it.`
+          `No lesson time keeps both inside your day. The closest is ${fmtTime(w.closest.min)}, with reviews ${w.closest.hoursOutside} hours outside it.`
         )}{' '}
-        Lessons at {fmtHour(lessonHour)} come back at {at(lessonHour + a1)} and{' '}
-        {at(lessonHour + a1 + a2)}
+        Lessons at {fmtTime(lessonMin)} come back at {fmtTime(back1(lessonMin))} and{' '}
+        {fmtTime(back2(lessonMin))}
         {w.lessonTimeFits ? '.' : ', outside the window.'}
       </p>
     </Card>

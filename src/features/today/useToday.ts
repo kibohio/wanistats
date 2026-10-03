@@ -48,9 +48,9 @@ export function useToday() {
   const [goalLevel] = usePref('goalLevel');
   const [band] = usePref('band');
   const [lessonsPerDay] = usePref('lessonsPerDay');
-  const [wakeHour] = usePref('wakeHour');
-  const [sleepHour] = usePref('sleepHour');
-  const [lessonHour] = usePref('lessonHour');
+  const [wakeMin] = usePref('wakeMin');
+  const [sleepMin] = usePref('sleepMin');
+  const [lessonMin] = usePref('lessonMin');
   const [levelOverrides] = usePref('levelOverrides');
 
   return useMemo(() => {
@@ -121,10 +121,10 @@ export function useToday() {
       accuracy: acc,
       itemAccuracy,
       lessonsPerDay,
-      wakeHour,
-      sleepHour,
+      wakeMin,
+      sleepMin,
       steady: itemAccuracy === null ? null : steadyStateReviewsPerDay(lessonsPerDay, itemAccuracy),
-      lessonWindow: lessonWindow(system.data, { wakeHour, sleepHour, lessonHour }),
+      lessonWindow: lessonWindow(system.data, { wakeMin, sleepMin, lessonMin }),
       levelStartAt: current?.startAt ?? null,
       levelDay: current ? Math.floor(current.durationMs / 86_400_000) + 1 : null,
       pace,
@@ -155,9 +155,9 @@ export function useToday() {
     goalLevel,
     band,
     lessonsPerDay,
-    wakeHour,
-    sleepHour,
-    lessonHour,
+    wakeMin,
+    sleepMin,
+    lessonMin,
     levelOverrides,
   ]);
 }
