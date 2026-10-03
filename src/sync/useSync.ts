@@ -6,9 +6,8 @@ import { liveDb, useAppMode } from '../db/useAppMode';
 import { nextHourlyRun, syncAll, type SyncProgress } from './sync';
 
 const SYNC_KEY = ['sync'];
-const AUTO_INTERVAL_MS = 5 * 60_000;
-/** Automatic triggers (focus, online, timers) skip a run this soon after a successful one. */
-const AUTO_MIN_GAP_MS = 60_000;
+/** Returning to the tab syncs at most this often; WaniKani's API is a shared resource. */
+const VISIBLE_MIN_GAP_MS = 10 * 60_000;
 
 let inFlight: Promise<void> | null = null;
 let lastSuccessAt = 0;
@@ -94,31 +93,30 @@ export function useSyncTriggers(): void {
 
   useEffect(() => {
     if (!live || rejected) return;
-    const auto = () => {
+    // Triggers: app start, tab visible (throttled), one minute past each hour, Refresh data
+    // and periodic background sync. No fixed polling interval.
+    const auto = (minGap: number) => {
       if (document.visibilityState !== 'visible' || !navigator.onLine) return;
-      if (inFlight || Date.now() - lastSuccessAt < AUTO_MIN_GAP_MS) return;
+      if (inFlight || Date.now() - lastSuccessAt < minGap) return;
       sync();
     };
+    const onVisible = () => auto(VISIBLE_MIN_GAP_MS);
     let hourly = 0;
     const scheduleHourly = () => {
       hourly = window.setTimeout(
         () => {
-          auto();
+          auto(0);
           scheduleHourly();
         },
         nextHourlyRun(Date.now()) - Date.now(),
       );
     };
-    auto();
+    auto(0);
     scheduleHourly();
-    const every = window.setInterval(auto, AUTO_INTERVAL_MS);
-    document.addEventListener('visibilitychange', auto);
-    window.addEventListener('online', auto);
+    document.addEventListener('visibilitychange', onVisible);
     return () => {
       window.clearTimeout(hourly);
-      window.clearInterval(every);
-      document.removeEventListener('visibilitychange', auto);
-      window.removeEventListener('online', auto);
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, [live, rejected, sync]);
 }
