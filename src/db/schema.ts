@@ -27,6 +27,7 @@ export interface SyncState {
   /** ISO time of the last successful sync of this collection. */
   lastSyncAt: string;
   etag?: string;
+  lastModified?: string;
 }
 
 /** Counts per SRS sub-stage: a1-a4 Apprentice, g1-g2 Guru, m Master, e Enlightened, b Burned. */
