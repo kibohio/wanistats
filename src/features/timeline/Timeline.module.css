@@ -1,0 +1,512 @@
+/* Upcoming reviews chart */
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chartWide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.scroll {
+  flex: 999 1 560px;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.scroll .plotWrap {
+  min-width: 640px;
+}
+
+.plotWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plot {
+  position: relative;
+  height: 196px;
+  padding-top: 20px;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.chartWide .plot {
+  height: 240px;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.bar {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 3px 3px 0 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  cursor: pointer;
+}
+
+.bar[aria-pressed='true'] {
+  background: var(--control);
+  outline: 1.5px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.bar:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.seg {
+  display: block;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.estimate {
+  display: block;
+  flex-shrink: 0;
+  width: 100%;
+  border: 1.5px dashed var(--srs-master);
+  border-bottom: none;
+  border-radius: 2px 2px 0 0;
+}
+
+.critMark,
+.burnMark {
+  position: absolute;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+}
+
+.critMark {
+  top: -10px;
+  background: var(--attention);
+}
+
+.burnMark {
+  top: -18px;
+  background: var(--srs-burned-marker);
+}
+
+.dayLine {
+  position: absolute;
+  left: -1px;
+  top: -20px;
+  bottom: 0;
+  border-left: 1px dashed var(--line-strong);
+}
+
+.running {
+  position: absolute;
+  inset: 20px 0 0;
+  width: 100%;
+  height: calc(100% - 20px);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.running polyline {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+.labels {
+  display: flex;
+  font-size: 10px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.labels span {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.chart .labels span {
+  text-align: center;
+}
+
+.chartWide .labels {
+  font-size: 11px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+
+.chartWide .legend {
+  gap: 6px 16px;
+  font-size: 12px;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.swatchEstimate {
+  border: 1.5px dashed var(--srs-master);
+}
+
+.swatchLine {
+  width: 16px;
+  border-top: 1.5px dashed var(--ink);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dotCrit {
+  background: var(--attention);
+}
+
+.dotBurn {
+  background: var(--srs-burned-marker);
+}
+
+/* Selection panel: under the bars on phones, beside them on desktop */
+.selection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.chartWide .selection {
+  flex: 1 1 240px;
+  min-width: 0;
+  gap: 10px;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--sidebar);
+}
+
+.selText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.selLabel {
+  color: var(--ink-3);
+}
+
+.selHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.chartWide .selHead {
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 18px;
+}
+
+.chartWide .selTotal {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.selRows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+}
+
+.selRows div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.selRows dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.selRows dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.longTile {
+  width: auto !important;
+  min-width: 30px;
+  padding: 0 5px;
+  white-space: nowrap;
+  font-size: 15px !important;
+}
+
+.more {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--primary-fill);
+}
+
+/* Phone card around the chart */
+.panel {
+  composes: card from '../../components/Card.module.css';
+  gap: 10px;
+}
+
+/* Desktop card */
+.wideCard {
+  composes: card from '../../components/Card.module.css';
+  gap: 14px;
+}
+
+.wideHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wideTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.wideTitle h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.wideControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.wideControls .toggle {
+  flex-direction: row-reverse;
+  gap: 8px;
+}
+
+.loading {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+/* When to do lessons */
+.windowLead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.windowBig {
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.windowSmall {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.strip {
+  position: relative;
+  height: 34px;
+}
+
+.stripTrack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12px;
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.stripTrack span {
+  flex: 1;
+}
+
+.asleep {
+  background: var(--control);
+}
+
+.awake {
+  background: var(--srs-a1);
+}
+
+.window,
+.evening {
+  background: var(--srs-guru);
+}
+
+.stripMark {
+  position: absolute;
+  top: 6px;
+  width: 3px;
+  height: 22px;
+  border-radius: 2px;
+  background: var(--srs-master);
+}
+
+.stripLesson {
+  background: var(--ink);
+}
+
+.stripLabels {
+  position: relative;
+  height: 14px;
+  margin-top: -6px;
+  font-size: 11px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.stripLabels span {
+  position: absolute;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.stripLabels span:first-child {
+  transform: none;
+}
+
+.stripLabels .lessonLabel {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.note {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+/* In flight */
+.flight {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flight li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flightBar {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.flightN {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.flight abbr {
+  font-size: 11px;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+/* Desktop route: the two small cards side by side */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--gap);
+}
