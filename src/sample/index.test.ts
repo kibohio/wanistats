@@ -30,22 +30,23 @@ async function seeded(now = NOW) {
 type Seed = Awaited<ReturnType<typeof seeded>>;
 let s: Seed;
 
+// Seeding simulates every review; give it room when the whole suite runs in parallel.
 beforeAll(async () => {
   s = await seeded();
   s.db.close();
   await Dexie.delete('wanistats-sample');
-});
+}, 30_000);
 afterEach(() => Dexie.delete('wanistats-sample'));
 
 const ms = (iso: string | null) => (iso === null ? NaN : Date.parse(iso));
 
 describe('seedSampleDb', () => {
-  test('clears the sample database before filling it', async () => {
+  test('clears the sample database before filling it, keeping prefs', async () => {
     const db = openDb('wanistats-sample');
     await db.prefs.put({ key: 'stale', value: 1 });
     await db.subjects.put({ ...(await seeded()).subjects[0]!, id: 999_999 });
     await seedSampleDb(db, NOW);
-    expect(await db.prefs.count()).toBe(0);
+    expect(await db.prefs.get('stale')).toEqual({ key: 'stale', value: 1 });
     expect(await db.subjects.get(999_999)).toBeUndefined();
     db.close();
   });

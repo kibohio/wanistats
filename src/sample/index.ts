@@ -563,7 +563,7 @@ export async function seedSampleDb(db: WaniStatsDb, now: number): Promise<void> 
   const synced = now - 4 * 60_000;
   await db.transaction('rw', db.tables, async () => {
     // Prefs survive a reseed so sample-mode settings last across reloads.
-    await Promise.all(db.tables.filter((t) => t !== db.prefs).map((t) => t.clear()));
+    await Promise.all(db.tables.filter((t) => t.name !== 'prefs').map((t) => t.clear()));
     await Promise.all([
       db.subjects.bulkPut(subjects),
       db.assignments.bulkPut(assignments),
