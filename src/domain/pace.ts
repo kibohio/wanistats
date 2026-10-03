@@ -122,6 +122,7 @@ export function projectFinish(input: {
     };
   }
   const levelsLeft = goal - currentLevel - 1;
+  const fastest = sumMinLevelTimes(input.minLevelTimes, currentLevel + 1, goal);
   const at = (days: number | null) => (days === null ? null : lu + levelsLeft * days * DAY_MS);
   return {
     goal,
@@ -131,7 +132,7 @@ export function projectFinish(input: {
     finishAt: at(input.paceDays),
     lowAt: at(input.p25Days),
     highAt: at(input.p75Days),
-    fastestAt: lu + sumMinLevelTimes(input.minLevelTimes, currentLevel + 1, goal),
+    fastestAt: fastest === null ? null : lu + fastest,
   };
 }
 
