@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { fmtTime } from '../domain/lessonWindow';
+import { formatMinutes } from '../format';
+import { useClock } from '../hooks/useClock';
 import styles from './DayRange.module.css';
 
 const DAY = 1440;
@@ -30,6 +31,9 @@ interface Props {
 export function DayRange(props: Props) {
   const [wake, onWake] = useDragged(props.wake, props.onWake);
   const [sleep, onSleep] = useDragged(props.sleep, props.onSleep);
+  const clock = useClock();
+  const fmtTime = (m: number) => formatMinutes(m, clock);
+  const midnight = formatMinutes(0, clock, true);
   const spans: [number, number][] =
     wake % DAY === sleep % DAY
       ? [[0, DAY]]
@@ -70,9 +74,9 @@ export function DayRange(props: Props) {
         {handle('Go to sleep', sleep, onSleep)}
       </div>
       <div aria-hidden="true" className={styles.ticks}>
-        <span>00:00</span>
-        <span>12:00</span>
-        <span>24:00</span>
+        <span>{midnight}</span>
+        <span>{formatMinutes(720, clock, true)}</span>
+        <span>{midnight === '00:00' ? '24:00' : midnight}</span>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { usePref } from '../../db/prefs';
 import { projectFinish, requiredDaysPerLevel, type PaceStats } from '../../domain/pace';
 import { Facts, Figure } from './Figure';
 import { formatDate, formatDateRange } from '../../format';
+import { useClock } from '../../hooks/useClock';
 import { DAY_MS, fmtDateTime, fmtDays, fmtSpan, plural } from './format';
 import styles from './Pace.module.css';
 
@@ -35,6 +36,7 @@ export function Projection(p: Props) {
   const [goalPref, setGoal] = usePref('goalLevel');
   const [goalDate, setGoalDate] = usePref('goalDate');
   const [whatIf, setWhatIf] = useState<number | null>(null);
+  const clock = useClock();
 
   const minGoal = Math.min(p.level + 1, MAX_LEVEL);
   const goal = Math.min(Math.max(goalPref, minGoal), MAX_LEVEL);
@@ -67,7 +69,7 @@ export function Projection(p: Props) {
     finish.goal > p.level + 2
       ? `levels ${p.level + 1} to ${finish.goal - 1}`
       : `level ${p.level + 1}`;
-  const levelUpRow: [string, string] = ['Next level-up, earliest', fmtDateTime(lu)];
+  const levelUpRow: [string, string] = ['Next level-up, earliest', fmtDateTime(lu, clock)];
 
   const goalSelect = (
     <span className={styles.goal}>
@@ -112,7 +114,10 @@ export function Projection(p: Props) {
                       ? `${fmtDays(pace)} days a level, what-if`
                       : `${fmtDays(pace)} days a level, median of ${plural(counted, 'counted level')}`,
                   ],
-                  ['Finish', `${fmtDateTime(lu)} + ${finish.levelsLeft} × ${fmtDays(pace)} days`],
+                  [
+                    'Finish',
+                    `${fmtDateTime(lu, clock)} + ${finish.levelsLeft} × ${fmtDays(pace)} days`,
+                  ],
                 ]}
               />
             </>

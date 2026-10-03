@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { expect, test, vi } from 'vitest';
@@ -78,4 +78,35 @@ test('shows a formatted value when given a format', async () => {
   expect(screen.getByText('9h')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Increase lesson time' }));
   expect(onChange).toHaveBeenCalledWith(570);
+});
+
+test('two fast clicks step twice while the stored value catches up', async () => {
+  const onChange = vi.fn();
+  // Stores like an async pref: the new value comes back a tick later.
+  function AsyncHarness() {
+    const [v, setV] = useState(15);
+    return (
+      <Stepper
+        label="Lessons a day"
+        value={v}
+        min={0}
+        max={100}
+        onChange={(n) => {
+          onChange(n);
+          setTimeout(() => setV(n), 0);
+        }}
+      />
+    );
+  }
+  render(<AsyncHarness />);
+  const up = screen.getByRole('button', { name: 'Increase lessons a day' });
+
+  fireEvent.click(up);
+  fireEvent.click(up);
+  expect(onChange.mock.calls).toEqual([[16], [17]]);
+  expect(screen.getByRole('spinbutton')).toHaveValue(17);
+
+  await waitFor(() => expect(screen.getByRole('spinbutton')).toHaveValue(17));
+  await new Promise((r) => setTimeout(r, 10));
+  expect(screen.getByRole('spinbutton')).toHaveValue(17);
 });

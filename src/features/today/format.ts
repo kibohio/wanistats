@@ -1,7 +1,8 @@
 import { localDayStart } from '../../domain/localDate';
+import { formatTime, type Clock } from '../../format';
+export { plural } from '../../format';
 
 // Runtime locale throughout, like src/format.ts.
-const clockFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
 const weekdayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short' });
 const dayMonthFmt = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
 const dayDateFmt = new Intl.DateTimeFormat(undefined, {
@@ -15,7 +16,6 @@ const fullDayFmt = new Intl.DateTimeFormat(undefined, {
   month: 'long',
 });
 
-export const clock = (ms: number) => clockFmt.format(ms);
 /** "Tue 6 Oct" */
 export const dayDate = (ms: number) => dayDateFmt.format(ms);
 /** "6 Oct" */
@@ -27,7 +27,7 @@ const dayOffset = (ms: number, now: number) =>
   Math.round((localDayStart(ms) - localDayStart(now)) / 86_400_000);
 
 /** "Today", "Tonight", "Tomorrow", "Sun" or "6 Oct", plus the time; "Now" when due. */
-export function when(ms: number, now: number): string {
+export function when(ms: number, now: number, clock: Clock): string {
   if (ms <= now) return 'Now';
   const d = dayOffset(ms, now);
   const day =
@@ -40,14 +40,15 @@ export function when(ms: number, now: number): string {
         : d < 7
           ? weekdayFmt.format(ms)
           : dayMonth(ms);
-  return `${day} ${clock(ms)}`;
+  return `${day} ${formatTime(ms, clock)}`;
 }
 
-/** Tile label: "18:00" today, "Sun 09:00" later, "Now" when due. */
-export function shortWhen(ms: number, now: number): string {
+/** Tile label: "18:00" today, "Sun 09:00" later, "Now" when due. `short` gives "4 PM" on a 12-hour clock. */
+export function shortWhen(ms: number, now: number, clock: Clock, short = false): string {
   if (ms <= now) return 'Now';
   const d = dayOffset(ms, now);
-  return d === 0 ? clock(ms) : `${d < 7 ? weekdayFmt.format(ms) : dayMonth(ms)} ${clock(ms)}`;
+  const t = formatTime(ms, clock, short);
+  return d === 0 ? t : `${d < 7 ? weekdayFmt.format(ms) : dayMonth(ms)} ${t}`;
 }
 
 /** Local YYYY-MM-DD as "Tue" within the last week, else "21 Sep". */
@@ -71,4 +72,3 @@ export const int = (n: number) => Math.round(n).toLocaleString();
 
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 export const word = (n: number) => WORDS[n] ?? String(n);
-export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;

@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Card } from '../../components/Card';
+import { ItemSheet } from '../../components/ItemSheet';
 import { Tile } from '../../components/Tile';
 import type { LevelUpKanji } from '../../domain/levelUp';
 import type { LevelUpGroup } from '../../domain/today';
 import { Explain } from './Explain';
-import { clock, dayDate, plural, shortWhen, stageName, when, word } from './format';
+import { formatTime } from '../../format';
+import { dayDate, plural, shortWhen, stageName, when, word } from './format';
 import styles from './Today.module.css';
 import type { TodayData } from './useToday';
 
@@ -12,10 +15,10 @@ const charOf = (d: TodayData, id: number) => {
   return s?.data.characters ?? s?.data.slug ?? '?';
 };
 
-function groupWhen(g: LevelUpGroup, now: number) {
+function groupWhen(g: LevelUpGroup, d: TodayData) {
   if (g.kind === 'lesson') return 'In lessons';
   if (g.kind === 'locked') return 'Locked';
-  return when(g.at!, now);
+  return when(g.at!, d.now, d.clock);
 }
 
 function groupStage(g: LevelUpGroup) {
@@ -24,11 +27,11 @@ function groupStage(g: LevelUpGroup) {
   return stageName(g.stage);
 }
 
-function tileLabel(k: LevelUpKanji, now: number) {
+function tileLabel(k: LevelUpKanji, d: TodayData) {
   if (k.passed) return stageName(k.stage).replace(/ \d$/, '');
   if (k.locked) return 'Locked';
   if (!k.stage) return 'Lesson';
-  return shortWhen(k.nextReviewAt ?? now, now);
+  return shortWhen(k.nextReviewAt ?? d.now, d.now, d.clock, true);
 }
 
 function KanjiList({ d, kanji }: { d: TodayData; kanji: LevelUpKanji[] }) {
@@ -39,7 +42,7 @@ function KanjiList({ d, kanji }: { d: TodayData; kanji: LevelUpKanji[] }) {
           <Tile char={charOf(d, k.subjectId)} srsStage={k.stage ?? undefined} size={30} />
           <span>{stageName(k.stage)}</span>
           <span className={styles.itemMeta}>
-            {k.passed ? 'Passed' : `Guru ${when(k.earliestGuruAt, d.now)} at the earliest`}
+            {k.passed ? 'Passed' : `Guru ${when(k.earliestGuruAt, d.now, d.clock)} at the earliest`}
           </span>
         </li>
       ))}
@@ -105,8 +108,8 @@ function SlackExplain({ d }: { d: TodayData }) {
         <>
           <p>
             Only {p.k} of the {p.unpassed} kanji left are needed. Every one of them can reach Guru
-            by {dayDate(p.earliestAt)} {clock(p.earliestAt)}, so any {p.slack} can slip without
-            moving the date.
+            by {dayDate(p.earliestAt)} {formatTime(p.earliestAt, d.clock)}, so any {p.slack} can
+            slip without moving the date.
           </p>
           <KanjiList d={d} kanji={d.ordered.filter((k) => !k.passed && !k.critical)} />
         </>
@@ -142,11 +145,11 @@ function DateLine({ d, desktop }: { d: TodayData; desktop?: boolean }) {
       <DateExplain d={d}>
         <span className={styles.date}>
           {dayDate(p.earliestAt)}
-          {desktop && `, ${clock(p.earliestAt)}`}
+          {desktop && `, ${formatTime(p.earliestAt, d.clock)}`}
         </span>
       </DateExplain>
       <span className={styles.dateSub}>
-        {desktop ? 'at the earliest' : `${clock(p.earliestAt)} at the earliest`}
+        {desktop ? 'at the earliest' : `${formatTime(p.earliestAt, d.clock)} at the earliest`}
       </span>
     </div>
   );
@@ -201,7 +204,7 @@ export function LevelUpCard({ d }: { d: TodayData }) {
           {d.groups.map((g) => (
             <div key={`${g.kind}${g.at}${g.stage}`} className={styles.group}>
               <div className={styles.groupHead}>
-                <span className={styles.groupWhen}>{groupWhen(g, d.now)}</span>
+                <span className={styles.groupWhen}>{groupWhen(g, d)}</span>
                 <span className={styles.groupStage}>{groupStage(g)}</span>
               </div>
               <div className={styles.groupTiles}>
@@ -225,18 +228,25 @@ function restsOn(d: TodayData): string | null {
   const n = g.subjectIds.length;
   const c = g.critical;
   const who =
-    n === 1 ? 'it needs' : c === n ? `all ${word(n)} need` : `${word(c)} of those ${word(n)} need`;
+    n === 1
+      ? 'it needs'
+      : c === n
+        ? n === 2
+          ? 'both need'
+          : `all ${word(n)} need`
+        : `${word(c)} of those ${word(n)} need`;
   const reviews = `${word(g.reviewsToGuru)} ${g.reviewsToGuru === 1 ? 'review' : 'reviews'} in a row`;
   if (g.kind === 'lesson')
     return `The date rests on kanji still in lessons: ${who} a lesson, then ${reviews}.`;
   if (g.kind === 'locked')
     return `The date rests on locked kanji: ${who} their radicals at Guru first, then a lesson and ${reviews}.`;
-  const at = g.at! <= d.now ? 'overdue' : shortWhen(g.at!, d.now);
+  const at = g.at! <= d.now ? 'overdue' : shortWhen(g.at!, d.now, d.clock);
   return `The date rests on the ${at} group: ${who} to pass ${reviews}.`;
 }
 
 export function LevelUpCardDesktop({ d }: { d: TodayData }) {
   const { levelUp: p, radicals } = d;
+  const [open, setOpen] = useState<number | null>(null);
   const own = d.sample ? 'the' : 'your';
   const rests = restsOn(d);
   const slackLine =
@@ -266,23 +276,21 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
         {d.ordered.map((k) => {
           const slack = !k.passed && !k.critical;
           const char = charOf(d, k.subjectId);
-          const label = tileLabel(k, d.now);
+          const label = tileLabel(k, d);
           const name = `${char}, ${stageName(k.stage)}${!k.passed && k.stage ? `, next review ${label}` : ''}${slack ? ', not needed for level-up' : ''}`;
           return (
-            <div
-              key={k.subjectId}
-              className={styles.tileCell}
-              title={name}
-              role="img"
-              aria-label={name}
-            >
+            <div key={k.subjectId} className={styles.tileCell} title={name}>
               <Tile
                 char={char}
                 srsStage={k.stage ?? undefined}
                 size={46}
                 mark={k.critical ? 'critical' : slack ? 'slack' : undefined}
+                aria-label={name}
+                onClick={() => setOpen(k.subjectId)}
               />
-              <span className={slack ? styles.tileLabelFaded : styles.tileLabel}>{label}</span>
+              <span aria-hidden="true" className={slack ? styles.tileLabelFaded : styles.tileLabel}>
+                {label}
+              </span>
             </div>
           );
         })}
@@ -290,6 +298,7 @@ export function LevelUpCardDesktop({ d }: { d: TodayData }) {
       {p.status !== 'capped' && p.status !== 'ready' && (rests || slackLine) && (
         <p className={styles.para}>{[rests, slackLine].filter(Boolean).join(' ')}</p>
       )}
+      <ItemSheet subject={open} onClose={() => setOpen(null)} />
     </Card>
   );
 }

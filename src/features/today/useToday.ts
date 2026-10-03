@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useClock } from '../../hooks/useClock';
 import {
   useAssignments,
   useLevelProgressions,
@@ -52,6 +53,7 @@ export function useToday() {
   const [sleepMin] = usePref('sleepMin');
   const [lessonMin] = usePref('lessonMin');
   const [levelOverrides] = usePref('levelOverrides');
+  const clock = useClock();
 
   return useMemo(() => {
     if (
@@ -124,6 +126,7 @@ export function useToday() {
       wakeMin,
       sleepMin,
       steady: itemAccuracy === null ? null : steadyStateReviewsPerDay(lessonsPerDay, itemAccuracy),
+      clock,
       lessonWindow: lessonWindow(system.data, { wakeMin, sleepMin, lessonMin }),
       levelStartAt: current?.startAt ?? null,
       levelDay: current ? Math.floor(current.durationMs / 86_400_000) + 1 : null,
@@ -159,6 +162,7 @@ export function useToday() {
     sleepMin,
     lessonMin,
     levelOverrides,
+    clock,
   ]);
 }
 

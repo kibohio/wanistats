@@ -2,7 +2,8 @@ import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useHistoryRange, useLastSyncAt, useUser, type HistoryRange } from '../db/hooks';
 import { useAppMode } from '../db/useAppMode';
-import { formatSyncTime } from '../format';
+import { formatSyncTime, type Clock } from '../format';
+import { useClock } from '../hooks/useClock';
 import { Button, buttonClass } from './Button';
 import { PersonIcon } from './icons';
 import { LogoutSheet } from './LogoutSheet';
@@ -17,7 +18,7 @@ export function historyDaysCopy(days: number): string {
 const dayMonth = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
 
 /** "History: 12 days recorded since 21 Sep. Last snapshot today at 14:02." */
-export function historyReadout(h: HistoryRange, now = Date.now()): string {
+export function historyReadout(h: HistoryRange, clock: Clock, now = Date.now()): string {
   let out = historyDaysCopy(h.days);
   if (h.first) {
     const [y, m, d] = h.first.split('-').map(Number);
@@ -27,7 +28,7 @@ export function historyReadout(h: HistoryRange, now = Date.now()): string {
   if (h.lastTakenAt) {
     const at = Date.parse(h.lastTakenAt);
     const today = new Date(at).toDateString() === new Date(now).toDateString();
-    out += ` Last snapshot ${today ? `today at ${formatSyncTime(at, now)}` : formatSyncTime(at, now)}.`;
+    out += ` Last snapshot ${today ? `today at ${formatSyncTime(at, clock, now)}` : formatSyncTime(at, clock, now)}.`;
   }
   return out;
 }
@@ -74,6 +75,7 @@ function LiveMenu({ onClose, onLogout }: { onClose: () => void; onLogout: () => 
   const user = useUser();
   const lastSync = useLastSyncAt();
   const history = useHistoryRange();
+  const clock = useClock();
   return (
     <div className={styles.menu}>
       {user && (
@@ -82,9 +84,11 @@ function LiveMenu({ onClose, onLogout }: { onClose: () => void; onLogout: () => 
         </p>
       )}
       <RefreshData />
-      {lastSync != null && <p className={styles.note}>Last synced {formatSyncTime(lastSync)}</p>}
+      {lastSync != null && (
+        <p className={styles.note}>Last synced {formatSyncTime(lastSync, clock)}</p>
+      )}
       <Link to="/settings" hash="history" className={styles.note} onClick={onClose}>
-        {history ? historyReadout(history) : historyDaysCopy(0)}
+        {history ? historyReadout(history, clock) : historyDaysCopy(0)}
       </Link>
       <Link to="/settings" className={buttonClass('secondary')} onClick={onClose}>
         Settings

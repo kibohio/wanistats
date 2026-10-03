@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { SpacedRepetitionSystem } from '../api/types';
-import { lessonWindow } from './lessonWindow';
+import { formatWindow } from '../format';
+import { lessonWindow, type LessonWindow } from './lessonWindow';
+
+const label = (w: LessonWindow) => formatWindow([w.morning, w.evening], '24h').join(' or ') || null;
 
 function system(hours: number[]): SpacedRepetitionSystem {
   return {
@@ -28,7 +31,7 @@ describe('lessonWindow', () => {
     const w = lessonWindow(normal, day);
     expect(w.morning).toEqual({ from: h(7), to: h(11) });
     expect(w.evening).toEqual({ from: h(19), to: h(19) });
-    expect(w.label).toBe('07:00 to 11:00 or 19:00 sharp');
+    expect(label(w)).toBe('07:00 to 11:00 or 19:00 sharp');
     expect(w.lessonTimeFits).toBe(true);
     expect(w.closest).toBeNull();
     // Strip slots are half hours: slot n starts at n * 30 minutes.
@@ -46,20 +49,20 @@ describe('lessonWindow', () => {
     const w = lessonWindow(accelerated, day);
     expect(w.morning).toEqual({ from: h(7), to: h(17) });
     expect(w.evening).toBeNull();
-    expect(w.label).toBe('07:00 to 17:00');
+    expect(label(w)).toBe('07:00 to 17:00');
   });
 
   it('labels a multi-hour evening slot as a range', () => {
     const w = lessonWindow(system([2, 10, 23]), day);
     expect(w.evening).toEqual({ from: h(19), to: h(21) });
-    expect(w.label).toBe('07:00 to 11:00 or 19:00 to 21:00');
+    expect(label(w)).toBe('07:00 to 11:00 or 19:00 to 21:00');
   });
 
   it('handles waking hours that cross midnight', () => {
     const w = lessonWindow(normal, { wakeMin: h(14), sleepMin: h(6), lessonMin: h(20) });
     expect(w.morning).toEqual({ from: h(14), to: h(18) });
     expect(w.evening).toEqual({ from: h(2), to: h(2) });
-    expect(w.label).toBe('14:00 to 18:00 or 02:00 sharp');
+    expect(label(w)).toBe('14:00 to 18:00 or 02:00 sharp');
     expect(w.lessonTimeFits).toBe(false);
     expect(w.strip[4]).toBe('evening');
     expect(w.strip[20]).toBe('asleep');
@@ -70,7 +73,7 @@ describe('lessonWindow', () => {
     const w = lessonWindow(normal, { wakeMin: h(7.5), sleepMin: h(23.5), lessonMin: h(19.5) });
     expect(w.morning).toEqual({ from: h(7.5), to: h(11.5) });
     expect(w.evening).toEqual({ from: h(19.5), to: h(19.5) });
-    expect(w.label).toBe('07:30 to 11:30 or 19:30 sharp');
+    expect(label(w)).toBe('07:30 to 11:30 or 19:30 sharp');
     expect(w.lessonTimeFits).toBe(true);
     expect(w.strip[14]).toBe('asleep');
     expect(w.strip[15]).toBe('window');
@@ -86,7 +89,7 @@ describe('lessonWindow', () => {
     const w = lessonWindow(normal, { wakeMin: h(7.5), sleepMin: h(23), lessonMin: h(9) });
     expect(w.morning).toEqual({ from: h(7.5), to: h(11) });
     expect(w.evening).toBeNull();
-    expect(w.label).toBe('07:30 to 11:00');
+    expect(label(w)).toBe('07:30 to 11:00');
   });
 
   it('places a lesson time on its half-hour slot', () => {
@@ -98,7 +101,7 @@ describe('lessonWindow', () => {
     const w = lessonWindow(normal, { wakeMin: h(9), sleepMin: h(17), lessonMin: h(9) });
     expect(w.morning).toBeNull();
     expect(w.evening).toBeNull();
-    expect(w.label).toBeNull();
+    expect(label(w)).toBeNull();
     expect(w.lessonTimeFits).toBe(false);
     // 09:00 brings Apprentice 2 back at 21:00, 4 hours after sleep; nothing does better.
     expect(w.closest).toEqual({ min: h(9), hoursOutside: 4 });
@@ -106,7 +109,7 @@ describe('lessonWindow', () => {
 
   it('reports half hours outside when the closest time misses by one', () => {
     const w = lessonWindow(normal, { wakeMin: h(9), sleepMin: h(20.5), lessonMin: h(9) });
-    expect(w.label).toBeNull();
+    expect(label(w)).toBeNull();
     // 09:00 brings Apprentice 2 back at 21:00, half an hour after sleep.
     expect(w.closest).toEqual({ min: h(9), hoursOutside: 0.5 });
   });

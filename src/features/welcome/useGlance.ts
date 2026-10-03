@@ -13,7 +13,8 @@ import { earliestLevelUp } from '../../domain/levelUp';
 import { levelDurations } from '../../domain/levels';
 import { paceStats, projectFinish, type LevelOverride } from '../../domain/pace';
 import { workload } from '../../domain/workload';
-import { formatLocalDate } from '../../format';
+import { formatLocalDate, formatTime } from '../../format';
+import { useClock } from '../../hooks/useClock';
 import { localDateKey } from '../../domain/localDate';
 
 export interface GlanceRow {
@@ -22,12 +23,10 @@ export interface GlanceRow {
   note: string;
 }
 
-const when = new Intl.DateTimeFormat(undefined, {
+const day = new Intl.DateTimeFormat(undefined, {
   weekday: 'short',
   day: 'numeric',
   month: 'short',
-  hour: 'numeric',
-  minute: '2-digit',
 });
 const BAND_WORD = { under: 'Below', in: 'Inside', over: 'Above' } as const;
 
@@ -42,6 +41,7 @@ export function useGlance(now: number): GlanceRow[] | undefined {
   const [goal] = usePref('goalLevel');
   const [band] = usePref('band');
   const [overrides] = usePref('levelOverrides');
+  const clock = useClock();
 
   return useMemo(() => {
     if (!user || !subjects?.length || !assignments || !systems || !progressions || !resets) {
@@ -80,7 +80,7 @@ export function useGlance(now: number): GlanceRow[] | undefined {
           ? 'Ready now'
           : up.status === 'capped'
             ? `Subscription limit, level ${user.subscription.max_level_granted}`
-            : when.format(up.earliestAt),
+            : `${day.format(up.earliestAt)}, ${formatTime(up.earliestAt, clock)}`,
       note: `${up.passed} of ${up.total} kanji at Guru${up.status === 'vacation' ? '. Vacation mode is on' : ''}`,
     };
     const work: GlanceRow = {
@@ -100,5 +100,17 @@ export function useGlance(now: number): GlanceRow[] | undefined {
         : `At ${pace.medianDays!.toFixed(1)} days a level${finish.capped ? ', the subscription limit' : ''}`,
     };
     return [levelUp, work, end];
-  }, [user, subjects, assignments, systems, progressions, resets, goal, band, overrides, now]);
+  }, [
+    user,
+    subjects,
+    assignments,
+    systems,
+    progressions,
+    resets,
+    goal,
+    band,
+    overrides,
+    now,
+    clock,
+  ]);
 }

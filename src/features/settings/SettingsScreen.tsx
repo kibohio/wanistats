@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useLocation, useNavigate } from '@tanstack/react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { User } from '../../api/types';
 import { Button, buttonClass } from '../../components/Button';
 import { Card } from '../../components/Card';
@@ -20,7 +20,8 @@ import {
 import { usePref, type Prefs } from '../../db/prefs';
 import { useAccountDb, useAppMode, useDb } from '../../db/useAppMode';
 import { otherAccount, type HistoryFile } from '../../domain/historyFile';
-import { formatLocalDate, formatSyncTime } from '../../format';
+import { formatLocalDate, formatSyncTime, plural } from '../../format';
+import { useClock } from '../../hooks/useClock';
 import { useInstalledPacks, useManifest } from '../../packs/hooks';
 import { deletePack, formatBytes, hasUpdate, packsDb, sizeOnDevice } from '../../packs/packs';
 import {
@@ -73,12 +74,44 @@ function Rows({ rows }: { rows: [string, ReactNode][] }) {
   );
 }
 
+/**
+ * Keeps a /settings#section link on its section while cards above it load and change height,
+ * until the user scrolls or a few seconds pass. Clears the sticky sample strip.
+ */
+function useHashScroll(box: RefObject<HTMLElement | null>) {
+  const hash = useLocation({ select: (l) => l.hash.replace(/^#/, '') });
+  useEffect(() => {
+    const el = box.current;
+    if (!hash || !el) return;
+    const align = () => {
+      const target = document.getElementById(hash);
+      if (!target) return;
+      const strip = document.querySelector<HTMLElement>('[data-sticky-top]');
+      const top = target.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top - (strip?.offsetHeight ?? 0) - 16, behavior: 'instant' });
+    };
+    const ro = new ResizeObserver(align);
+    ro.observe(el);
+    const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+    const stop = () => {
+      ro.disconnect();
+      clearTimeout(timer);
+      events.forEach((e) => removeEventListener(e, stop));
+    };
+    const timer = setTimeout(stop, 3000);
+    events.forEach((e) => addEventListener(e, stop, { passive: true }));
+    return stop;
+  }, [hash, box]);
+}
+
 export function SettingsScreen() {
   const live = useAppMode() === 'live';
+  const sections = useRef<HTMLDivElement>(null);
+  useHashScroll(sections);
   return (
     <>
       <ScreenHeader title="Settings" />
-      <div className={styles.sections}>
+      <div ref={sections} className={styles.sections}>
         <Section id="account" title="Account">
           {live ? (
             <LiveAccount />
@@ -146,6 +179,7 @@ function LiveAccount() {
 function SyncSection() {
   const db = useDb();
   const lastSync = useLastSyncAt();
+  const clock = useClock();
   const { sync, running } = useSync();
   const resync = async () => {
     await waitForSync();
@@ -154,7 +188,9 @@ function SyncSection() {
   };
   return (
     <Section id="sync" title="Sync">
-      <Rows rows={[['Last sync', lastSync != null ? formatSyncTime(lastSync) : 'Not yet']]} />
+      <Rows
+        rows={[['Last sync', lastSync != null ? formatSyncTime(lastSync, clock) : 'Not yet']]}
+      />
       <RefreshData />
       <Button disabled={running} onClick={() => void resync()}>
         Clear cached data and resync
@@ -167,8 +203,6 @@ function SyncSection() {
   );
 }
 
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
-
 function HistorySection() {
   const history = useHistoryRange();
   const user = useUser();
@@ -178,6 +212,7 @@ function HistorySection() {
   const [pending, setPending] = useState<HistoryFile | null>(null);
   const days = history?.days ?? 0;
   const lastTaken = history?.lastTakenAt;
+  const clock = useClock();
   const foreign = pending && user ? otherAccount(pending, user.id) : undefined;
 
   // readHistoryFile throws plain Errors with user-facing copy; anything else is IndexedDB.
@@ -218,7 +253,7 @@ function HistorySection() {
         rows={[
           ['Days recorded', days],
           ['First snapshot', history?.first ? formatLocalDate(history.first) : 'None yet'],
-          ['Last snapshot', lastTaken ? formatSyncTime(Date.parse(lastTaken)) : 'None yet'],
+          ['Last snapshot', lastTaken ? formatSyncTime(Date.parse(lastTaken), clock) : 'None yet'],
         ]}
       />
       <div className={styles.actions}>
@@ -394,6 +429,11 @@ const THEMES: { value: Prefs['theme']; label: string }[] = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
 ];
+const CLOCKS: { value: Prefs['clock']; label: string }[] = [
+  { value: 'system', label: 'System' },
+  { value: '12h', label: '12-hour' },
+  { value: '24h', label: '24-hour' },
+];
 const SPLITS: { value: Prefs['timelineSplit']; label: string }[] = [
   { value: 'stage', label: 'SRS stage' },
   { value: 'type', label: 'Item type' },
@@ -404,6 +444,7 @@ function PreferencesSection() {
   const [band, setBand] = usePref('band');
   const [lessonsPerDay, setLessonsPerDay] = usePref('lessonsPerDay');
   const [theme, setTheme] = usePref('theme');
+  const [clockPref, setClock] = usePref('clock');
   const [split, setSplit] = usePref('timelineSplit');
   const [overrides, setOverrides] = usePref('levelOverrides');
   const overrideCount = Object.keys(overrides).length;
@@ -455,6 +496,15 @@ function PreferencesSection() {
             options={THEMES}
             value={theme}
             onChange={(v) => void setTheme(v)}
+          />
+        </div>
+        <div className={fieldStyles.field}>
+          <span>Clock</span>
+          <SegmentedControl
+            label="Clock"
+            options={CLOCKS}
+            value={clockPref}
+            onChange={(v) => void setClock(v)}
           />
         </div>
         <div className={fieldStyles.field}>
