@@ -531,29 +531,27 @@ function PreferencesSection() {
   );
 }
 
-/** Media lists offered in Words mode, from the word packs the manifest lists. */
+/** The word frequency list Coverage uses in Words mode; the same choice as its list picker. */
 function WordMediaField() {
   const [media, setMedia] = usePref('wordMedia');
   const options = (useManifest().data?.packs ?? []).filter((p) => p.id.startsWith('words-'));
+  const installed = new Set(useInstalledPacks()?.map((r) => r.id));
   if (!options.length) return null;
   return (
     <fieldset className={styles.media}>
-      <legend>Word coverage lists</legend>
+      <legend>Word coverage list</legend>
       {options.map((p) => {
         const key = p.id.slice('words-'.length);
-        const checked = media.includes(key);
         return (
           <label key={p.id} className={styles.check}>
             <input
-              type="checkbox"
-              checked={checked}
-              // Words mode always needs one list.
-              disabled={checked && media.length === 1}
-              onChange={() =>
-                void setMedia(checked ? media.filter((m) => m !== key) : [...media, key])
-              }
+              type="radio"
+              name="word-media"
+              checked={media[0] === key}
+              onChange={() => void setMedia([key])}
             />
             {p.label}
+            {!installed.has(p.id) && ', not downloaded'}
           </label>
         );
       })}

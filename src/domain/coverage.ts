@@ -54,7 +54,7 @@ interface Progress {
   known: boolean;
 }
 // Guru means passed at least once, as WaniKani counts it; higher thresholds use the current stage.
-function progressBySubject(
+export function progressBySubject(
   assignments: AssignmentResource[],
   minStage: KnownStage,
 ): Map<number, Progress> {
@@ -96,7 +96,7 @@ export interface KanjiGroup {
 
 export type KanjiView = 'jlpt' | 'joyo' | 'frequency' | 'level';
 
-interface PackEntry {
+export interface PackEntry {
   grade: number;
   jlpt: number;
   rank: number;
@@ -106,7 +106,7 @@ const fmt = (n: number) => n.toLocaleString('en-US');
 const BAND = 500;
 const BANDS = 5;
 
-function groupDefs(
+export function groupDefs(
   view: Exclude<KanjiView, 'level'>,
 ): { key: string; label: string; has: (e: PackEntry) => boolean }[] {
   if (view === 'jlpt') {
