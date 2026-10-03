@@ -4,30 +4,11 @@ import type {
   SubjectResource,
   User,
 } from '../api/types';
-import type { ReviewCounters, Snapshot, SnapshotDelta, StageCounts } from '../db/schema';
+import { daysBetweenKeys, localDateKey, shiftDate } from './localDate';
+import { loadFromStages, stageCountsFromAssignments } from './workload';
+import type { ReviewCounters, Snapshot, SnapshotDelta } from '../db/schema';
 
 export const RETENTION_DAYS = 400;
-const DAY_MS = 86_400_000;
-
-/** Local calendar date, YYYY-MM-DD. */
-export function localDateKey(ms: number): string {
-  const d = new Date(ms);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
-// Date keys are calendar days, so arithmetic runs in UTC to stay clear of DST.
-const dayNumber = (key: string) => Date.parse(`${key}T00:00:00Z`) / DAY_MS;
-const keyOfDay = (n: number) => new Date(n * DAY_MS).toISOString().slice(0, 10);
-
-export function shiftDate(key: string, days: number): string {
-  return keyOfDay(dayNumber(key) + days);
-}
-
-export const daysBetween = (from: string, to: string) => dayNumber(to) - dayNumber(from);
-
-const STAGE_KEYS: (keyof StageCounts)[] = ['a1', 'a2', 'a3', 'a4', 'g1', 'g2', 'm', 'e', 'b'];
-
 export function buildSnapshot(
   assignments: AssignmentResource[],
   reviewStatistics: ReviewStatisticResource[],
@@ -36,13 +17,14 @@ export function buildSnapshot(
   now: number,
 ): Snapshot {
   const hiddenSubjects = new Set(subjects.filter((s) => s.data.hidden_at).map((s) => s.id));
-  const stages = Object.fromEntries(STAGE_KEYS.map((k) => [k, 0])) as unknown as StageCounts;
   let lessonsAvailable = 0;
   let passedKanji = 0;
   let passedVocab = 0;
-  for (const { data: a } of assignments) {
-    if (a.hidden || hiddenSubjects.has(a.subject_id)) continue;
-    if (a.srs_stage >= 1 && a.srs_stage <= 9) stages[STAGE_KEYS[a.srs_stage - 1]]++;
+  const visible = assignments.filter(
+    (a) => !a.data.hidden && !hiddenSubjects.has(a.data.subject_id),
+  );
+  const stages = stageCountsFromAssignments(visible);
+  for (const { data: a } of visible) {
     if (a.unlocked_at && !a.started_at) lessonsAvailable++;
     if (a.passed_at) {
       if (a.subject_type === 'kanji') passedKanji++;
@@ -55,7 +37,7 @@ export function buildSnapshot(
     date: localDateKey(now),
     takenAt: new Date(now).toISOString(),
     stages,
-    load: stages.a1 + stages.a2 + stages.a3 + stages.a4 + (stages.g1 + stages.g2) / 10,
+    load: loadFromStages(stages),
     lessonsAvailable,
     reviews,
     passedKanji,
@@ -121,7 +103,7 @@ export interface SnapshotSpan {
 export function snapshotSpans(snapshots: Pick<Snapshot, 'date'>[]): SnapshotSpan[] {
   const dates = snapshots.map((s) => s.date).sort();
   return dates.map((date, i) => {
-    const days = i === 0 ? 1 : dayNumber(date) - dayNumber(dates[i - 1]);
+    const days = i === 0 ? 1 : daysBetweenKeys(dates[i - 1], date);
     return { date, from: shiftDate(date, 1 - days), days };
   });
 }
@@ -173,5 +155,5 @@ export function daysSinceLastSnapshot(
   const today = localDateKey(now);
   let since: string | null = null;
   for (const { date } of snapshots) if (date < today && (!since || date > since)) since = date;
-  return since ? { since, days: dayNumber(today) - dayNumber(since) } : null;
+  return since ? { since, days: daysBetweenKeys(since, today) } : null;
 }
