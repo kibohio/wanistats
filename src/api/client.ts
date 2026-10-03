@@ -1,6 +1,8 @@
 import { WK_API, WK_REVISION } from '../config';
 import type { Collection, UserReport } from './types';
 
+const TIMEOUT_MS = 30_000;
+
 export type WkErrorKind = 'unauthorized' | 'network' | 'http';
 
 /** Carries no request details, so the token can never end up in a log or error report. */
@@ -75,7 +77,12 @@ async function get<T>(token: string, url: string, cond: Conditional = {}): Promi
     let res: Response;
     try {
       // no-store: we do our own conditional requests and keep responses out of every cache.
-      res = await fetch(url, { headers, cache: 'no-store' });
+      // The timeout turns a hung connection into a network error instead of a sync that never ends.
+      res = await fetch(url, {
+        headers,
+        cache: 'no-store',
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      });
     } catch {
       throw new WkError('network');
     }
