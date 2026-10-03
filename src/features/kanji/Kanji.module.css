@@ -273,68 +273,6 @@ button.barButton {
 
 /* Peek: pinned above the tab bar while it is open. */
 /* Word lists */
-
-.words {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.word {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 10px;
-  padding: 8px 0;
-  border-top: 1px solid var(--line-soft);
-}
-
-.word:first-child {
-  border-top: none;
-}
-
-.rank {
-  font-family: var(--font-kanji);
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-3);
-}
-
-.wordText {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 8px;
-  min-width: 0;
-}
-
-.wordChars {
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.reading {
-  font-size: 13px;
-  color: var(--ink-3);
-}
-
-.level {
-  font-size: 12px;
-  color: var(--ink-3);
-  white-space: nowrap;
-}
-
-@media (min-width: 1024px) {
-  .peek {
-    bottom: 0;
-    margin: 0;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-card) var(--radius-card) 0 0;
-  }
-}
-
 .knownAt {
   display: inline-flex;
   align-items: center;
@@ -350,4 +288,79 @@ button.barButton {
   color: var(--ink);
   font-size: 13px;
   font-weight: 700;
+}
+
+/* Word cards: word, reading, then rank and level. */
+.words {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.word {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-cell);
+}
+
+.wordChars {
+  overflow-wrap: anywhere;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.reading {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.wordMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.pager select {
+  min-height: 32px;
+  padding: 0 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--control);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pageOf {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.pager [aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: default;
 }

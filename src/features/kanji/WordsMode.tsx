@@ -1,5 +1,5 @@
 import { usePref } from '../../db/prefs';
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { Chip } from '../../components/Chip';
@@ -21,7 +21,7 @@ type WordsPackId = `words-${string}`;
 const SIZES = [1000, 5000, 10000];
 // The built-in sample list has 500 words.
 const SAMPLE_SIZES = [100, 250, 500];
-const PAGE = 20;
+const PAGE_SIZES = [24, 48, 96];
 
 const WHERE: Record<string, string> = {
   'words-global': 'Japanese media',
@@ -130,9 +130,8 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
           {knownStage === 5
             ? "Guru'd WaniKani vocabulary"
             : `WaniKani vocabulary at ${knownRange(knownStage)}`}{' '}
-          covers{' '}
-          <strong>{pctText(headline.pct)}</strong> of the {num(headline.size)} most common words in{' '}
-          {where}.
+          covers <strong>{pctText(headline.pct)}</strong> of the {num(headline.size)} most common
+          words in {where}.
         </p>
       )}
       <Explained
@@ -184,37 +183,70 @@ function WordList({
   rows: WordRow[];
   showLevel?: boolean;
 }) {
-  const [shown, setShown] = useState(PAGE);
+  const [size, setSize] = useState(PAGE_SIZES[0]!);
+  const [page, setPage] = useState(0);
+  const pages = Math.max(1, Math.ceil(rows.length / size));
+  // Rows shrink when the known stage changes; stay on a page that exists.
+  const at = Math.min(page, pages - 1);
+  const id = useId();
   return (
     <Card title={title} aside={`${num(rows.length)} words, most frequent first`}>
       {rows.length === 0 ? (
         <p className={styles.note}>{empty}</p>
       ) : (
-        <ol className={styles.words}>
-          {rows.slice(0, shown).map((w) => (
+        <ol className={styles.words} aria-label={`${title}, page ${at + 1} of ${pages}`}>
+          {rows.slice(at * size, (at + 1) * size).map((w) => (
             <li key={w.rank + w.word} className={styles.word}>
-              <span className={styles.rank} aria-label={`Rank ${w.rank}`}>
-                {num(w.rank)}
+              <span lang="ja" className={styles.wordChars}>
+                {w.word}
               </span>
-              <span className={styles.wordText}>
-                <span lang="ja" className={styles.wordChars}>
-                  {w.word}
+              <span lang="ja" className={styles.reading}>
+                {w.reading || '\u00a0'}
+              </span>
+              <span className={styles.wordMeta}>
+                <span>
+                  <span className="visually-hidden">Rank </span>
+                  <span aria-hidden="true">#</span>
+                  {num(w.rank)}
                 </span>
-                {w.reading && (
-                  <span lang="ja" className={styles.reading}>
-                    {w.reading}
-                  </span>
-                )}
+                {showLevel && w.level && <span>Level {w.level}</span>}
               </span>
-              {showLevel && w.level && <span className={styles.level}>Level {w.level}</span>}
             </li>
           ))}
         </ol>
       )}
-      {shown < rows.length && (
-        <Button small onClick={() => setShown(shown + PAGE)}>
-          Show {Math.min(PAGE, rows.length - shown)} more
-        </Button>
+      {rows.length > PAGE_SIZES[0]! && (
+        <div className={styles.pager}>
+          <label htmlFor={id}>Per page</label>
+          <select
+            id={id}
+            value={size}
+            onChange={(e) => {
+              const next = Number(e.target.value);
+              // Keep the first word on screen in view.
+              setPage(Math.floor((at * size) / next));
+              setSize(next);
+            }}
+          >
+            {PAGE_SIZES.map((n) => (
+              <option key={n}>{n}</option>
+            ))}
+          </select>
+          <span className={styles.pageOf} aria-live="polite">
+            Page {at + 1} of {pages}
+          </span>
+          {/* aria-disabled, not disabled, so focus stays on the button at either end. */}
+          <Button small aria-disabled={at === 0} onClick={() => at > 0 && setPage(at - 1)}>
+            Previous
+          </Button>
+          <Button
+            small
+            aria-disabled={at >= pages - 1}
+            onClick={() => at < pages - 1 && setPage(at + 1)}
+          >
+            Next
+          </Button>
+        </div>
       )}
     </Card>
   );
