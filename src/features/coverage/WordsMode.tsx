@@ -3,7 +3,6 @@ import { useId, useMemo, useState } from 'react';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { Chip } from '../../components/Chip';
-import { SegmentedControl } from '../../components/SegmentedControl';
 import { useAssignments, useSnapshots, useSubjects } from '../../db/hooks';
 import { useAppMode } from '../../db/useAppMode';
 import { coverageGrowth, wordCoverage, type WordRow } from '../../domain/coverage';
@@ -16,6 +15,7 @@ import styles from './Coverage.module.css';
 import { CoverageBars, Estimated, Explained, num, pctText } from './parts';
 import { knownRange } from './stage';
 import { plural } from '../../format';
+import { formatBytes, packsDb } from '../../packs/packs';
 
 type WordsPackId = `words-${string}`;
 
@@ -30,40 +30,72 @@ const WHERE: Record<string, string> = {
   'words-novel': 'novels',
 };
 
+const keyOf = (id: string) => id.slice('words-'.length);
+
 export function WordsMode() {
   const sampleMode = useAppMode() === 'sample';
   const manifest = useManifest().data;
   const installedRows = useInstalledPacks();
-  const [picked, setMedia] = useState<WordsPackId>('words-global');
-  const [sheet, setSheet] = useState(false);
-  const [wanted] = usePref('wordMedia');
-
-  // Only the media lists chosen in Settings, Preferences.
-  const wordPacks =
-    manifest?.packs.filter(
-      (p) => p.id.startsWith('words-') && wanted.includes(p.id.slice('words-'.length)),
-    ) ?? [];
+  // The list in use is the first in the pref, shared with Settings, Preferences.
+  const [media, setMedia] = usePref('wordMedia');
+  const packId = `words-${media[0] ?? 'global'}` as WordsPackId;
+  const [sheet, setSheet] = useState<WordsPackId | null>(null);
   const installedIds = new Set(installedRows?.map((r) => r.id));
-  const options = wordPacks
-    .filter((p) => installedIds.has(p.id) || (p.id === 'words-global' && sampleMode))
-    .map((p) => ({ value: p.id as WordsPackId, label: shortLabel(p.label) }));
-  const media = options.some((o) => o.value === picked) ? picked : (options[0]?.value ?? picked);
-  const missing = wordPacks.filter((p) => !installedIds.has(p.id)).map((p) => p.id);
+  const usable = (id: string) => installedIds.has(id) || (id === 'words-global' && sampleMode);
 
+  const lists = manifest?.packs.filter((p) => p.id.startsWith('words-')) ?? [];
   return (
     <>
-      {options.length > 1 && (
-        <SegmentedControl label="Media" options={options} value={media} onChange={setMedia} />
+      {lists.length > 0 && installedRows && (
+        <fieldset className={styles.lists}>
+          <legend className={styles.listsLegend}>Word frequency list</legend>
+          {lists.map((p) => {
+            const id = p.id as WordsPackId;
+            const name = shortLabel(p.label);
+            const size =
+              sampleMode && !installedIds.has(id)
+                ? `Sample, ${num(sampleWords.words.length)} words`
+                : `${num(p.records)} words`;
+            return usable(id) ? (
+              <label key={id} className={styles.list}>
+                <input
+                  type="radio"
+                  name="word-list"
+                  checked={id === packId}
+                  onChange={() => void setMedia([keyOf(id)])}
+                />
+                <span className={styles.listName}>{name}</span>
+                <span className={styles.listMeta}>{size}</span>
+              </label>
+            ) : (
+              <div key={id} className={styles.list} data-missing="">
+                <span className={styles.listName}>{name}</span>
+                <span className={styles.listMeta}>
+                  {size}, {formatBytes(p.bytes)} download
+                </span>
+                <Button
+                  small
+                  aria-label={`Download the ${name} list`}
+                  onClick={() => setSheet(id)}
+                >
+                  Download
+                </Button>
+              </div>
+            );
+          })}
+          <DownloadSheet
+            open={sheet !== null}
+            onClose={() => {
+              setSheet(null);
+              // The sheet closes itself after a download; switch to the list if it landed.
+              if (sheet)
+                void packsDb.packs.get(sheet).then((row) => row && setMedia([keyOf(sheet)]));
+            }}
+            preselect={sheet ? [sheet] : []}
+          />
+        </fieldset>
       )}
-      {missing.length > 0 && options.length > 0 && (
-        <p className={styles.caption}>
-          <Button small onClick={() => setSheet(true)}>
-            Download more media lists
-          </Button>
-          <DownloadSheet open={sheet} onClose={() => setSheet(false)} preselect={missing} />
-        </p>
-      )}
-      <WordsView key={media} packId={media} sampleMode={sampleMode} />
+      <WordsView key={packId} packId={packId} sampleMode={sampleMode} />
     </>
   );
 }
@@ -98,8 +130,8 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
   if (!pack) {
     return (
       <PackEmptyState packId={packId}>
-        Word coverage needs a list of common words. The WK level view in Kanji works without a
-        download.
+        Word coverage for {WHERE[packId] ?? 'this list'} needs its list of common words. Kanji mode
+        by WK level works without a download.
       </PackEmptyState>
     );
   }
@@ -115,8 +147,11 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
         </p>
       )}
       {installed && <PackUpdateLine packId={packId} />}
+      <h2 className={styles.heading}>
+        Most common words in {where}
+      </h2>
       <CoverageBars
-        label="Coverage of the most common words"
+        label={`Coverage of the most common words in ${where}`}
         bars={coverage.top.map((t) => ({
           key: String(t.size),
           label: `Top ${num(t.size)}`,
@@ -163,12 +198,14 @@ function WordsView({ packId, sampleMode }: { packId: WordsPackId; sampleMode: bo
         title="Coming up in WaniKani"
         empty="Every frequent WaniKani word in this list is known."
         rows={coverage.comingUp}
+        where={where}
         showLevel
       />
       <WordList
         title="Not in WaniKani"
         empty="Every frequent word in this list is in WaniKani."
         rows={coverage.notInWaniKani}
+        where={where}
       />
     </>
   );
@@ -178,11 +215,13 @@ function WordList({
   title,
   empty,
   rows,
+  where,
   showLevel,
 }: {
   title: string;
   empty: string;
   rows: WordRow[];
+  where: string;
   showLevel?: boolean;
 }) {
   const [size, setSize] = useState(PAGE_SIZES[0]!);
@@ -192,7 +231,7 @@ function WordList({
   const at = Math.min(page, pages - 1);
   const id = useId();
   return (
-    <Card title={title} aside={`${plural(rows.length, 'word')}, most frequent first`}>
+    <Card title={title} aside={`${plural(rows.length, 'word')}, most frequent in ${where} first`}>
       {rows.length === 0 ? (
         <p className={styles.note}>{empty}</p>
       ) : (
