@@ -14,6 +14,10 @@ WaniStats runs entirely in your browser. There is no account and no server: your
 - **History**: the API keeps lifetime totals only, so WaniStats saves a daily snapshot on the device. Export it from Settings.
 - Installable PWA that works offline from the last sync. Light and dark themes.
 
+## Privacy and independence
+
+WaniStats is free and has no ads. Each user connects their own WaniKani API token, and everything WaniStats stores (the token, synced data, history and data packs) stays in that user's browser. WaniStats is not affiliated with or endorsed by WaniKani or Tofugu, LLC. See the [privacy notice](https://wanistats.com/privacy) and [terms](https://wanistats.com/terms).
+
 ## Development
 
 Tooling comes from [devbox](https://www.jetify.com/devbox) (Node and pnpm) with [direnv](https://direnv.net). With both installed, `direnv allow` in the repository, then:
@@ -39,4 +43,4 @@ Deployment to Cloudflare Pages or Netlify is described in [DEPLOY.md](DEPLOY.md)
 
 Code: MIT, see [LICENSE](LICENSE). Coverage data packs are derived from [Jiten](https://jiten.moe) (CC BY-SA 4.0), KANJIDIC2 by the EDRDG (CC BY-SA 4.0) and Jonathan Waller's JLPT lists (CC BY), and stay under CC BY-SA 4.0. See [public/data/LICENSE-DATA.md](public/data/LICENSE-DATA.md).
 
-Built and maintained by Kiboh Inc. Not affiliated with WaniKani or Tofugu.
+Built and maintained by Kiboh Inc.
