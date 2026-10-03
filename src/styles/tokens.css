@@ -27,7 +27,7 @@
   --srs-a4: light-dark(#b4d3de, #a2c4d2);
   --srs-guru: light-dark(#8cbbcb, #7fb0c1);
   --srs-guru-2: light-dark(#79adbf, #6da2b5);
-  --srs-master: #3f7ea6;
+  --srs-master: light-dark(#3f7ea6, #3c7aa2);
   --srs-enlightened: light-dark(#1f3b6e, #2b4c86);
   --srs-burned: #e8b22e;
   --srs-burned-marker: #d9a21b;
