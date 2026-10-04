@@ -48,7 +48,12 @@ export async function logout(queryClient: QueryClient): Promise<void> {
 }
 
 /** localStorage keys: the theme mirror and the dismissed history-gap notice. */
-const LOCAL_KEYS = ['wanistats:theme', 'wanistats:clock', 'wanistats:gapDismissed'];
+const LOCAL_KEYS = [
+  'wanistats:theme',
+  'wanistats:clock',
+  'wanistats:gapDismissed',
+  'wanistats:session',
+];
 
 /** Deletes every WaniStats database and stored key in this browser, then reseeds the sample. */
 export async function deleteLocalData(queryClient: QueryClient): Promise<void> {

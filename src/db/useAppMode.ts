@@ -26,15 +26,37 @@ export async function activeDb(): Promise<WaniStatsDb | undefined> {
   return id ? accountDb(id) : undefined;
 }
 
-function useSession() {
-  return useLiveQuery(
-    async () => ({
+interface Session {
+  live: boolean;
+  userId: string | undefined;
+}
+
+// IndexedDB answers after first paint, so a reload would briefly show sample data to a signed-in
+// user. A hint in localStorage (whether a token exists and which account; never the token)
+// picks the right database for that first frame. IndexedDB stays the source of truth.
+const HINT_KEY = 'wanistats:session';
+let hint: Session | undefined;
+try {
+  hint = JSON.parse(localStorage.getItem(HINT_KEY) ?? 'null') ?? undefined;
+} catch {
+  hint = undefined;
+}
+
+function useSession(): Session | undefined {
+  const s = useLiveQuery(async () => {
+    const next: Session = {
       // count(), so the token itself never leaves IndexedDB for React state.
       live: (await sessionDb.auth.count()) > 0,
       userId: await activeUserId(),
-    }),
-    [],
-  );
+    };
+    try {
+      localStorage.setItem(HINT_KEY, JSON.stringify(next));
+    } catch {
+      // Storage blocked: the first frame after a reload may show sample data.
+    }
+    return next;
+  }, []);
+  return s ?? hint;
 }
 
 /** 'live' while a token is stored. Reactive, so login and logout flip it without a reload. */

@@ -714,3 +714,27 @@
 .strong {
   font-weight: 700;
 }
+
+.pending {
+  min-height: 60vh;
+}
+
+.fadeIn {
+  display: contents;
+}
+
+.fadeIn > * {
+  animation: fade-in 150ms ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fadeIn > * {
+    animation: none;
+  }
+}
