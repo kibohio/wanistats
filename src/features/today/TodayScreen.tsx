@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { buttonClass } from '../../components/Button';
-import { Card } from '../../components/Card';
 import { Chip } from '../../components/Chip';
 import { CloseIcon, ExternalIcon } from '../../components/icons';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -20,17 +19,16 @@ import { useIsDesktop } from '../timeline/useTimelineData';
 export function TodayScreen() {
   const d = useToday();
   const desktop = useIsDesktop();
+  // While IndexedDB answers (a few hundred ms after a reload) hold the space quietly instead of
+  // flashing a placeholder header, then fade the real screen in.
   if (!d) {
     return (
-      <>
-        <ScreenHeader title="Today" />
-        <Card title="Next level-up">
-          <p className={styles.note}>Loading data.</p>
-        </Card>
-      </>
+      <div className={styles.pending} aria-busy="true">
+        <span className="visually-hidden">Loading</span>
+      </div>
     );
   }
-  return desktop ? <Desktop d={d} /> : <Phone d={d} />;
+  return <div className={styles.fadeIn}>{desktop ? <Desktop d={d} /> : <Phone d={d} />}</div>;
 }
 
 function Phone({ d }: { d: TodayData }) {
