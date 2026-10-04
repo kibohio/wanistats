@@ -420,13 +420,19 @@ label.list .listMeta {
 
 /* By level */
 .switches {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px 12px;
 }
 
-.switches > * {
-  flex: 1 1 260px;
+@media (width < 760px) {
+  .switches {
+    grid-template-columns: 1fr;
+  }
+
+  .slot {
+    display: none;
+  }
 }
 
 .levelScroller {
