@@ -89,6 +89,7 @@ test('presets show counts and filter; search narrows by meaning, kana and romaji
   expect(preset(/^Apprentice 2$/)).toBeInTheDocument();
   expect(preset(/^Burned 1$/)).toBeInTheDocument();
   expect(meanings()).toEqual(['End']);
+  expect(screen.getByRole('button', { name: /End.*9 wrong/ })).toBeInTheDocument();
   expect(screen.getByText(/Recent accuracy appears after a week/)).toBeInTheDocument();
 
   await user.click(preset(/^Apprentice/));
@@ -97,6 +98,11 @@ test('presets show counts and filter; search narrows by meaning, kana and romaji
   // Pressing the active preset again clears it and shows every item.
   await user.click(preset(/^Apprentice/));
   expect(meanings()).toHaveLength(4);
+
+  // Group headings are their own rows, ahead of the cards.
+  await user.selectOptions(screen.getByLabelText('Group'), 'type');
+  expect(screen.getByRole('heading', { name: 'Kanji 4' })).toBeInTheDocument();
+  await user.selectOptions(screen.getByLabelText('Group'), 'none');
 
   const search = screen.getByRole('searchbox', { name: 'Search items' });
   await user.type(search, 'yet');
