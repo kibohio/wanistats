@@ -137,16 +137,12 @@
   color: var(--ink-3);
 }
 
-/* Virtualized list: rows are absolutely placed inside a card of the full height. */
+/* Virtualized grid: each row (a heading or a line of cards) is absolutely placed. */
 .list {
   position: relative;
   margin: 0;
   padding: 0;
   list-style: none;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
-  overflow: hidden;
 }
 
 .list > li {
@@ -154,18 +150,13 @@
   top: 0;
   left: 0;
   width: 100%;
-  border-top: 1px solid var(--line-soft);
-}
-
-.list > li.first {
-  border-top: none;
+  padding-bottom: 8px;
 }
 
 .group {
   display: flex;
   gap: 6px;
-  padding: 10px 14px 8px;
-  background: var(--ground);
+  padding: 8px 2px 0;
   font-size: var(--text-body);
   font-weight: 700;
   color: var(--ink-2);
@@ -176,80 +167,81 @@
   color: var(--ink-3);
 }
 
-.row {
+.cards {
+  display: grid;
+  gap: 8px;
+}
+
+.card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 52px;
-  padding: 10px 14px;
-  border: none;
-  background: none;
-  text-align: left;
+  gap: 1px;
+  min-width: 0;
+  height: 100%;
+  padding: 10px 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  line-height: var(--leading-caption);
+  text-align: center;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
-.row:focus-visible {
-  outline-offset: -2px;
+/* Overrides the item glyph's 44px row size; longer words wrap inside the card instead of overflowing. */
+.card > :first-child {
+  min-width: 56px;
+  height: 56px;
+  margin-bottom: 6px;
+  font-size: 30px;
 }
 
-.main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+.card[data-len='2'] > :first-child {
+  font-size: 21px;
+}
+
+.card[data-len='3'] > :first-child {
+  font-size: 16px;
+}
+
+.card[data-len='4'] > :first-child {
+  max-width: 100%;
+  height: auto;
+  min-height: 56px;
+  /* The glyph class zeroes inline padding with !important for its 44px row size. */
+  padding: 6px 8px !important;
+  font-size: 16px;
+  line-height: var(--leading-tight);
+  white-space: normal;
 }
 
 .meaning {
   font-size: var(--text-body);
   font-weight: 700;
-  overflow-wrap: anywhere;
 }
 
-.sub {
+.sub,
+.age {
   font-size: var(--text-caption);
   color: var(--ink-2);
 }
 
-.alike {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--text-caption);
-  color: var(--attention-text);
+.age {
+  color: var(--ink-3);
 }
 
-.alikeChar {
-  font-family: var(--font-kanji);
-  font-size: var(--text-title);
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-  text-align: right;
-}
-
-.wrong,
-.wrongHigh {
+.wrong {
   font-size: var(--text-body);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-}
-
-.wrongHigh {
   color: var(--attention-text);
-  font-size: var(--text-body);
 }
 
-.age {
+.misses {
   font-size: var(--text-caption);
-  color: var(--ink-3);
+  color: var(--attention-text);
 }
 
 .actions {
