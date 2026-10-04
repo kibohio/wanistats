@@ -32,7 +32,7 @@ export function PrivacyPage() {
       <p>Your token is only ever sent to api.wanikani.com. Nothing is sent to Kiboh Inc.</p>
       <p>Data packs are downloaded from wanistats.com only when you choose to download them.</p>
       <p>
-        The site is served by a static host, Cloudflare Pages, which keeps standard request logs
+        The site is served as static files by Cloudflare, which keeps standard request logs
         such as IP address and browser type. See{' '}
         <a href={HOST_PRIVACY_URL}>Cloudflare&apos;s privacy policy</a>.
       </p>

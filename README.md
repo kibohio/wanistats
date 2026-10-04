@@ -37,7 +37,7 @@ Without direnv, prefix commands with `devbox run --`.
 
 To try it with your own account, create a read-only personal access token at [WaniKani](https://www.wanikani.com/settings/personal_access_tokens) and paste it on the login screen.
 
-Deployment to Cloudflare Pages or Netlify is described in [DEPLOY.md](DEPLOY.md).
+Deployment to Cloudflare (or Netlify as a fallback) is described in [DEPLOY.md](DEPLOY.md).
 
 ## Data and licences
 

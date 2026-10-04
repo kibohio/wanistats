@@ -47,4 +47,8 @@
     Content-Type = "application/gzip"
     Cache-Control = "public, max-age=31536000, immutable"
 
-# SPA fallback lives in public/_redirects, which Netlify also reads.
+# SPA fallback. Cloudflare gets the same from not_found_handling in wrangler.jsonc.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
