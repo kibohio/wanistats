@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Static assets only: no Worker script runs, so requests never count as Worker invocations.
+  "name": "wanistats",
+  "compatibility_date": "2026-10-03",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+  },
+  "routes": [{ "pattern": "wanistats.com", "custom_domain": true }],
+  // workers.dev hosts the per-PR preview URLs; production is the custom domain above.
+  "workers_dev": true,
+  "preview_urls": true,
+}
