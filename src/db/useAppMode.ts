@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from './live';
 import { accountDbName, openDb, openSessionDb, type WaniStatsDb } from './schema';
 
 export type AppMode = 'sample' | 'live';

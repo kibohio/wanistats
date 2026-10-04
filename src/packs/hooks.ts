@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from '../db/live';
 import type { PackRow } from '../db/schema';
 import { fetchManifest, packsDb } from './packs';
 import type { KanjiPack, WordsPack } from './types';

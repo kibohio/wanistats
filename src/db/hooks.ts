@@ -1,4 +1,4 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from './live';
 import { useSyncExternalStore } from 'react';
 import type { User } from '../api/types';
 import { accountDb, sessionDb, useDb } from './useAppMode';
