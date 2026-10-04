@@ -41,7 +41,10 @@ export async function downloadPack(
         throw new Error("Couldn't read the downloaded file, so it wasn't saved. Try again.");
       })
     : raw;
-  if ((await sha256(json)) !== entry.sha256) {
+  // crypto.subtle only exists in secure contexts (https, localhost). On plain http, such as a
+  // phone hitting the dev server over the LAN, skip the checksum; the gzip check and JSON
+  // parse below still reject a damaged file.
+  if (globalThis.crypto?.subtle && (await sha256(json)) !== entry.sha256) {
     throw new Error("The download failed its integrity check, so it wasn't saved. Try again.");
   }
 

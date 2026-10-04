@@ -77,6 +77,14 @@ test('rejects a checksum mismatch and stores nothing', async () => {
   expect(await packsDb.packs.count()).toBe(0);
 });
 
+test('still installs where crypto.subtle is missing (plain http on a LAN)', async () => {
+  serve(gz);
+  const e = await entry();
+  vi.stubGlobal('crypto', {});
+  await downloadPack(e);
+  expect(await packsDb.packs.count()).toBe(1);
+});
+
 test('parses bytes a host already decompressed as JSON', async () => {
   serve(json);
   await downloadPack(await entry());
