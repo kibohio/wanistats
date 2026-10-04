@@ -16,6 +16,10 @@ import type { TodayData } from './useToday';
 const STATUS = { under: 'Below', in: 'Inside', over: 'Above' } as const;
 const PROJECTED = { under: 'below', in: 'inside', over: 'above' } as const;
 
+// Projections within a few points of today read as holding steady rather than moving.
+const trend = (now: number, next: number) =>
+  next > now + 2 ? 'grow to' : next < now - 2 ? 'drop to' : 'stay near';
+
 const SUB_STAGES: [keyof StageCounts, string, string][] = [
   ['a1', 'A1', 'var(--srs-a1)'],
   ['a2', 'A2', 'var(--srs-a2)'],
@@ -275,8 +279,8 @@ function Projection({ d }: { d: TodayData }) {
       {/* Two different units: workload (the gauge's scale) and reviews a day. Label both. */}
       <p className={styles.para}>
         <span className={styles.ghostKey} aria-hidden="true" />
-        Workload heads for about {int(p.load)}, {PROJECTED[bandStatus(p.load, d.work.band)]}{' '}
-        {d.sample ? 'the' : 'your'} band.
+        Workload is predicted to {trend(d.work.load, p.load)} about {int(p.load)}, which lands{' '}
+        {PROJECTED[bandStatus(p.load, d.work.band)]} {d.sample ? 'the' : 'your'} band.
       </p>
       <p className={styles.para}>Reviews: about {int(d.steady!)} a day, long term.</p>
     </div>

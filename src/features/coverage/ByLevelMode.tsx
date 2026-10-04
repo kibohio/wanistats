@@ -119,11 +119,16 @@ export function ByLevelMode() {
     <>
       <div className={styles.switches}>
         <SegmentedControl label="Chart" options={CHARTS} value={kind} onChange={setKind} />
-        {kind !== 'reading' && (
+        {/* Fixed slots, so switching charts never resizes the controls that stay. */}
+        {kind !== 'reading' ? (
           <SegmentedControl label="Break down by" options={VIEWS} value={view} onChange={setView} />
+        ) : (
+          <div className={styles.slot} />
         )}
-        {kind === 'per' && (
+        {kind === 'per' ? (
           <SegmentedControl label="Show" options={SHOWS} value={show} onChange={setShow} />
+        ) : (
+          <div className={styles.slot} />
         )}
       </div>
       <p className={styles.line}>
