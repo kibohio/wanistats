@@ -11,6 +11,8 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useClock } from '../../hooks/useClock';
 import { ItemGlyph, nextReviewText } from '../../components/ItemSheet';
+import { ItemTip } from '../../components/ItemTip';
+import { Tooltip } from '../../components/Tooltip';
 import { stageGroup, stageName, type Item } from '../../domain/items';
 import styles from './Items.module.css';
 
@@ -54,7 +56,12 @@ function groupLabel(by: GroupBy, key: number): string {
 
 const getRowId = (i: Item) => String(i.id);
 
+const GAP = 8;
+const MIN_CARD = 104;
+const MAX_COLS = 8;
+
 type Line = { kind: 'group'; label: string; count: number } | { kind: 'item'; item: Item };
+type Row = { kind: 'group'; label: string; count: number } | { kind: 'cards'; items: Item[] };
 
 interface Props {
   items: Item[];
@@ -81,11 +88,11 @@ export function ItemList({ items, byId, groupBy, sortBy, showNext, now, onOpen, 
     [groupBy, sortBy],
   );
   const table = useTable({ features, columns, data: items, getRowId, state });
-  const rows = table.getRowModel().rows;
+  const tableRows = table.getRowModel().rows;
 
   const lines = useMemo(() => {
     const out: Line[] = [];
-    for (const row of rows) {
+    for (const row of tableRows) {
       if (row.getIsGrouped()) {
         out.push({
           kind: 'group',
@@ -96,7 +103,7 @@ export function ItemList({ items, byId, groupBy, sortBy, showNext, now, onOpen, 
       } else out.push({ kind: 'item', item: row.original });
     }
     return out;
-  }, [rows, groupBy]);
+  }, [tableRows, groupBy]);
 
   const ordered = useMemo(() => lines.flatMap((l) => (l.kind === 'item' ? [l.item] : [])), [lines]);
   const onOrderRef = useRef(onOrder);
@@ -106,26 +113,51 @@ export function ItemList({ items, byId, groupBy, sortBy, showNext, now, onOpen, 
   useLayoutEffect(() => onOrderRef.current(ordered), [ordered]);
 
   const listRef = useRef<HTMLUListElement>(null);
-  const [scrollMargin, setScrollMargin] = useState(0);
-  // Content above the list (summary, explainer) changes height, so re-measure on resize.
+  const [box, setBox] = useState({ width: 0, top: 0 });
+  // Content above the grid (summary, explainer) changes height, and the width sets the columns.
   useLayoutEffect(() => {
-    const list = listRef.current!;
-    const measure = () => setScrollMargin(list.getBoundingClientRect().top + window.scrollY);
-    measure();
+    const el = listRef.current!;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      const next = { width: r.width, top: r.top + window.scrollY };
+      setBox((b) => (b.width === next.width && b.top === next.top ? b : next));
+    };
+    update();
     if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(list.parentElement!);
-    return () => observer.disconnect();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    ro.observe(document.body);
+    return () => ro.disconnect();
   }, []);
 
+  const cols = Math.min(MAX_COLS, Math.max(2, Math.floor((box.width + GAP) / (MIN_CARD + GAP))));
+  const rows = useMemo(() => {
+    const out: Row[] = [];
+    let run: Item[] = [];
+    const flush = () => {
+      for (let i = 0; i < run.length; i += cols)
+        out.push({ kind: 'cards', items: run.slice(i, i + cols) });
+      run = [];
+    };
+    for (const l of lines) {
+      if (l.kind === 'item') run.push(l.item);
+      else {
+        flush();
+        out.push(l);
+      }
+    }
+    flush();
+    return out;
+  }, [lines, cols]);
+
   const virtualizer = useWindowVirtualizer({
-    count: lines.length,
-    estimateSize: (i) => (lines[i]!.kind === 'group' ? 36 : 66),
-    overscan: 8,
-    scrollMargin,
+    count: rows.length,
+    estimateSize: (i) => (rows[i]!.kind === 'group' ? 40 : 150),
+    overscan: 4,
+    scrollMargin: box.top,
     getItemKey: (i) => {
-      const l = lines[i]!;
-      return l.kind === 'group' ? `g${l.label}` : l.item.id;
+      const r = rows[i]!;
+      return r.kind === 'group' ? `g${r.label}` : `${cols}:${r.items[0]!.id}`;
     },
   });
 
@@ -137,21 +169,34 @@ export function ItemList({ items, byId, groupBy, sortBy, showNext, now, onOpen, 
       style={{ height: virtualizer.getTotalSize() }}
     >
       {virtualizer.getVirtualItems().map((v) => {
-        const line = lines[v.index]!;
+        const row = rows[v.index]!;
         return (
           <li
             key={v.key}
             ref={virtualizer.measureElement}
             data-index={v.index}
-            className={v.index === 0 ? styles.first : undefined}
-            style={{ transform: `translateY(${v.start - scrollMargin}px)` }}
+            style={{ transform: `translateY(${v.start - box.top}px)` }}
           >
-            {line.kind === 'group' ? (
+            {row.kind === 'group' ? (
               <h3 className={styles.group}>
-                {line.label} <span>{line.count}</span>
+                {row.label} <span>{row.count}</span>
               </h3>
             ) : (
-              <ItemRow item={line.item} byId={byId} showNext={showNext} now={now} onOpen={onOpen} />
+              <div
+                className={styles.cards}
+                style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+              >
+                {row.items.map((item) => (
+                  <ItemCard
+                    key={item.id}
+                    item={item}
+                    byId={byId}
+                    showNext={showNext}
+                    now={now}
+                    onOpen={onOpen}
+                  />
+                ))}
+              </div>
             )}
           </li>
         );
@@ -160,7 +205,7 @@ export function ItemList({ items, byId, groupBy, sortBy, showNext, now, onOpen, 
   );
 }
 
-function ItemRow({
+function ItemCard({
   item,
   byId,
   showNext,
@@ -177,33 +222,33 @@ function ItemRow({
   const alike = item.leech && byId.get(item.lookAlikeIds[0] ?? -1)?.characters;
   const misses = item.leech?.recentMisses;
   return (
-    <button type="button" className={styles.row} onClick={() => onOpen(item)}>
-      <ItemGlyph item={item} />
-      <span className={styles.main}>
+    <Tooltip
+      content={<ItemTip item={item} note={alike ? `Often mixed with ${alike}` : undefined} />}
+    >
+      <button
+        type="button"
+        className={styles.card}
+        data-len={Math.min(item.characters?.length ?? 1, 4)}
+        onClick={() => onOpen(item)}
+      >
+        <ItemGlyph item={item} />
         <span className={styles.meaning}>{item.meaning}</span>
-        <span className={styles.sub}>
-          {item.reading ? `${item.reading}, ` : ''}
-          {stageName(item.stage)}
-        </span>
-        {alike && (
-          <span className={styles.alike}>
-            Often mixed with <span className={styles.alikeChar}>{alike}</span>
-          </span>
-        )}
+        {item.reading && <span className={styles.sub}>{item.reading}</span>}
+        <span className={styles.sub}>{stageName(item.stage)}</span>
+        {item.leech && <span className={styles.wrong}>{item.incorrect} wrong</span>}
         {!!misses && (
-          <span className={styles.alike}>
-            Missed {misses} {misses === 1 ? 'time' : 'times'} in the last 14 days
+          <span className={styles.misses}>
+            Missed {misses} {misses === 1 ? 'time' : 'times'} in 14 days
           </span>
         )}
-      </span>
-      <span className={styles.side}>
-        <span className={item.leech ? styles.wrongHigh : styles.wrong}>{item.incorrect} wrong</span>
-        <span className={styles.age}>
-          {showNext || item.daysIn === null
-            ? nextReviewText(item, now, clock)
-            : `${item.daysIn} ${item.daysIn === 1 ? 'day' : 'days'} in`}
-        </span>
-      </span>
-    </button>
+        {(showNext || !item.leech) && (
+          <span className={styles.age}>
+            {showNext || item.daysIn === null
+              ? nextReviewText(item, now, clock)
+              : `${item.daysIn} ${item.daysIn === 1 ? 'day' : 'days'} in`}
+          </span>
+        )}
+      </button>
+    </Tooltip>
   );
 }
