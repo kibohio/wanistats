@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from '../../db/live';
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import type { User } from '../../api/types';
 import { AvatarPicker } from '../../components/Avatar';

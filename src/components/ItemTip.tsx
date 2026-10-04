@@ -1,4 +1,4 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from '../db/live';
 import { useDb } from '../db/useAppMode';
 import { buildItems, stageName, type Item } from '../domain/items';
 import { useClock } from '../hooks/useClock';

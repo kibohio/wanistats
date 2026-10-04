@@ -1,4 +1,4 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from '../db/live';
 import { useEffect, useSyncExternalStore } from 'react';
 import { getPref } from '../db/prefs';
 import { useDb } from '../db/useAppMode';

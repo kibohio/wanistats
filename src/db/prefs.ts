@@ -1,4 +1,4 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from './live';
 import type { Clock } from '../format';
 import type { WaniStatsDb } from './schema';
 import { useDb } from './useAppMode';

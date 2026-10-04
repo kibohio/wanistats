@@ -67,3 +67,16 @@ svg {
     transition-duration: 0s !important;
   }
 }
+
+/* Page changes crossfade quickly; spec motion is 150ms or less and off for reduced motion. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 120ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
