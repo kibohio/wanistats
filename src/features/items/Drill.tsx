@@ -71,7 +71,7 @@ export default function Drill({ items: initial, onClose }: Props) {
   if (finished) {
     const missed = state.missed.flatMap((id) => byId.get(id) ?? []);
     return (
-      <Sheet open onClose={onClose} title="Drill done">
+      <Sheet open onClose={onClose} className={styles.sheet} title="Drill done">
         <div className={styles.body}>
           <p className={styles.score}>
             {items.length - missed.length} of {plural(items.length, 'item')} right first time
@@ -123,7 +123,7 @@ export default function Drill({ items: initial, onClose }: Props) {
           : hint;
 
   return (
-    <Sheet open onClose={onClose} title="Drill">
+    <Sheet open onClose={onClose} className={styles.sheet} title="Drill">
       <form className={styles.body} onSubmit={submit}>
         <p className={styles.progress}>{plural(state.queue.length, 'question')} left</p>
         <div className={styles.glyph}>
