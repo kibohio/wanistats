@@ -9,6 +9,8 @@ interface Props {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  /** Extra class on the <dialog>, e.g. to restyle its ::backdrop. */
+  className?: string;
 }
 
 /** Modal via native <dialog>: showModal() makes the page inert, so focus stays inside. */
@@ -16,7 +18,7 @@ export function Sheet(props: Props) {
   return props.open ? <OpenSheet {...props} /> : null;
 }
 
-function OpenSheet({ onClose, title, children }: Props) {
+function OpenSheet({ onClose, title, children, className }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
 
@@ -37,7 +39,7 @@ function OpenSheet({ onClose, title, children }: Props) {
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      className={styles.sheet}
+      className={className ? `${styles.sheet} ${className}` : styles.sheet}
       onClick={(e) => e.target === e.currentTarget && onClose()}
       onKeyDown={(e) => {
         if (e.key === 'Escape') {

@@ -1,7 +1,6 @@
-import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { buttonClass } from '../../components/Button';
 import { Chip } from '../../components/Chip';
-import { ExternalIcon } from '../../components/icons';
 import { ItemSheet } from '../../components/ItemSheet';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { Select } from '../../components/Select';
@@ -23,11 +22,13 @@ import {
 } from '../../domain/items';
 import { leeches } from '../../domain/leeches';
 import { useNow } from '../../hooks/useNow';
+import { plural } from '../../format';
 import { AccuracySummary } from './AccuracySummary';
 import { ItemList, type GroupBy, type SortBy } from './ItemList';
 import styles from './Items.module.css';
 
-const EXTRA_STUDY_URL = 'https://www.wanikani.com/subjects/extra_study?queue_type=recent_mistakes';
+// Pulls in wanakana, so it loads only when a drill starts.
+const Drill = lazy(() => import('./Drill'));
 
 const PRESET_LABEL: Record<Preset, string> = {
   leeches: 'Leeches',
@@ -87,6 +88,7 @@ export function ItemsView({ items, accuracy, recentLeeches, now }: ViewProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [visible, setVisible] = useState<Item[]>([]);
   const [copied, setCopied] = useState<{ text: string; list: Item[] }>();
+  const [drilling, setDrilling] = useState<Item[] | null>(null);
   const [toKana, setToKana] = useState<(s: string) => string>();
 
   // Romaji search needs wanakana; fetch it only once someone types latin letters.
@@ -199,14 +201,14 @@ export function ItemsView({ items, accuracy, recentLeeches, now }: ViewProps) {
       )}
 
       <div className={styles.actions}>
-        <a
-          href={EXTRA_STUDY_URL}
-          target="_blank"
-          rel="noreferrer"
+        <button
+          type="button"
           className={`${buttonClass('primary')} ${styles.drill}`}
+          onClick={() => setDrilling(visible)}
+          disabled={shown.length === 0}
         >
-          Drill in Extra Study <ExternalIcon />
-        </a>
+          Drill {plural(visible.length, 'item')}
+        </button>
         <button
           type="button"
           className={buttonClass('secondary')}
@@ -221,6 +223,11 @@ export function ItemsView({ items, accuracy, recentLeeches, now }: ViewProps) {
       </p>
 
       <ItemSheet subject={selected} byId={byId} onClose={() => setSelected(null)} />
+      {drilling && (
+        <Suspense>
+          <Drill items={drilling} onClose={() => setDrilling(null)} />
+        </Suspense>
+      )}
     </>
   );
 }
