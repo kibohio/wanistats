@@ -136,3 +136,39 @@ test('the item sheet moves to related items and back', async () => {
   await user.click(screen.getByRole('button', { name: 'Back to End' }));
   expect(screen.getByRole('dialog', { name: 'End' })).toBeInTheDocument();
 });
+
+test('the drill grades answers, requeues misses and offers them again', async () => {
+  const user = userEvent.setup();
+  render(<ItemsView items={items} accuracy={report} recentLeeches={false} now={now} />);
+
+  await user.click(screen.getByRole('button', { name: 'Drill 1 item' }));
+  const sheet = await screen.findByRole('dialog', { name: 'Drill' });
+  const answer = () => within(sheet).getByRole('textbox');
+  expect(answer()).toHaveFocus();
+  expect(within(sheet).getByText('2 questions left')).toBeInTheDocument();
+
+  await user.type(answer(), 'nope{Enter}');
+  expect(within(sheet).getByRole('status')).toHaveTextContent(/^Not quite\./);
+  await user.keyboard('{Enter}');
+  expect(within(sheet).getByText('2 questions left')).toBeInTheDocument();
+
+  // Romaji turns into kana as it is typed.
+  while (screen.queryByRole('dialog', { name: 'Drill' })) {
+    const reading = within(sheet).queryByLabelText(/reading/);
+    if (reading === answer()) {
+      await user.type(answer(), 'matsu');
+      expect(answer()).toHaveValue('まつ');
+    } else {
+      await user.type(answer(), 'end');
+    }
+    await user.keyboard('{Enter}');
+    expect(within(sheet).getByRole('status')).toHaveTextContent('Correct');
+    await user.keyboard('{Enter}');
+  }
+
+  const done = screen.getByRole('dialog', { name: 'Drill done' });
+  expect(within(done).getByText('0 of 1 item right first time')).toBeInTheDocument();
+  expect(within(done).getByText('2 of 3 answers right')).toBeInTheDocument();
+  await user.click(within(done).getByRole('button', { name: 'Drill missed items again' }));
+  expect(screen.getByRole('dialog', { name: 'Drill' })).toBeInTheDocument();
+});

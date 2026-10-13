@@ -1,0 +1,113 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 8px;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+}
+
+.progress,
+.sub {
+  color: var(--ink-3);
+  font-size: var(--text-caption);
+}
+
+.glyph {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+/* Bigger than the item sheet's large glyph: the character is the whole question. */
+.glyph > * {
+  min-width: 112px;
+  height: 112px;
+  padding-inline: 12px !important;
+  font-size: 64px;
+}
+
+.prompt {
+  color: var(--ink-2);
+  text-align: center;
+}
+
+.input {
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--text-input);
+  text-align: center;
+}
+
+.input[data-verdict='correct'],
+.input[data-verdict='typo'] {
+  border-color: var(--srs-master);
+  box-shadow: inset 0 0 0 1px var(--srs-master);
+}
+
+.input[data-verdict='wrong'] {
+  border-color: var(--attention);
+  box-shadow: inset 0 0 0 1px var(--attention);
+}
+
+/* Holds its line when empty so the button doesn't jump between questions. */
+.status {
+  min-height: calc(1em * var(--leading-body));
+  color: var(--ink-2);
+  text-align: center;
+}
+
+.status[data-verdict='correct'],
+.status[data-verdict='typo'] {
+  color: var(--srs-master);
+}
+
+.status[data-verdict='wrong'] {
+  color: var(--attention-text);
+}
+
+.score {
+  font-size: var(--text-heading);
+  font-weight: 700;
+}
+
+.missed h3 {
+  margin-bottom: 8px;
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.missed ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.missed li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actions > * {
+  flex: 1 1 auto;
+}
