@@ -9,6 +9,10 @@ WaniStats is a static site. `pnpm build` writes everything to `dist/`.
 
 Keep `public/_headers` and `netlify.toml` in step when either changes.
 
+CI fails if `wrangler.jsonc` gains a Worker script (`main`, `assets.run_worker_first` or
+`assets.binding`; checked by `scripts/ci/assets-only.mjs`). Static asset requests are free on
+Workers Paid; a script would make every request a billed invocation.
+
 ## Cloudflare
 
 CI deploys: every push to `main` deploys production to `wanistats.com`, and every pull request from
