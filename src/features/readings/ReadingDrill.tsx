@@ -3,7 +3,7 @@ import { toKana } from 'wanakana';
 import { buttonClass } from '../../components/Button';
 import { Sheet } from '../../components/Sheet';
 import { Tile } from '../../components/Tile';
-import { advance, type DrillState } from '../../domain/drill';
+import { advance, shuffle, type DrillState } from '../../domain/drill';
 import { checkReading, type ReadingLeech, type ReadingVerdict } from '../../domain/onyomi';
 import { plural } from '../../format';
 import styles from '../items/Drill.module.css';
@@ -17,7 +17,7 @@ const NEAR_MISS = {
   onyomi: "WaniKani doesn't accept that on'yomi here.",
 };
 
-/** Worst first; a miss comes back later until it is answered right. Nothing is saved. */
+/** Random order; a miss comes back later until it is answered right. Nothing is saved. */
 export default function ReadingDrill({
   leeches,
   onClose,
@@ -188,7 +188,7 @@ export default function ReadingDrill({
 }
 
 const start = (leeches: ReadingLeech[]): DrillState => ({
-  queue: leeches.map((l) => ({ itemId: l.subjectId, kind: 'reading' })),
+  queue: shuffle(leeches.map((l) => ({ itemId: l.subjectId, kind: 'reading' }))),
   missed: [],
   answers: 0,
   correct: 0,

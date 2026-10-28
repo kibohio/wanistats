@@ -25,13 +25,18 @@ export const REQUEUE_GAP = 4;
 export const kindsFor = (item: Item): QuestionKind[] =>
   item.readings.length ? ['meaning', 'reading'] : ['meaning'];
 
+/** Fisher-Yates, in place. */
+export function shuffle<T>(list: T[], random: () => number = Math.random): T[] {
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [list[i], list[j]] = [list[j]!, list[i]!];
+  }
+  return list;
+}
+
 export function startDrill(items: Item[], random: () => number = Math.random): DrillState {
   const queue = items.flatMap((i) => kindsFor(i).map((kind) => ({ itemId: i.id, kind })));
-  for (let i = queue.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [queue[i], queue[j]] = [queue[j]!, queue[i]!];
-  }
-  return { queue, missed: [], answers: 0, correct: 0 };
+  return { queue: shuffle(queue, random), missed: [], answers: 0, correct: 0 };
 }
 
 /** Takes the current question off the queue; a wrong one goes back in further down. */
