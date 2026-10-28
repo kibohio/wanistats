@@ -22,9 +22,12 @@
   color: var(--ink-3);
 }
 
+/* As many columns as fit, so desktop shows the list without much scrolling. */
 .list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  align-items: start;
+  column-gap: 24px;
   margin: 12px 0;
   padding: 0;
   list-style: none;
@@ -35,29 +38,24 @@
   grid-template-columns: 40px 1fr;
   align-items: start;
   gap: 12px;
-  padding-top: 8px;
+  padding: 8px 0 10px;
   border-bottom: 1px solid var(--line);
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  min-height: 40px;
-  padding-bottom: 8px;
-  font-size: var(--text-caption);
-  color: var(--ink-2);
-  cursor: pointer;
-  list-style: none;
-}
-
-.row::-webkit-details-marker {
-  display: none;
-}
-
+/* One line each, so every card in the grid is the same height. */
 .text {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  font-size: var(--text-caption);
+  color: var(--ink-2);
+}
+
+.text > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .meaning {
@@ -67,9 +65,7 @@
 }
 
 .anchor {
-  padding: 0 0 12px;
   font-size: var(--text-body);
-  color: var(--ink-2);
 }
 
 .drill {

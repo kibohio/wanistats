@@ -51,8 +51,7 @@ export function ReadingsScreen() {
           <div className={styles.intro}>
             <p>
               Up to {LIST_SIZE} kanji whose on&apos;yomi you miss most, worst first. Each comes with
-              a word that uses the reading, preferring words you already know. Tap a row to see the
-              word.
+              a word that uses the reading, preferring words you already know.
             </p>
             <p>
               Only kanji up to the chosen SRS stage are listed. Guru 2 is the default, since kanji
@@ -89,22 +88,18 @@ export function ReadingsScreen() {
                         onClick={() => setOpen(l.subjectId)}
                       />
                     </Tooltip>
-                    <details>
-                      <summary className={styles.row}>
-                        <span className={styles.text}>
-                          <span className={styles.meaning}>
-                            {l.meaning} <span lang="ja">{l.targetReadings.join('、')}</span>
-                          </span>
-                          <span>
-                            {Math.round(l.readingAccuracy * 100)}% reading accuracy ·{' '}
-                            {plural(l.readingIncorrect, 'miss', 'misses')} · {stageName(l.srsStage)}
-                          </span>
-                        </span>
-                      </summary>
-                      <p className={styles.anchor}>
-                        {l.anchor ? <AnchorLine leech={l} /> : 'No compound word found.'}
-                      </p>
-                    </details>
+                    <div className={styles.text}>
+                      <span className={styles.meaning}>
+                        {l.meaning} <span lang="ja">{l.targetReadings.join('、')}</span>
+                      </span>
+                      <span>
+                        {Math.round(l.readingAccuracy * 100)}% reading accuracy ·{' '}
+                        {plural(l.readingIncorrect, 'miss', 'misses')} · {stageName(l.srsStage)}
+                      </span>
+                      <span className={styles.anchor}>
+                        {l.anchor ? <AnchorLine leech={l} /> : 'No compound word found'}
+                      </span>
+                    </div>
                   </li>
                 ))}
               </ol>
