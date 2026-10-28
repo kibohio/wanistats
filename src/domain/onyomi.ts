@@ -57,7 +57,8 @@ function stageWeight(stage: number): number {
 
 /**
  * A word that shows one of the target on'yomi. Words the user knows best come first, since
- * they anchor the reading in something familiar; then shorter words, then lower levels.
+ * they anchor the reading in something familiar; then lower levels, so the word is reachable,
+ * then shorter words.
  */
 export function findAnchor(
   kanji: KanjiResource,
@@ -83,8 +84,8 @@ export function findAnchor(
     .sort(
       (a, b) =>
         stage(b) - stage(a) ||
-        a.data.characters!.length - b.data.characters!.length ||
         a.data.level - b.data.level ||
+        a.data.characters!.length - b.data.characters!.length ||
         Number(!shows(primary(a)!.reading)) - Number(!shows(primary(b)!.reading)),
     );
   if (!best) return undefined;

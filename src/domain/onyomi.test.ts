@@ -120,7 +120,7 @@ describe('readingLeeches', () => {
     expect(r.leeches[0]!.score).toBeCloseTo(1.35);
   });
 
-  it('anchors to the shortest, lowest level word that shows the on’yomi', () => {
+  it('anchors to the lowest level word that shows the on’yomi', () => {
     expect(report.leeches[0]!.anchor).toEqual({
       characters: '保険',
       reading: 'ほけん',
@@ -142,6 +142,17 @@ describe('findAnchor', () => {
       ].map((w) => [w.id, w]),
     );
     expect(findAnchor(k, v)?.characters).toBe('以上');
+  });
+
+  it('prefers a lower level word over a shorter one', () => {
+    const k = makeKanji(1, '放', [on('ほう')], [101, 102]);
+    const v = new Map(
+      [makeWord(101, '放射', 'ほうしゃ', 34), makeWord(102, '放課後', 'ほうかご', 9)].map((w) => [
+        w.id,
+        w,
+      ]),
+    );
+    expect(findAnchor(k, v)?.characters).toBe('放課後');
   });
 
   it('prefers the word the user knows best, even if longer or later', () => {
