@@ -125,6 +125,7 @@ describe('readingLeeches', () => {
       characters: '保険',
       reading: 'ほけん',
       meaning: 'w104',
+      level: 10,
     });
     expect(report.leeches[1]!.anchor).toBeUndefined();
   });
@@ -141,6 +142,27 @@ describe('findAnchor', () => {
       ].map((w) => [w.id, w]),
     );
     expect(findAnchor(k, v)?.characters).toBe('以上');
+  });
+
+  it('prefers the word the user knows best, even if longer or later', () => {
+    const k = makeKanji(1, '保', [on('ほ')], [101, 102]);
+    const v = new Map(
+      [makeWord(101, '保険', 'ほけん', 3), makeWord(102, '保護者', 'ほごしゃ', 20)].map((w) => [
+        w.id,
+        w,
+      ]),
+    );
+    expect(findAnchor(k, v)?.characters).toBe('保険');
+    expect(
+      findAnchor(
+        k,
+        v,
+        new Map([
+          [102, 7],
+          [101, 2],
+        ]),
+      )?.characters,
+    ).toBe('保護者');
   });
 });
 

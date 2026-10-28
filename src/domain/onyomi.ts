@@ -17,6 +17,7 @@ export interface Anchor {
   characters: string;
   reading: string;
   meaning: string;
+  level: number;
 }
 
 export interface ReadingLeech {
@@ -54,11 +55,16 @@ function stageWeight(stage: number): number {
   return 0.1;
 }
 
-/** A two-character word that shows one of the target on'yomi, lowest level first. */
+/**
+ * A word that shows one of the target on'yomi. Words the user knows best come first, since
+ * they anchor the reading in something familiar; then shorter words, then lower levels.
+ */
 export function findAnchor(
   kanji: KanjiResource,
   vocab: Map<number, VocabularyResource>,
+  stages: Map<number, number> = new Map(),
 ): Anchor | undefined {
+  const stage = (v: VocabularyResource) => stages.get(v.id) ?? 0;
   const targets = kanji.data.readings.filter(isTarget).map((r) => r.reading);
   const primary = (v: VocabularyResource) =>
     v.data.readings.find((r) => r.primary) ?? v.data.readings[0];
@@ -76,6 +82,7 @@ export function findAnchor(
     )
     .sort(
       (a, b) =>
+        stage(b) - stage(a) ||
         a.data.characters!.length - b.data.characters!.length ||
         a.data.level - b.data.level ||
         Number(!shows(primary(a)!.reading)) - Number(!shows(primary(b)!.reading)),
@@ -85,6 +92,7 @@ export function findAnchor(
     characters: best.data.characters!,
     reading: primary(best)!.reading,
     meaning: (best.data.meanings.find((m) => m.primary) ?? best.data.meanings[0])?.meaning ?? '',
+    level: best.data.level,
   };
 }
 
@@ -134,7 +142,7 @@ export function readingLeeches(input: {
 
   report.leeches.sort((a, b) => b.score - a.score || a.subjectId - b.subjectId);
   report.leeches = report.leeches.slice(0, LIST_SIZE);
-  for (const l of report.leeches) l.anchor = findAnchor(kanjiById.get(l.subjectId)!, vocab);
+  for (const l of report.leeches) l.anchor = findAnchor(kanjiById.get(l.subjectId)!, vocab, stages);
   return report;
 }
 

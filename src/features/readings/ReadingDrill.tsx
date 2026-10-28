@@ -149,7 +149,8 @@ export default function ReadingDrill({
             {showWord ? (
               // The word's reading would give the answer away.
               <>
-                <span lang="ja">{leech.anchor.characters}</span> · {leech.anchor.meaning}
+                <span lang="ja">{leech.anchor.characters}</span> · {leech.anchor.meaning} (WK{' '}
+                {leech.anchor.level})
               </>
             ) : (
               <button

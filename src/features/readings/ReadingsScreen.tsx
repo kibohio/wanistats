@@ -112,7 +112,7 @@ export function AnchorLine({ leech: { anchor } }: { leech: ReadingLeech }) {
       <span lang="ja">
         {anchor.characters} ({anchor.reading})
       </span>{' '}
-      · {anchor.meaning}
+      · {anchor.meaning} (WK {anchor.level})
     </>
   );
 }
