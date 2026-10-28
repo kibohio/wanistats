@@ -127,6 +127,18 @@
   cursor: pointer;
 }
 
+/* Full width on phones, where the sidebar entry isn't shown. */
+.readingsLink {
+  white-space: normal;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .readingsLink {
+    align-self: flex-start;
+  }
+}
+
 .explainer details p + p {
   margin-top: 6px;
 }
