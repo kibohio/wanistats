@@ -1,4 +1,7 @@
-.headline {
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   font-size: var(--text-body);
   line-height: var(--leading-body);
   color: var(--ink-2);

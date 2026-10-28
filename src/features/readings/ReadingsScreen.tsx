@@ -7,7 +7,12 @@ import { Select } from '../../components/Select';
 import { Tile } from '../../components/Tile';
 import { Tooltip } from '../../components/Tooltip';
 import { useAssignments, useReviewStatistics, useSubjects } from '../../db/hooks';
-import { DEFAULT_MAX_STAGE, readingLeeches, type ReadingLeech } from '../../domain/onyomi';
+import {
+  DEFAULT_MAX_STAGE,
+  LIST_SIZE,
+  readingLeeches,
+  type ReadingLeech,
+} from '../../domain/onyomi';
 import { plural } from '../../format';
 import { stageName } from '../coverage/stage';
 import styles from './Readings.module.css';
@@ -43,11 +48,17 @@ export function ReadingsScreen() {
         <p className={styles.empty}>Kanji appear here once you have reviewed some.</p>
       ) : (
         <>
-          <p className={styles.headline}>
-            {report.readingIncorrect.toLocaleString()} reading errors vs{' '}
-            {report.meaningIncorrect.toLocaleString()} meaning errors across{' '}
-            {plural(report.kanji, 'kanji', 'kanji')}.
-          </p>
+          <div className={styles.intro}>
+            <p>
+              Up to {LIST_SIZE} kanji whose on&apos;yomi you miss most, worst first. Each comes with
+              a word that uses the reading, preferring words you already know. Tap a row to see the
+              word.
+            </p>
+            <p>
+              Only kanji up to the chosen SRS stage are listed. Guru 2 is the default, since kanji
+              at Master and above have mostly stuck.
+            </p>
+          </div>
           <div className={styles.filter}>
             <label htmlFor="readings-stage">Up to</label>
             <Select

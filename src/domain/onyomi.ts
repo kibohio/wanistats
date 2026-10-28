@@ -37,9 +37,8 @@ export interface ReadingLeech {
 }
 
 export interface ReadingReport {
+  /** Kanji with review history at any stage, so an empty list can say why it is empty. */
   kanji: number;
-  readingIncorrect: number;
-  meaningIncorrect: number;
   /** Worst first, at most LIST_SIZE. */
   leeches: ReadingLeech[];
 }
@@ -100,7 +99,7 @@ export function readingLeeches(input: {
   subjects: SubjectResource[];
   assignments: AssignmentResource[];
   stats: ReviewStatisticResource[];
-  /** Highest srs_stage to list; the headline totals still count every kanji. */
+  /** Highest srs_stage to list. */
   maxStage?: number;
 }): ReadingReport {
   const { maxStage = 9 } = input;
@@ -112,13 +111,11 @@ export function readingLeeches(input: {
   }
   const stages = new Map(input.assignments.map((a) => [a.data.subject_id, a.data.srs_stage]));
 
-  const report: ReadingReport = { kanji: 0, readingIncorrect: 0, meaningIncorrect: 0, leeches: [] };
+  const report: ReadingReport = { kanji: 0, leeches: [] };
   for (const { data: s } of input.stats) {
     const kanji = kanjiById.get(s.subject_id);
     if (s.hidden || !kanji) continue;
     report.kanji++;
-    report.readingIncorrect += s.reading_incorrect;
-    report.meaningIncorrect += s.meaning_incorrect;
 
     const attempts = s.reading_correct + s.reading_incorrect;
     const targets = kanji.data.readings.filter(isTarget);

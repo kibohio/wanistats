@@ -89,10 +89,6 @@ describe('readingLeeches', () => {
   ];
   const report = readingLeeches({ subjects, assignments, stats });
 
-  it('totals errors across every kanji with history', () => {
-    expect(report).toMatchObject({ kanji: 4, readingIncorrect: 44, meaningIncorrect: 4 });
-  });
-
   it('ranks by misses, accuracy and stage, skipping kun-only and noisy kanji', () => {
     // 保: 18 * 0.75 * 0.8 = 10.8. 試: 5 * (1/3) * 1 = 1.67.
     expect(report.leeches.map((l) => l.characters)).toEqual(['保', '試']);
