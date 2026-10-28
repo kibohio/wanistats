@@ -1,12 +1,15 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { buttonClass } from '../../components/Button';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { Select } from '../../components/Select';
 import { Tile } from '../../components/Tile';
 import { useAssignments, useReviewStatistics, useSubjects } from '../../db/hooks';
-import { readingLeeches, type ReadingLeech } from '../../domain/onyomi';
+import { DEFAULT_MAX_STAGE, readingLeeches, type ReadingLeech } from '../../domain/onyomi';
 import { plural } from '../../format';
 import { stageName } from '../coverage/stage';
 import styles from './Readings.module.css';
+
+const STAGE_OPTIONS = [4, 6, 7, 8, 9];
 
 // Pulls in wanakana, so it loads only when a drill starts.
 const ReadingDrill = lazy(() => import('./ReadingDrill'));
@@ -16,10 +19,15 @@ export function ReadingsScreen() {
   const subjects = useSubjects();
   const assignments = useAssignments();
   const stats = useReviewStatistics();
+  const [maxStage, setMaxStage] = useState(DEFAULT_MAX_STAGE);
   const [drilling, setDrilling] = useState<ReadingLeech[] | null>(null);
   const report = useMemo(
-    () => subjects && assignments && stats && readingLeeches({ subjects, assignments, stats }),
-    [subjects, assignments, stats],
+    () =>
+      subjects &&
+      assignments &&
+      stats &&
+      readingLeeches({ subjects, assignments, stats, maxStage }),
+    [subjects, assignments, stats, maxStage],
   );
 
   return (
@@ -36,6 +44,20 @@ export function ReadingsScreen() {
             {report.meaningIncorrect.toLocaleString()} meaning errors across{' '}
             {plural(report.kanji, 'kanji', 'kanji')}.
           </p>
+          <div className={styles.filter}>
+            <label htmlFor="readings-stage">Up to</label>
+            <Select
+              id="readings-stage"
+              value={maxStage}
+              onChange={(e) => setMaxStage(Number(e.target.value))}
+            >
+              {STAGE_OPTIONS.map((stage) => (
+                <option key={stage} value={stage}>
+                  {stageName(stage)}
+                </option>
+              ))}
+            </Select>
+          </div>
           {report.leeches.length === 0 ? (
             <p className={styles.empty}>No kanji with on&apos;yomi trouble right now.</p>
           ) : (

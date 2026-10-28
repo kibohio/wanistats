@@ -9,6 +9,8 @@ import type {
 import { hiragana } from './items';
 
 export const LIST_SIZE = 25;
+/** Guru 2: Master and up are mostly settled. */
+export const DEFAULT_MAX_STAGE = 6;
 const MIN_READING_MISSES = 2;
 
 export interface Anchor {
@@ -90,7 +92,10 @@ export function readingLeeches(input: {
   subjects: SubjectResource[];
   assignments: AssignmentResource[];
   stats: ReviewStatisticResource[];
+  /** Highest srs_stage to list; the headline totals still count every kanji. */
+  maxStage?: number;
 }): ReadingReport {
+  const { maxStage = 9 } = input;
   const kanjiById = new Map<number, KanjiResource>();
   const vocab = new Map<number, VocabularyResource>();
   for (const s of input.subjects) {
@@ -110,7 +115,7 @@ export function readingLeeches(input: {
     const attempts = s.reading_correct + s.reading_incorrect;
     const targets = kanji.data.readings.filter(isTarget);
     const srsStage = stages.get(s.subject_id);
-    if (!attempts || !targets.length || srsStage === undefined) continue;
+    if (!attempts || !targets.length || srsStage === undefined || srsStage > maxStage) continue;
     if (s.reading_incorrect < MIN_READING_MISSES) continue;
     const readingAccuracy = s.reading_correct / attempts;
     report.leeches.push({

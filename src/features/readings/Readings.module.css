@@ -4,6 +4,15 @@
   color: var(--ink-2);
 }
 
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: var(--text-caption);
+  color: var(--ink-3);
+}
+
 .empty {
   padding: 16px 0;
   font-size: var(--text-body);

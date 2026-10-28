@@ -105,6 +105,12 @@ describe('readingLeeches', () => {
     expect(report.leeches[0]!.score).toBeCloseTo(10.8);
   });
 
+  it('lists only kanji up to the chosen stage', () => {
+    const r = readingLeeches({ subjects, assignments, stats, maxStage: 4 });
+    expect(r.leeches.map((l) => l.characters)).toEqual(['試']);
+    expect(r.kanji).toBe(4);
+  });
+
   it('weights burned items down without dropping them', () => {
     const r = readingLeeches({
       subjects,
