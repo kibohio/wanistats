@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { buttonClass } from '../../components/Button';
 import { Chip } from '../../components/Chip';
@@ -238,6 +239,9 @@ function LeechExplainer({ recent }: { recent: boolean }) {
       <p>
         Items you keep missing, worst first. Anything from the last 7 days of lessons is skipped,
         since early misses are normal.
+      </p>
+      <p>
+        Mostly missing kanji readings? <Link to="/readings">Drill on&apos;yomi</Link>
       </p>
       <details>
         <summary>How the score works</summary>

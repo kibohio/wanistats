@@ -17,6 +17,7 @@ import { Route as KanjiRouteImport } from './routes/kanji'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PaceRouteImport } from './routes/pace'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ReadingsRouteImport } from './routes/readings'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TimelineRouteImport } from './routes/timeline'
@@ -62,6 +63,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReadingsRoute = ReadingsRouteImport.update({
+  id: '/readings',
+  path: '/readings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/pace': typeof PaceRoute
   '/privacy': typeof PrivacyRoute
+  '/readings': typeof ReadingsRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/timeline': typeof TimelineRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/pace': typeof PaceRoute
   '/privacy': typeof PrivacyRoute
+  '/readings': typeof ReadingsRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/timeline': typeof TimelineRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/pace': typeof PaceRoute
   '/privacy': typeof PrivacyRoute
+  '/readings': typeof ReadingsRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/timeline': typeof TimelineRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/pace'
     | '/privacy'
+    | '/readings'
     | '/settings'
     | '/terms'
     | '/timeline'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/pace'
     | '/privacy'
+    | '/readings'
     | '/settings'
     | '/terms'
     | '/timeline'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/pace'
     | '/privacy'
+    | '/readings'
     | '/settings'
     | '/terms'
     | '/timeline'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PaceRoute: typeof PaceRoute
   PrivacyRoute: typeof PrivacyRoute
+  ReadingsRoute: typeof ReadingsRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
   TimelineRoute: typeof TimelineRoute
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/readings': {
+      id: '/readings'
+      path: '/readings'
+      fullPath: '/readings'
+      preLoaderRoute: typeof ReadingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -284,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PaceRoute: PaceRoute,
   PrivacyRoute: PrivacyRoute,
+  ReadingsRoute: ReadingsRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
   TimelineRoute: TimelineRoute,
