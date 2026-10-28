@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { expect, test } from 'vitest';
+import type { ReactNode } from 'react';
+import { expect, test, vi } from 'vitest';
 import type { AccuracyBreakdown, AccuracyReport } from '../../domain/accuracy';
 import type { Item } from '../../domain/items';
 import { ItemsView } from './ItemsScreen';
@@ -8,6 +9,10 @@ import { ItemsView } from './ItemsScreen';
 const now = Date.UTC(2026, 9, 1, 12);
 // jsdom lacks scrollTo, which the window virtualizer calls while measuring.
 window.scrollTo = () => {};
+// ItemsView renders without a router here.
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ to, children }: { to: string; children: ReactNode }) => <a href={to}>{children}</a>,
+}));
 
 function item(
   id: number,

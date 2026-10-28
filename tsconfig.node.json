@@ -4,6 +4,7 @@
     "target": "ES2023",
     "lib": ["ES2023"],
     "module": "ESNext",
+    "resolveJsonModule": true,
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "types": ["node"],

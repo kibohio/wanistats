@@ -1,0 +1,74 @@
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--ink-2);
+}
+
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: var(--text-caption);
+  color: var(--ink-3);
+}
+
+.empty {
+  padding: 16px 0;
+  font-size: var(--text-body);
+  color: var(--ink-3);
+}
+
+/* As many columns as fit, so desktop shows the list without much scrolling. */
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  align-items: start;
+  column-gap: 24px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: start;
+  gap: 12px;
+  padding: 8px 0 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* One line each, so every card in the grid is the same height. */
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: var(--text-caption);
+  color: var(--ink-2);
+}
+
+.text > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meaning {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.anchor {
+  font-size: var(--text-body);
+}
+
+.drill {
+  width: 100%;
+  min-height: 46px;
+}
