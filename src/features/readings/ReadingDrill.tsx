@@ -26,6 +26,7 @@ export default function ReadingDrill({
   onClose: () => void;
 }) {
   const [state, setState] = useState(() => start(leeches));
+  const [showWord, setShowWord] = useState(false);
   const [value, setValue] = useState('');
   const [graded, setGraded] = useState<Graded | null>(null);
   const [hint, setHint] = useState('');
@@ -43,6 +44,7 @@ export default function ReadingDrill({
     if (!leech) return;
     if (graded) {
       setState(advance(state, graded.kind === 'correct' ? 'correct' : 'wrong'));
+      setShowWord(false);
       setGraded(null);
       setValue('');
       return;
@@ -142,6 +144,27 @@ export default function ReadingDrill({
         <p role="status" className={styles.status} data-verdict={verdict ?? undefined}>
           {status}
         </p>
+        {!graded && leech.anchor && (
+          <p className={styles.prompt}>
+            {showWord ? (
+              // The word's reading would give the answer away.
+              <>
+                <span lang="ja">{leech.anchor.characters}</span> · {leech.anchor.meaning}
+              </>
+            ) : (
+              <button
+                type="button"
+                className={buttonClass('secondary', true)}
+                onClick={() => {
+                  setShowWord(true);
+                  inputRef.current?.focus();
+                }}
+              >
+                Show a word that uses it
+              </button>
+            )}
+          </p>
+        )}
         {graded && (
           <p className={styles.prompt}>
             <span lang="ja">
