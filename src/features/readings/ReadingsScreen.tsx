@@ -3,7 +3,7 @@ import { buttonClass } from '../../components/Button';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { Tile } from '../../components/Tile';
 import { useAssignments, useReviewStatistics, useSubjects } from '../../db/hooks';
-import { DRILL_SIZE, readingLeeches, type ReadingLeech } from '../../domain/onyomi';
+import { readingLeeches, type ReadingLeech } from '../../domain/onyomi';
 import { plural } from '../../format';
 import { stageName } from '../coverage/stage';
 import styles from './Readings.module.css';
@@ -66,9 +66,9 @@ export function ReadingsScreen() {
               <button
                 type="button"
                 className={`${buttonClass('primary')} ${styles.drill}`}
-                onClick={() => setDrilling(report.leeches.slice(0, DRILL_SIZE))}
+                onClick={() => setDrilling(report.leeches)}
               >
-                Drill these
+                Drill {plural(report.leeches.length, 'kanji', 'kanji')}
               </button>
             </>
           )}

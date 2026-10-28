@@ -3,6 +3,7 @@ import { toKana } from 'wanakana';
 import { buttonClass } from '../../components/Button';
 import { Sheet } from '../../components/Sheet';
 import { Tile } from '../../components/Tile';
+import { advance, type DrillState } from '../../domain/drill';
 import { checkReading, type ReadingLeech, type ReadingVerdict } from '../../domain/onyomi';
 import { plural } from '../../format';
 import styles from '../items/Drill.module.css';
@@ -16,7 +17,7 @@ const NEAR_MISS = {
   onyomi: "WaniKani doesn't accept that on'yomi here.",
 };
 
-/** One pass over the leeches, worst first. Nothing is saved. */
+/** Worst first; a miss comes back later until it is answered right. Nothing is saved. */
 export default function ReadingDrill({
   leeches,
   onClose,
@@ -24,14 +25,14 @@ export default function ReadingDrill({
   leeches: ReadingLeech[];
   onClose: () => void;
 }) {
-  const [index, setIndex] = useState(0);
-  const [correct, setCorrect] = useState(0);
+  const [state, setState] = useState(() => start(leeches));
   const [value, setValue] = useState('');
   const [graded, setGraded] = useState<Graded | null>(null);
   const [hint, setHint] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const leech = leeches[index];
+  const byId = new Map(leeches.map((l) => [l.subjectId, l]));
+  const leech = state.queue[0] && byId.get(state.queue[0].itemId);
   // Runs after the sheet focuses its close button, so typing can start straight away.
   useEffect(() => {
     if (leech) inputRef.current?.focus();
@@ -41,7 +42,7 @@ export default function ReadingDrill({
     e.preventDefault();
     if (!leech) return;
     if (graded) {
-      setIndex(index + 1);
+      setState(advance(state, graded.kind === 'correct' ? 'correct' : 'wrong'));
       setGraded(null);
       setValue('');
       return;
@@ -55,24 +56,50 @@ export default function ReadingDrill({
     setValue(answer);
     setGraded(verdict);
     setHint('');
-    if (verdict.kind === 'correct') setCorrect(correct + 1);
   };
 
-  if (!leech)
+  if (!leech) {
+    const missed = state.missed.flatMap((id) => byId.get(id) ?? []);
     return (
       <Sheet open onClose={onClose} className={styles.sheet} title="Drill done">
         <div className={styles.body}>
           <p className={styles.score}>
-            {correct} of {plural(leeches.length, 'reading')} right
+            {leeches.length - missed.length} of {plural(leeches.length, 'reading')} right first time
           </p>
+          <p className={styles.sub}>
+            {state.correct} of {plural(state.answers, 'answer')} right
+          </p>
+          {missed.length > 0 && (
+            <section aria-label="Missed" className={styles.missed}>
+              <h3>Missed</h3>
+              <ul>
+                {missed.map((l) => (
+                  <li key={l.subjectId}>
+                    <Tile char={l.characters} srsStage={l.srsStage} size={44} />
+                    <span lang="ja">{l.targetReadings.join('、')}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <div className={styles.actions}>
-            <button type="button" className={buttonClass('primary')} onClick={onClose}>
+            {missed.length > 0 && (
+              <button
+                type="button"
+                className={buttonClass('primary')}
+                onClick={() => setState(start(missed))}
+              >
+                Drill missed kanji again
+              </button>
+            )}
+            <button type="button" className={buttonClass('secondary')} onClick={onClose}>
               Done
             </button>
           </div>
         </div>
       </Sheet>
     );
+  }
 
   const verdict = graded?.kind === 'correct' ? 'correct' : graded && 'wrong';
   const status =
@@ -87,9 +114,7 @@ export default function ReadingDrill({
   return (
     <Sheet open onClose={onClose} className={styles.sheet} title="On'yomi drill">
       <form className={styles.body} onSubmit={submit}>
-        <p className={styles.progress}>
-          {index + 1} of {leeches.length}
-        </p>
+        <p className={styles.progress}>{plural(state.queue.length, 'question')} left</p>
         <div className={styles.glyph} lang="ja">
           <Tile char={leech.characters} srsStage={leech.srsStage} />
         </div>
@@ -137,3 +162,10 @@ export default function ReadingDrill({
     </Sheet>
   );
 }
+
+const start = (leeches: ReadingLeech[]): DrillState => ({
+  queue: leeches.map((l) => ({ itemId: l.subjectId, kind: 'reading' })),
+  missed: [],
+  answers: 0,
+  correct: 0,
+});

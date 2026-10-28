@@ -8,8 +8,7 @@ import type {
 } from '../api/types';
 import { hiragana } from './items';
 
-export const LIST_SIZE = 15;
-export const DRILL_SIZE = 10;
+export const LIST_SIZE = 25;
 const MIN_READING_MISSES = 2;
 
 export interface Anchor {
