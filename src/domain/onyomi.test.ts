@@ -122,10 +122,10 @@ describe('readingLeeches', () => {
 
   it('anchors to the lowest level word that shows the on’yomi', () => {
     expect(report.leeches[0]!.anchor).toEqual({
-      characters: '保険',
-      reading: 'ほけん',
-      meaning: 'w104',
-      level: 10,
+      characters: '保存する',
+      reading: 'ほぞんする',
+      meaning: 'w102',
+      level: 5,
     });
     expect(report.leeches[1]!.anchor).toBeUndefined();
   });
@@ -142,6 +142,18 @@ describe('findAnchor', () => {
       ].map((w) => [w.id, w]),
     );
     expect(findAnchor(k, v)?.characters).toBe('以上');
+  });
+
+  it('keeps する verbs, with the bare noun first at the same level', () => {
+    const k = makeKanji(1, '配', [on('はい')], [101, 102, 103]);
+    const v = new Map(
+      [makeWord(101, '配達する', 'はいたつする', 18), makeWord(102, '配布', 'はいふ', 30)].map(
+        (w) => [w.id, w],
+      ),
+    );
+    expect(findAnchor(k, v)?.characters).toBe('配達する');
+    v.set(103, makeWord(103, '配達', 'はいたつ', 18));
+    expect(findAnchor(k, v)?.characters).toBe('配達');
   });
 
   it('prefers a lower level word over a shorter one', () => {

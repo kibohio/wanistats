@@ -78,7 +78,6 @@ export function findAnchor(
         !!v.characters &&
         v.characters.length >= 2 &&
         !/[〜～]/.test(v.characters) &&
-        !v.characters.endsWith('する') &&
         v.readings.some((r) => r.accepted_answer && shows(r.reading)),
     )
     .sort(
