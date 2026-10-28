@@ -1,8 +1,11 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { buttonClass } from '../../components/Button';
+import { ItemSheet } from '../../components/ItemSheet';
+import { SubjectTip } from '../../components/ItemTip';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { Select } from '../../components/Select';
 import { Tile } from '../../components/Tile';
+import { Tooltip } from '../../components/Tooltip';
 import { useAssignments, useReviewStatistics, useSubjects } from '../../db/hooks';
 import { DEFAULT_MAX_STAGE, readingLeeches, type ReadingLeech } from '../../domain/onyomi';
 import { plural } from '../../format';
@@ -20,6 +23,7 @@ export function ReadingsScreen() {
   const assignments = useAssignments();
   const stats = useReviewStatistics();
   const [maxStage, setMaxStage] = useState(DEFAULT_MAX_STAGE);
+  const [open, setOpen] = useState<number | null>(null);
   const [drilling, setDrilling] = useState<ReadingLeech[] | null>(null);
   const report = useMemo(
     () =>
@@ -64,10 +68,18 @@ export function ReadingsScreen() {
             <>
               <ol className={styles.list}>
                 {report.leeches.map((l) => (
-                  <li key={l.subjectId}>
+                  <li key={l.subjectId} className={styles.item}>
+                    <Tooltip content={<SubjectTip id={l.subjectId} char={l.characters} />}>
+                      <Tile
+                        char={l.characters}
+                        srsStage={l.srsStage}
+                        size={40}
+                        aria-label={`${l.characters}, ${stageName(l.srsStage)}`}
+                        onClick={() => setOpen(l.subjectId)}
+                      />
+                    </Tooltip>
                     <details>
                       <summary className={styles.row}>
-                        <Tile char={l.characters} srsStage={l.srsStage} size={40} />
                         <span className={styles.text}>
                           <span className={styles.meaning}>
                             {l.meaning} <span lang="ja">{l.targetReadings.join('、')}</span>
@@ -85,6 +97,7 @@ export function ReadingsScreen() {
                   </li>
                 ))}
               </ol>
+              <ItemSheet subject={open} onClose={() => setOpen(null)} />
               <button
                 type="button"
                 className={`${buttonClass('primary')} ${styles.drill}`}

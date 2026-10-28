@@ -27,17 +27,20 @@
   list-style: none;
 }
 
-.list li {
+.item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: start;
+  gap: 12px;
+  padding-top: 8px;
   border-bottom: 1px solid var(--line);
 }
 
 .row {
-  display: grid;
-  grid-template-columns: 40px 1fr;
+  display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 56px;
-  padding: 8px 0;
+  min-height: 40px;
+  padding-bottom: 8px;
   font-size: var(--text-caption);
   color: var(--ink-2);
   cursor: pointer;
@@ -61,7 +64,7 @@
 }
 
 .anchor {
-  padding: 0 0 12px 52px;
+  padding: 0 0 12px;
   font-size: var(--text-body);
   color: var(--ink-2);
 }
