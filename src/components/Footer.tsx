@@ -8,6 +8,7 @@ export function Footer() {
       <div className={styles.links}>
         <span>Built and maintained by {COMPANY}</span>
         <a href={SOURCE_URL}>Source on GitHub</a>
+        <a href={`${SOURCE_URL}/blob/main/CHANGELOG.md`}>Changelog (v{__APP_VERSION__})</a>
         <Link to="/about">About</Link>
         <Link to="/privacy">Privacy</Link>
         <Link to="/terms">Terms</Link>
