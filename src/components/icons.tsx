@@ -40,6 +40,7 @@ export const KanjiIcon = icon(
   </>,
 );
 export const ItemsIcon = icon(<path d="M9 6h11M9 12h11M9 18h11M4 6h1M4 12h1M4 18h1" />);
+export const ReadingsIcon = icon(<path d="M4 5h16v11H10l-5 4v-4H4z" />);
 export const RefreshIcon = icon(<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" />);
 export const PersonIcon = icon(
   <>
